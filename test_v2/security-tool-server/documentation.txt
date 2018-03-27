@@ -1,0 +1,6 @@
+0. UI frontend
+	- upload source code, send to server(http post request)
+		- no AJAX, simply django request
+	-server side
+		- store file in directory, request.FILE, execute compile python script
+	- pack exe files, send back to user
