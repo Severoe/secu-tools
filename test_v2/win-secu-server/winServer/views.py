@@ -1,3 +1,4 @@
+
 import os, tempfile, zipfile,tarfile, time
 from datetime import datetime
 from wsgiref.util import FileWrapper
@@ -9,6 +10,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import requests    #need pip install requests
 
+# hostserver = "http://192.168.27.131:8000/" #ip/port of the host server
 hostserver = "http://172.16.165.125:8000/" #ip/port of the host server
 
 @csrf_exempt
@@ -27,12 +29,14 @@ def execute(request):
 	print(request.FILES['file'])
 	############################################
 	# compilation work
+	srcpath = taskFolder+'\\'+filename
 	os.system("mkdir "+taskFolder+'\\'+'secu_compile_win') #this is the working dir for storing exe 
-	compileDir = taskFolder+'\\'+'secu_compile_win\\'
+	compileDir = taskFolder+'\\'+'secu_compile_win'
 	# compilation start here, store executables and logs
 	# into compileDir
-	#
-	#
+	print("python make_compilation.py " + srcpath + " " + compileDir)
+	cl = r'"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
+	os.system(cl + " && python make_compilation.py " + srcpath + " " + compileDir)
 	############################################
 	# send back exe archive to host by http request
 	responseFromHost,tmpzip = sendBackExe(taskFolder) # test purpose, replace hellomake later
