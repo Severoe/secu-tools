@@ -11,7 +11,9 @@ from django.views.decorators.csrf import csrf_exempt
 import requests    #need pip install requests
 
 # hostserver = "http://192.168.27.131:8000/" #ip/port of the host server
-hostserver = "http://172.16.165.125:8000/" #ip/port of the host server
+# hostserver = "http://172.16.165.125:8000/" #ip/port of the host server
+hostserver = "http://192.168.56.102:8000/" #ip/port of the host server on virtualbox
+
 
 @csrf_exempt
 def execute(request):

@@ -14,7 +14,8 @@ from django.conf import settings
 # Create your views here.
 ################################
 # global variables
-winurl = 'http://172.16.165.132:8000'
+# winurl = 'http://172.16.165.132:8000'
+winurl = 'http://192.168.56.101:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
 taskdir = 'Compilation_tasks/'
 # the datastructure  is stored in settings
