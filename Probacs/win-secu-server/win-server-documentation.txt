@@ -1,0 +1,7 @@
+
+- win server documentation
+- workflow log
+	- receive formed request from host server
+	- save file in specified directory(tmp dir, may deleted after sending back succeeed)
+	- // do some compilation work, follow what we did in linux server compilation
+	- pack dir, send back to host server, delete tmpzip.
