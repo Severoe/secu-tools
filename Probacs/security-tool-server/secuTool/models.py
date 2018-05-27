@@ -6,6 +6,29 @@ from django.contrib.auth.models import User
 
 MAX_UPLOAD_SIZE = 2500000
 
+
+
+class Compiler_conf(models.Model):
+	target_os = models.CharField(max_length=60)
+	compiler = models.CharField(max_length=60)
+	version = models.CharField(max_length=60)
+	ip = models.CharField(max_length=60)
+	port = models.CharField(max_length=20)
+	http_path = models.CharField(max_length=60)
+	invoke_format = models.TextField()
+
+class Profile_conf(models.Model):
+	uploader = models.CharField(max_length=200)
+	upload_time = models.DateTimeField()
+	name = models.CharField(max_length=200)
+	target_os = models.CharField(max_length=60)
+	compiler = models.CharField(max_length=60)
+	version = models.CharField(max_length=60)
+	flag = models.TextField()
+	
+
+
+
 class ProfileUser(models.Model):
     # user = models.ForeignKey(User)
     # bio = models.CharField(max_length=500)
