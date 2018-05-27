@@ -1,4 +1,5 @@
-# secu-tools: MITS security tool suite team summer project
+#secu-tools: MITS security tool suite team summer project
+
 
  - test v1 
  	-  This is the earliest demo version, which is compiling hard-coded single src-code on linux using gcc.
