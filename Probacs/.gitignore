@@ -18,6 +18,7 @@ local_settings.py
 *.gif
 *.jpeg
 *.png
+*.exe
 
 # Secret config parameters
 *.ini
