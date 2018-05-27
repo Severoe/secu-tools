@@ -34,7 +34,7 @@ class ProfileUser(models.Model):
     # bio = models.CharField(max_length=500)
     srcCodes = models.FileField(upload_to="hellomake", blank=True)
     content_type = models.CharField(max_length=50)  #file type
-
+    task_file = models.FileField(blank=True)
     def __unicode__(self):
         return 'id=' + str(self.id) + ',bio="' + self.content_type + '"'
 

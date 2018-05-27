@@ -39,15 +39,27 @@ def rcvSrc(request):
 	os.system("mkdir "+taskFolder)
 	context = {}
 	# handle bad submit request (attention, undergoing compilation info may be missing by rendering blank)
-	if 'srcCodes' not in request.FILES:
+	if 'srcCodes' not in request.FILES or 'task_file' not in request.FILES:
 		return redirect(home)
 	#save file in taskfolder
 	filename = request.FILES['srcCodes'].name
+	taskfile = request.FILES['task_file'].name
+	print(taskfile)
 	# print(filename)
 	srcPath = taskFolder+"/"+filename
+	taskPath = taskFolder+"/"+taskfile
 	with open(srcPath,'wb+') as dest:
 		for chunk in request.FILES['srcCodes'].chunks():
 			dest.write(chunk)
+	with open(taskPath,'wb+') as dest:
+		for chunk in request.FILES['task_file'].chunks():
+			dest.write(chunk)
+
+
+	#######################
+	# parse task file
+	#######################
+
 
 	context['form']  = ProfileUserForm()
 	context['message'] = 'file compile finished !'

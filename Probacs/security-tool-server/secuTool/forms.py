@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 class ProfileUserForm(forms.ModelForm):
     class Meta:
         model = ProfileUser
-        fields = ( 'srcCodes', )
+        fields = ( 'srcCodes', 'task_file')
         # widgets = {
         #     'bio': forms.Textarea(attrs={'cols': 70, 'rows': 10,}),
         # }

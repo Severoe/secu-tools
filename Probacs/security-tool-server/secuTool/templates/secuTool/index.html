@@ -10,7 +10,9 @@
 			<div class="upload-error">
                 {% if form.errors %} {{form.errors}} {% endif %}
             </div>
-			<div class="photo-upload">{{form.srcCodes}} </div>
+			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
+			<div class="" style="height: 10px;"></div>
 			<input type="submit" value="submit" class="submit-edition">
 			{% csrf_token %}
 		</form>
