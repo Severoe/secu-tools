@@ -1,4 +1,4 @@
 target_os:linux
 compiler:gcc
 version:6.7
-name=max_speed,max_optimization
+profile:max_speed,max_optimization
