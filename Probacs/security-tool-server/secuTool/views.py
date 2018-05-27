@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 import requests
 from django.conf import settings
-
+from parser import *
 # Create your views here.
 ################################
 # global variables
@@ -59,6 +59,16 @@ def rcvSrc(request):
 	#######################
 	# parse task file
 	#######################
+	message, param = parseTaskFile(taskPath)
+	if message != None:
+		context['form']  = ProfileUserForm()
+		context['message'] = message
+		return render(request, 'secuTool/index.html',context)
+
+	#form request format
+	task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
+		version=param['version'])
+
 
 
 	context['form']  = ProfileUserForm()
