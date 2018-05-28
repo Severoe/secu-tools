@@ -9,7 +9,8 @@ w_flags = ["-Wall", "-Wextra"]
 o_flags = ["-O0", "-O1", "-O2", "-O3"]
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    print(len(sys.argv))
+    if len(sys.argv) != 5:
         sys.stderr.write("Usage: python make_compilation <source file> <output dir>\n")
         sys.stderr.flush()
         exit(-1)

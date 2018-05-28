@@ -1,4 +1,5 @@
-import os, tempfile, zipfile,tarfile, time
+import os, tempfile, zipfile,tarfile, time,json
+from subprocess import Popen, PIPE
 from datetime import datetime
 from wsgiref.util import FileWrapper
 from django.shortcuts import render, redirect
@@ -15,7 +16,8 @@ from parser import *
 ################################
 # global variables
 # winurl = 'http://172.16.165.132:8000'
-winurl = 'http://192.168.56.101:8000' #winurl for virtualbox
+self_ip = 'http://192.168.56.101:8000'
+winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
 taskdir = 'Compilation_tasks/'
 # the datastructure  is stored in settings
@@ -60,6 +62,7 @@ def rcvSrc(request):
 	# parse task file
 	#######################
 	message, param = parseTaskFile(taskPath)
+	print(param)
 	if message != None:
 		context['form']  = ProfileUserForm()
 		context['message'] = message
@@ -68,17 +71,37 @@ def rcvSrc(request):
 	#form request format
 	task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
 		version=param['version'])
-
+	task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
+	# permute flags from diff flags
+	jsonDec = json.decoder.JSONDecoder()
+	# trueBoards = jsonDec.decode(flags)
+	flag_from_profile = []
+	for profile_name in param['profile']:
+		print(profile_name)
+		p_tmp = Profile_conf.objects.get(name=profile_name, target_os=param['target_os'],compiler=param['compiler'],
+			version=param['version'])
+		flag_from_profile.append(jsonDec.decode(p_tmp.flag))
+	compile_combination = [[]]
+	for x in flag_from_profile:
+		compile_combination = [i + [y] for y in x for i in compile_combination]
+	compile_combination = [" ".join(x) for x in compile_combination]
+	compile_combination = [x.replace(" ","_") for x in compile_combination]
+	final_flags = ",".join(compile_combination) 
+	print(compile_combination)
+	if task_http == self_ip:
+		## compile in this host linux
+		# specify working dir id
+		outputDir = taskFolder+"/"+"secu_compile"
+		print(final_flags)
+		os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
+		print("finished compile")
+		context['linux_taskFolder'] = taskName
 
 
 	context['form']  = ProfileUserForm()
 	context['message'] = 'file compile finished !'
 	print(filename)
-	# specify working dir id
-	outputDir = taskFolder+"/"+"secu_compile"
-	os.system("python make_compilation.py "+srcPath+" "+ outputDir)
-	print("finished compile")
-	context['linux_taskFolder'] = taskName
+
 
 	#add task into database, database approach
 	# taskRecord = Tasks(taskFolder=taskName, totalCompilation = 1, finishedCompilation = 1, status = 1)

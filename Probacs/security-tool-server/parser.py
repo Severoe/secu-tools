@@ -21,20 +21,24 @@ def parseTaskFile(filename):
         while True:
             line_no += 1
             line = file.readline()
+            # print(line)
             if not line:
                 break
-            if ':' not in line:
+            if ':' not in str(line):
                 msg = "Malformatted line %d: no ':'' found"%line_no
                 return msg, None
             
             tokens = filter(lambda x: x, line.split(":"))
             tokens = map(lambda x: x.strip(), tokens)
             
+            tokens = list(tokens)
+            # print(len(tokens)==2)
             if len(tokens) != 2:
                 msg = "Malformatted line %d: must be in key:value format"%line_no
                 return msg, None
             
-            key, value = tokens
+            key = tokens[0]
+            value = tokens[1]
             
             if key in d:
                 msg = "Duplicate key at line %d: %s already speficied"%(line_no, key)
@@ -43,7 +47,8 @@ def parseTaskFile(filename):
             if key == "profile":
                 value = value.split(",")
                 value = filter(lambda x: x, value)
-
+                value = list(value)
+                # print(list(value))
             d[key] = value
 
     return None, d
