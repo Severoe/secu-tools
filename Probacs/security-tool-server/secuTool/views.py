@@ -62,7 +62,7 @@ def rcvSrc(request):
 		with open(taskFolder+'/'+filename,'wb+') as dest:
 			for chunk in request.FILES['srcCodes'].chunks():
 				dest.write(chunk)
-		os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+taskFolder)
+		os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+srcCodes)
 		os.system('mv '+taskFolder+'/'+filename.split('.')[0]+' '+codeFolder)
 		srcPath = codeFolder+"/"+filename
 
@@ -138,9 +138,12 @@ def upload_to_platform(ip, compiler_invoke, flags, taskName, taskFolder, codeFol
 	#################################
 	# form code archive for code folder
 	#################################
-	tarPath = taskFolder+'/src.tgz'
-	print(codeFolder)
-	os.system('tar cvzf '+tarPath+' '+codeFolder)
+	tarPath = taskFolder+'/'+'src.tar'
+	print("inside upload "+codeFolder)
+	os.system('cd '+taskFolder+' && tar cvf src.tar srcCodes/')
+	# with tarfile.open(tarPath, "w:gz") as tar:
+		# tar.add(codeFolder, arcname=os.path.basename(codeFolder))
+
 	#send request to specific platform servers
 	data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': flags}
 	files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
