@@ -230,7 +230,7 @@ def saveExe(request):
 	# records.save()
 
 	print(settings.TASKS)
-	settings.TASKS[taskFolder] = 1
+	settings.TASKS[taskdir+taskFolder] = 1
 	print(settings.TASKS)
 	return response
 
@@ -243,9 +243,9 @@ def wrap_dir(request):
 	print("taskFolder: "+taskFolder )
 	print(settings.TASKS)
 	# records = Tasks.objects.get(taskFolder=taskFolder)
-	if os.path.exists(taskdir+taskFolder) == False:# or records == None:
-		print(os.path.exists(taskdir+taskFolder))
-		print(str(taskFolder) not in taskTrace)
+	if os.path.exists(taskFolder) == False:# or records == None:
+		print(os.path.exists(taskFolder))
+		# print(str(taskFolder) not in taskTrace)
 		return redirect(home)
 	elif settings.TASKS[taskFolder] == 0:
 		context = {}
