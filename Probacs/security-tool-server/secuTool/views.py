@@ -36,9 +36,11 @@ def rcvSrc(request):
 	#create unique task forder for each task, inside which includes:
 	# srcCode, <profiles>, compiled file & log, 
 	# the archive for downloading will be delete 
-	taskName = 'linux_'+timestr
-	taskFolder = taskdir+'linux_'+timestr
+	taskName = 'task_'+timestr
+	taskFolder = taskdir+'task_'+timestr
+	codeFolder = taskFolder+"/"+"srcCodes"
 	os.system("mkdir "+taskFolder)
+	os.system("mkdir "+codeFolder)
 	context = {}
 	# handle bad submit request (attention, undergoing compilation info may be missing by rendering blank)
 	if 'srcCodes' not in request.FILES or 'task_file' not in request.FILES:
@@ -46,7 +48,8 @@ def rcvSrc(request):
 	#save file in taskfolder
 	filename = request.FILES['srcCodes'].name
 	taskfile = request.FILES['task_file'].name
-	print(taskfile)
+	print(request.FILES['srcCodes'].content_type)
+	print(request.FILES['srcCodes'].content_type == 'application/zip')
 	# print(filename)
 	srcPath = taskFolder+"/"+filename
 	taskPath = taskFolder+"/"+taskfile
@@ -72,9 +75,8 @@ def rcvSrc(request):
 	task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
 		version=param['version'])
 	task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
-	# permute flags from diff flags
+	# permute flags combination  from diff flags
 	jsonDec = json.decoder.JSONDecoder()
-	# trueBoards = jsonDec.decode(flags)
 	flag_from_profile = []
 	for profile_name in param['profile']:
 		print(profile_name)
@@ -87,7 +89,8 @@ def rcvSrc(request):
 	compile_combination = [" ".join(x) for x in compile_combination]
 	compile_combination = [x.replace(" ","_") for x in compile_combination]
 	final_flags = ",".join(compile_combination) 
-	print(compile_combination)
+	print(final_flags)
+	# calling compilation
 	if task_http == self_ip:
 		## compile in this host linux
 		# specify working dir id
@@ -96,12 +99,15 @@ def rcvSrc(request):
 		os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
 		print("finished compile")
 		context['linux_taskFolder'] = taskName
+		context['form']  = ProfileUserForm()
+		context['message'] = 'file compile finished !'
+		print(filename)
+		return render(request, 'secuTool/index.html', context)
+	# if not compiling on linux host, send params to another function, interacting with specific platform server
+	up_to_platform(task_http, task_compiler.invoke_format, final_flags, taskFolder, srcPath)
 
 
-	context['form']  = ProfileUserForm()
-	context['message'] = 'file compile finished !'
-	print(filename)
-
+	
 
 	#add task into database, database approach
 	# taskRecord = Tasks(taskFolder=taskName, totalCompilation = 1, finishedCompilation = 1, status = 1)
@@ -109,6 +115,19 @@ def rcvSrc(request):
 
 	settings.TASKS[taskName] = 1
 	return render(request, 'secuTool/index.html', context)
+
+
+@transaction.atomic
+def up_to_platform(ip, compiler_invoke, flags, taskFolder, srcPath):
+	'''
+	flags is compressed string used for make_compilation.py
+	compiler_invoke is a string used for cmd line compilation
+	'''
+	# form archive for task, which contain
+	return 
+
+
+
 
 # upload files to a folder to store, then send it to windows server
 @transaction.atomic
