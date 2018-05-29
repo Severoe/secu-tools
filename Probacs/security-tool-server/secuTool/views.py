@@ -257,7 +257,7 @@ def wrap_dir(request):
 		print('task exists')
 	#pack executables inside task folder, send back
 	new_name = "archive_"+taskFolder+".tgz"
-	current_taskdir = taskdir+taskFolder+'/'
+	current_taskdir = taskFolder+'/'
 	with tarfile.open(current_taskdir+new_name, "w:gz") as tar:
 		tar.add(current_taskdir+'secu_compile', arcname=os.path.basename(current_taskdir+'secu_compile'))
 
