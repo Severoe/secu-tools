@@ -119,15 +119,14 @@ def rcvSrc(request):
 		settings.TASKS[taskName] = 1
 		return render(request, 'secuTool/index.html', context)
 	# if not compiling on linux host, send params to another function, interacting with specific platform server
-	upload_to_platform(task_http, task_compiler.invoke_format, final_flags, taskFolder, codeFolder,filename)
-
+	upload_to_platform(task_http, task_compiler.invoke_format, final_flags, taskName, codeFolder,filename)
+	context['message'] = "file is compiling..."
+	context['form'] = ProfileUserForm()
+	context['linux_taskFolder'] = taskFolder
+	return render(request, 'secuTool/index.html', context)
 	#add task into database, database approach
 	# taskRecord = Tasks(taskFolder=taskName, totalCompilation = 1, finishedCompilation = 1, status = 1)
 	# taskRecord.save()
-
-	
-	return render(request, 'secuTool/index.html', context)
-
 
 @transaction.atomic
 def upload_to_platform(ip, compiler_invoke, flags, taskFolder, codeFolder,mainSrcName):
@@ -147,10 +146,7 @@ def upload_to_platform(ip, compiler_invoke, flags, taskFolder, codeFolder,mainSr
 	files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
 	settings.TASKS[taskFolder] = 0
 	response = requests.post(winurl, files=files,data={'taskid':taskFolder}) 
-	context['message'] = "file is compiling..."
-	context['form'] = ProfileUserForm()
-	context['linux_taskFolder'] = taskFolder
-	return render(request, 'secuTool/index.html', context)
+	return
 
 
 
