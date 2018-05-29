@@ -122,7 +122,7 @@ def rcvSrc(request):
 	upload_to_platform(task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
 	context['message'] = "file is compiling..."
 	context['form'] = ProfileUserForm()
-	context['linux_taskFolder'] = taskFolder
+	context['linux_taskFolder'] = taskName
 	return render(request, 'secuTool/index.html', context)
 	#add task into database, database approach
 	# taskRecord = Tasks(taskFolder=taskName, totalCompilation = 1, finishedCompilation = 1, status = 1)
@@ -230,7 +230,7 @@ def saveExe(request):
 	# records.save()
 
 	print(settings.TASKS)
-	settings.TASKS[taskdir+taskFolder] = 1
+	settings.TASKS[taskFolder] = 1
 	print(settings.TASKS)
 	return response
 
@@ -243,8 +243,8 @@ def wrap_dir(request):
 	print("taskFolder: "+taskFolder )
 	print(settings.TASKS)
 	# records = Tasks.objects.get(taskFolder=taskFolder)
-	if os.path.exists(taskFolder) == False:# or records == None:
-		print(os.path.exists(taskFolder))
+	if os.path.exists(taskdir+taskFolder) == False:# or records == None:
+		print(os.path.exists(taskdir+taskFolder))
 		# print(str(taskFolder) not in taskTrace)
 		return redirect(home)
 	elif settings.TASKS[taskFolder] == 0:
@@ -257,7 +257,7 @@ def wrap_dir(request):
 		print('task exists')
 	#pack executables inside task folder, send back
 	new_name = "archive_"+taskFolder+".tgz"
-	current_taskdir = taskFolder+'/'
+	current_taskdir = taskdir+taskFolder+'/'
 	with tarfile.open(current_taskdir+new_name, "w:gz") as tar:
 		tar.add(current_taskdir+'secu_compile', arcname=os.path.basename(current_taskdir+'secu_compile'))
 
