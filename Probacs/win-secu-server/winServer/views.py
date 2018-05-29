@@ -43,7 +43,8 @@ def execute(request):
 	# into compileDir
 	cl = None
 	if 'env' in request.POST:
-		cl = request.POST['env']
+		cl = request.POST['env'].replace("_",' ')
+
 	print("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
 	# cl = r'"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
 	# os.system(cl + " && python make_compilation.py " + srcpath + " " + compileDir)

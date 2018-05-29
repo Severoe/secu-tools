@@ -60,8 +60,8 @@ def do_compilation(src_file, dest_folder, invoke_format, flags):
         cnt += 1
         exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         logline = "%s\t%s"%(exename, flag)
-
         command = invoke_format.replace("flags", flag).replace("source", src_file).replace("exename", exename).split(" ")
+        print(command)
         compilation = Popen(command, stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
         log_file.write("%s, %s, %s\n"%(logline, out, err))
