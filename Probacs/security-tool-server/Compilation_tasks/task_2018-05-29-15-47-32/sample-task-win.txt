@@ -1,4 +1,0 @@
-target_os:win
-compiler:vs
-version:6.7
-profile:max_speed,max_optimization
