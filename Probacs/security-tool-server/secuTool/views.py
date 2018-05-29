@@ -119,7 +119,7 @@ def rcvSrc(request):
 		settings.TASKS[taskName] = 1
 		return render(request, 'secuTool/index.html', context)
 	# if not compiling on linux host, send params to another function, interacting with specific platform server
-	upload_to_platform(task_http, task_compiler.invoke_format, final_flags, taskName, codeFolder,filename)
+	upload_to_platform(task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
 	context['message'] = "file is compiling..."
 	context['form'] = ProfileUserForm()
 	context['linux_taskFolder'] = taskFolder
@@ -129,7 +129,7 @@ def rcvSrc(request):
 	# taskRecord.save()
 
 @transaction.atomic
-def upload_to_platform(ip, compiler_invoke, flags, taskFolder, codeFolder,mainSrcName):
+def upload_to_platform(ip, compiler_invoke, flags, taskName, taskFolder, codeFolder,mainSrcName):
 	'''
 	flags is compressed string used for make_compilation.py
 	compiler_invoke is a string used for cmd line compilation
@@ -142,10 +142,10 @@ def upload_to_platform(ip, compiler_invoke, flags, taskFolder, codeFolder,mainSr
 	print(tarPath)
 	os.system('tar cvzf '+tarPath+' '+codeFolder)
 	#send request to specific platform servers
-	data = { 'Srcname':mainSrcName,'taskid':taskFolder,'command': compiler_invoke,'flags': flags}
+	data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': flags}
 	files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
 	settings.TASKS[taskFolder] = 0
-	response = requests.post(winurl, files=files,data={'taskid':taskFolder}) 
+	response = requests.post(winurl, files=files,data=data) 
 	return
 
 
