@@ -40,8 +40,8 @@ def rcvSrc(request):
 	taskFolder = taskdir+'task_'+timestr
 	codeFolder = taskFolder+"/"+"srcCodes"
 	os.system("mkdir "+taskFolder)
-	os.system("mkdir "+codeFolder)
 	context = {}
+	srcPath = ''
 	# handle bad submit request (attention, undergoing compilation info may be missing by rendering blank)
 	if 'srcCodes' not in request.FILES or 'task_file' not in request.FILES:
 		return redirect(home)
@@ -49,13 +49,23 @@ def rcvSrc(request):
 	filename = request.FILES['srcCodes'].name
 	taskfile = request.FILES['task_file'].name
 	print(request.FILES['srcCodes'].content_type)
-	print(request.FILES['srcCodes'].content_type == 'application/zip')
-	# print(filename)
-	srcPath = taskFolder+"/"+filename
-	# write task specify file to taskFolder
-	with open(srcPath,'wb+') as dest:
-		for chunk in request.FILES['srcCodes'].chunks():
-			dest.write(chunk)
+	if request.FILES['srcCodes'].content_type not in ['application/x-tar','application/gzip','application/zip']:
+		#indicating a single file
+		os.system("mkdir "+codeFolder)
+		srcPath = codeFolder+"/"+filename
+		with open(srcPath,'wb+') as dest:
+			for chunk in request.FILES['srcCodes'].chunks():
+				dest.write(chunk)
+	else:
+		#if user upload tar bar, extract and save into srcCode folder
+		#also upload filename to be main filename
+		with open(taskFolder+'/'+filename,'wb+') as dest:
+			for chunk in request.FILES['srcCodes'].chunks():
+				dest.write(chunk)
+		os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+taskFolder)
+		os.system('mv '+taskFolder+'/'+filename.split('.')[0]+' '+codeFolder)
+		srcPath = codeFolder+"/"+filename
+
 	# write task specify file to taskFolder
 	taskPath = taskFolder+"/"+taskfile
 	with open(taskPath,'wb+') as dest:
@@ -73,7 +83,7 @@ def rcvSrc(request):
 		context['message'] = message
 		return render(request, 'secuTool/index.html',context)
 
-	#form request format
+	#form request format from parse.py
 	task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
 		version=param['version'])
 	task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
@@ -92,7 +102,9 @@ def rcvSrc(request):
 	compile_combination = [x.replace(" ","_") for x in compile_combination]
 	final_flags = ",".join(compile_combination) 
 	print(final_flags)
-	# calling compilation
+	#############################
+	# calling compilation tasks
+	#############################
 	if task_http == self_ip:
 		## compile in this host linux
 		# specify working dir id
@@ -104,73 +116,84 @@ def rcvSrc(request):
 		context['form']  = ProfileUserForm()
 		context['message'] = 'file compile finished !'
 		print(filename)
+		settings.TASKS[taskName] = 1
 		return render(request, 'secuTool/index.html', context)
 	# if not compiling on linux host, send params to another function, interacting with specific platform server
-	up_to_platform(task_http, task_compiler.invoke_format, final_flags, taskFolder, srcPath)
-
-
-	
+	upload_to_platform(task_http, task_compiler.invoke_format, final_flags, taskFolder, codeFolder,filename)
 
 	#add task into database, database approach
 	# taskRecord = Tasks(taskFolder=taskName, totalCompilation = 1, finishedCompilation = 1, status = 1)
 	# taskRecord.save()
 
-	settings.TASKS[taskName] = 1
+	
 	return render(request, 'secuTool/index.html', context)
 
 
 @transaction.atomic
-def up_to_platform(ip, compiler_invoke, flags, taskFolder, srcPath):
+def upload_to_platform(ip, compiler_invoke, flags, taskFolder, codeFolder,mainSrcName):
 	'''
 	flags is compressed string used for make_compilation.py
 	compiler_invoke is a string used for cmd line compilation
+	codeFolder is the code directory path, need compress then send along
 	'''
-	# form archive for task, which contain
-	return 
-
-
-
-
-# upload files to a folder to store, then send it to windows server
-@transaction.atomic
-@csrf_exempt
-def upWin(request):
-	timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-	context = {}
-	context['message'] = 'win VM received the command !'
-	#create task folder
-	taskFolder = 'win_'+timestr
-	os.system("mkdir "+taskdir+taskFolder)
-	if 'srcCodes' not in request.FILES:
-		return redirect(home)
-	#save file in taskfolder		
-	filename = request.FILES['srcCodes'].name
-	print(filename)
-	srcPath = taskdir+taskFolder+"/"+filename
-	with open(srcPath,'wb+') as dest:
-		for chunk in request.FILES['srcCodes'].chunks():
-			dest.write(chunk)
-	#form httprequest 
-	filename = request.FILES['srcCodes'].name
-	files={'file':(srcPath, open(srcPath, 'rb'))}
-
-	#add record to database, database approach
-	# taskRecord = Tasks(taskFolder=taskFolder, totalCompilation = 1, 
-		# finishedCompilation = 0, status = 0)
-	# taskRecord.save()
-
+	#################################
+	# form code archive for code folder
+	#################################
+	tarPath = taskFolder+'/src.tar'
+	print(tarPath)
+	os.system('tar cvzf '+tarPath+' '+codeFolder)
+	#send request to specific platform servers
+	data = { 'Srcname':mainSrcName,'taskid':taskFolder,'command': compiler_invoke,'flags': flags}
+	files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
 	settings.TASKS[taskFolder] = 0
-	# printRcd(taskRecord)
-	print('in upwin, print total: time: '+ str(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")))
-	print(settings.TASKS)
-
-	#send request to win
 	response = requests.post(winurl, files=files,data={'taskid':taskFolder}) 
-
-	context['filename'] = "file is compiling..."
+	context['message'] = "file is compiling..."
 	context['form'] = ProfileUserForm()
-	context['win_taskFolder'] = taskFolder
+	context['linux_taskFolder'] = taskFolder
 	return render(request, 'secuTool/index.html', context)
+
+
+
+# # upload files to a folder to store, then send it to windows server
+# @transaction.atomic
+# @csrf_exempt
+# def upWin(request):
+# 	timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+# 	context = {}
+# 	context['message'] = 'win VM received the command !'
+# 	#create task folder
+# 	taskFolder = 'win_'+timestr
+# 	os.system("mkdir "+taskdir+taskFolder)
+# 	if 'srcCodes' not in request.FILES:
+# 		return redirect(home)
+# 	#save file in taskfolder		
+# 	filename = request.FILES['srcCodes'].name
+# 	print(filename)
+# 	srcPath = taskdir+taskFolder+"/"+filename
+# 	with open(srcPath,'wb+') as dest:
+# 		for chunk in request.FILES['srcCodes'].chunks():
+# 			dest.write(chunk)
+# 	#form httprequest 
+# 	filename = request.FILES['srcCodes'].name
+# 	files={'file':(srcPath, open(srcPath, 'rb'))}
+
+# 	#add record to database, database approach
+# 	# taskRecord = Tasks(taskFolder=taskFolder, totalCompilation = 1, 
+# 		# finishedCompilation = 0, status = 0)
+# 	# taskRecord.save()
+
+# 	settings.TASKS[taskFolder] = 0
+# 	# printRcd(taskRecord)
+# 	print('in upwin, print total: time: '+ str(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")))
+# 	print(settings.TASKS)
+
+# 	#send request to win
+# 	response = requests.post(winurl, files=files,data={'taskid':taskFolder}) 
+
+# 	context['filename'] = "file is compiling..."
+# 	context['form'] = ProfileUserForm()
+# 	context['win_taskFolder'] = taskFolder
+# 	return render(request, 'secuTool/index.html', context)
 
 #receive compiled task from win, need to save file at taskFolder
 @transaction.atomic

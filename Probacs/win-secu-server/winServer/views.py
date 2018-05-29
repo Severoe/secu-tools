@@ -12,7 +12,7 @@ import requests    #need pip install requests
 
 # hostserver = "http://192.168.27.131:8000/" #ip/port of the host server
 # hostserver = "http://172.16.165.125:8000/" #ip/port of the host server
-hostserver = "http://192.168.56.102:8000/" #ip/port of the host server on virtualbox
+hostserver = "http://192.168.56.101:8000/" #ip/port of the host server on virtualbox
 
 
 @csrf_exempt
@@ -25,20 +25,26 @@ def execute(request):
 	print('order received')
 	#save file in task folder
 	filename = request.FILES['file'].name
+	src_dir = taskFolder+'\\'+filename.split('.')[0]
+
 	with open(taskFolder+'\\'+filename,'wb+') as dest:
 		for chunk in request.FILES['file'].chunks():
 			dest.write(chunk)
+	tar = r'"C:\Program Files (x86)\GnuWin32\bin\tar.exe"'
+	os.system(tar+" "+"-cvzf "+ taskFolder+'\\'+filename+" "+src_dir)
 	print(request.FILES['file'])
+
 	############################################
 	# compilation work
-	srcpath = taskFolder+'\\'+filename
+	srcpath = src_dir+'\\'+request.POST['Srcname']
 	os.system("mkdir "+taskFolder+'\\'+'secu_compile_win') #this is the working dir for storing exe 
 	compileDir = taskFolder+'\\'+'secu_compile_win'
 	# compilation start here, store executables and logs
 	# into compileDir
 	print("python make_compilation.py " + srcpath + " " + compileDir)
-	cl = r'"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
-	os.system(cl + " && python make_compilation.py " + srcpath + " " + compileDir)
+	# cl = r'"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
+	# os.system(cl + " && python make_compilation.py " + srcpath + " " + compileDir)
+	os.system("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
 	############################################
 	# send back exe archive to host by http request
 	responseFromHost,tmpzip = sendBackExe(taskFolder) # test purpose, replace hellomake later
@@ -46,7 +52,6 @@ def execute(request):
 	# clean out directory
 	#os.system("del /-f "+taskFolder)
 	response = HttpResponse()
-	#response.write("<p>Here's the text of the Web page.</p>")
 	return response
 
 # create zip file containing exe and log, then send to host

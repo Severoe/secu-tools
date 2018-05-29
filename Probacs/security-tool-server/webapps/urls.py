@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.home),
     url(r'^uploadSrc$', views.rcvSrc, name='uploadSrc'),
-    url(r'^uploadWin$', views.upWin, name='uploadWin'),
+    # url(r'^uploadWin$', views.upWin, name='uploadWin'),
     url(r'^saveExe$', views.saveExe, name='saveExe'),
     # url(r'^download_file$', views.send_zip, name='download_file'),
     # url(r'^serve_pdf$', views.serve_pdf, name='serve_pdf'),

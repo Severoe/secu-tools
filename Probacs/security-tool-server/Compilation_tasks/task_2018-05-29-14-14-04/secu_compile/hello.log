@@ -1,0 +1,4 @@
+Compilation_tasks/task_2018-05-29-14-14-04/secu_compile/hello_1_-O1_-O0_-Wall	-O1 -O0 -Wall, b'', b"clang: error: no such file or directory: 'Compilation_tasks/task_2018-05-29-14-14-04/srcCodes/hello.zip'\nclang: error: no input files\n"
+Compilation_tasks/task_2018-05-29-14-14-04/secu_compile/hello_2_-O0_-O2_-Wall	-O0 -O2 -Wall, b'', b"clang: error: no such file or directory: 'Compilation_tasks/task_2018-05-29-14-14-04/srcCodes/hello.zip'\nclang: error: no input files\n"
+Compilation_tasks/task_2018-05-29-14-14-04/secu_compile/hello_3_-O1_-O0_-O3	-O1 -O0 -O3, b'', b"clang: error: no such file or directory: 'Compilation_tasks/task_2018-05-29-14-14-04/srcCodes/hello.zip'\nclang: error: no input files\n"
+Compilation_tasks/task_2018-05-29-14-14-04/secu_compile/hello_4_-O0_-O2_-O3	-O0 -O2 -O3, b'', b"clang: error: no such file or directory: 'Compilation_tasks/task_2018-05-29-14-14-04/srcCodes/hello.zip'\nclang: error: no input files\n"
