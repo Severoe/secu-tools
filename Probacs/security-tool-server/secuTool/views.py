@@ -141,9 +141,6 @@ def upload_to_platform(ip, compiler_invoke, flags, taskName, taskFolder, codeFol
 	tarPath = taskFolder+'/'+'src.tar'
 	print("inside upload "+codeFolder)
 	os.system('cd '+taskFolder+' && tar cvf src.tar srcCodes/')
-	# with tarfile.open(tarPath, "w:gz") as tar:
-		# tar.add(codeFolder, arcname=os.path.basename(codeFolder))
-
 	#send request to specific platform servers
 	runEnv = None
 	if '&&' in compiler_invoke:
@@ -157,47 +154,6 @@ def upload_to_platform(ip, compiler_invoke, flags, taskName, taskFolder, codeFol
 	return
 
 
-
-# # upload files to a folder to store, then send it to windows server
-# @transaction.atomic
-# @csrf_exempt
-# def upWin(request):
-# 	timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-# 	context = {}
-# 	context['message'] = 'win VM received the command !'
-# 	#create task folder
-# 	taskFolder = 'win_'+timestr
-# 	os.system("mkdir "+taskdir+taskFolder)
-# 	if 'srcCodes' not in request.FILES:
-# 		return redirect(home)
-# 	#save file in taskfolder		
-# 	filename = request.FILES['srcCodes'].name
-# 	print(filename)
-# 	srcPath = taskdir+taskFolder+"/"+filename
-# 	with open(srcPath,'wb+') as dest:
-# 		for chunk in request.FILES['srcCodes'].chunks():
-# 			dest.write(chunk)
-# 	#form httprequest 
-# 	filename = request.FILES['srcCodes'].name
-# 	files={'file':(srcPath, open(srcPath, 'rb'))}
-
-# 	#add record to database, database approach
-# 	# taskRecord = Tasks(taskFolder=taskFolder, totalCompilation = 1, 
-# 		# finishedCompilation = 0, status = 0)
-# 	# taskRecord.save()
-
-# 	settings.TASKS[taskFolder] = 0
-# 	# printRcd(taskRecord)
-# 	print('in upwin, print total: time: '+ str(datetime.now().strftime("%Y-%m-%d-%H-%M-%S")))
-# 	print(settings.TASKS)
-
-# 	#send request to win
-# 	response = requests.post(winurl, files=files,data={'taskid':taskFolder}) 
-
-# 	context['filename'] = "file is compiling..."
-# 	context['form'] = ProfileUserForm()
-# 	context['win_taskFolder'] = taskFolder
-# 	return render(request, 'secuTool/index.html', context)
 
 #receive compiled task from win, need to save file at taskFolder
 @transaction.atomic
@@ -266,6 +222,8 @@ def wrap_dir(request):
 	response['Content-Disposition'] = 'attachment; filename='+new_name
 	# os.system("rm "+taskFolder+'/'+new_name)
 	return response
+
+
 
 #used for database computing
 def printRcd(rcd):

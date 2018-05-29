@@ -43,7 +43,7 @@ def execute(request):
 	# compilation start here, store executables and logs
 	# into compileDir
 	cl = None
-	if 'env' in request.POST:
+	if 'env' in request.POST and request.POST['env'] != None:
 		cl = request.POST['env'].replace("_",' ')
 
 	print("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
