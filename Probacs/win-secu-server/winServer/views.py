@@ -25,7 +25,7 @@ def execute(request):
 	print('order received')
 	#save file in task folder
 	filename = request.FILES['file'].name
-	src_dir = taskFolder+'\\'+'srcCodes'
+	src_dir = 'srcCodes'
 
 	with open(taskFolder+'\\'+filename,'wb+') as dest:
 		for chunk in request.FILES['file'].chunks():
@@ -37,6 +37,7 @@ def execute(request):
 	############################################
 	# compilation work
 	srcpath = src_dir+'\\'+request.POST['Srcname']
+	print(srcpath)
 	compileDir = taskFolder+'\\'+'secu_compile_win'
 	os.system("mkdir "+compileDir)
 	# compilation start here, store executables and logs
@@ -52,7 +53,7 @@ def execute(request):
 	############################################
 	# send back exe archive to host by http request
 	responseFromHost,tmpzip = sendBackExe(taskFolder) # test purpose, replace hellomake later
-	os.system("del /-f "+src_dir) #delete tmp zip file
+	os.system("del /-f "+src_dir +" /Q") #delete tmp zip file
 	# clean out directory
 	#os.system("del /-f "+taskFolder)
 	response = HttpResponse()
@@ -62,6 +63,7 @@ def execute(request):
 # delete zip file after sending to host
 def sendBackExe(folder):
 	#create a zip file first
+	print("send back exe")
 	timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 	new_name = "winexe_"+timestr+".tgz"
 	exe_folderPath = folder+'\\'+'secu_compile_win'
