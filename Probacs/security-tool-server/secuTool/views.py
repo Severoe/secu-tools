@@ -145,7 +145,12 @@ def upload_to_platform(ip, compiler_invoke, flags, taskName, taskFolder, codeFol
 		# tar.add(codeFolder, arcname=os.path.basename(codeFolder))
 
 	#send request to specific platform servers
-	data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': flags}
+	runEnv = None
+	if '&&' in compiler_invoke:
+		runEnv = compiler_invoke.split('&&')[1]
+		compiler_invoke = compiler_invoke.split('&&')[0]
+	data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': flags,'env':runEnv}
+	print(data)
 	files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
 	settings.TASKS[taskFolder] = 0
 	response = requests.post(winurl, files=files,data=data) 

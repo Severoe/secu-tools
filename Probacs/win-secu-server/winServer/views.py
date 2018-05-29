@@ -41,7 +41,7 @@ def execute(request):
 	os.system("mkdir "+compileDir)
 	# compilation start here, store executables and logs
 	# into compileDir
-	print("python make_compilation.py " + srcpath + " " + compileDir)
+	print("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+request.POST['env'])
 	# cl = r'"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
 	# os.system(cl + " && python make_compilation.py " + srcpath + " " + compileDir)
 	os.system("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
