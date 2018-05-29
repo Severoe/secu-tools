@@ -1,1 +1,91 @@
-#!/usr/bin/env pythonimport os, sysfrom subprocess import Popen, PIPElinux_cc = "gcc"linux_w_flags = ["-Wall", "-Wextra"]linux_o_flags = ["-O0", "-O1", "-O2", "-O3"]nt_cc = "cl"nt_w_flags = ["/Wall", "/WX"]nt_o_flags = ["/Od", "/O1", "/O2", "/Og"]def do_compilation(src_file, dest_folder):    if os.name == 'nt':        delimit = "\\"        cc = nt_cc        w_flags = nt_w_flags        o_flags = nt_o_flags    else:        delimit = "/"        cc = linux_cc        w_flags = linux_w_flags        o_flags = linux_o_flags    name, extension = src_file.split(delimit)[-1].split('.')    if dest_folder[-1] == delimit:        dest_folder = dest_folder[0:-1]    if os.path.exists(dest_folder) and not os.path.isdir(dest_folder):        sys.stderr.write("Output directory already exists!\n")        sys.stderr.flush()        exit(-1)    if not os.path.exists(dest_folder):        os.mkdir(dest_folder)    dest_folder += delimit    log_filename = dest_folder + name + ".log"    log_file = open(log_filename, "w")    print("compilation begins...")        for i1, f1 in enumerate(w_flags):        for i2, f2 in enumerate(o_flags):            exe_name = dest_folder + name + "_%d_%d"%(i1, i2)            logline = "%s\t%s\t%s"%(exe_name, f1, f2)            if os.name == "nt":                compilation = Popen([cc, f1, f2, src_file, '/Fe'+exe_name], stdout=PIPE, stderr=PIPE)            else:                compilation = Popen([cc, f1, f2, src_file, '-o', exe_name], stdout=PIPE, stderr=PIPE)            out, err = compilation.communicate()            log_file.write("%s, %s, %s\n"%(logline, out, err))    log_file.close()if __name__ == "__main__":    if len(sys.argv) != 3:        sys.stderr.write("Usage: python make_compilation <source file> <output dir>\n")        sys.stderr.flush()        exit(-1)    do_compilation(sys.argv[1], sys.argv[2])        
+#!/usr/bin/env python
+
+import os, sys
+
+from subprocess import Popen, PIPE
+
+
+
+def do_compilation(src_file, dest_folder, invoke_format, flags):
+    """
+    example invoke_format: gcc_flags_source_-o_exename
+    """
+
+    invoke_format = invoke_format.replace("_", " ")
+    flags = flags.replace("_", " ")
+    flags = flags.split(",")
+
+    if os.name == 'nt':
+        delimit = "\\"
+    else:
+        delimit = "/"
+
+    name, extension = src_file.split(delimit)[-1].split('.')
+
+
+
+    if dest_folder[-1] == delimit:
+
+        dest_folder = dest_folder[0:-1]
+
+
+
+    if os.path.exists(dest_folder) and not os.path.isdir(dest_folder):
+
+        sys.stderr.write("Output directory already exists!\n")
+
+        sys.stderr.flush()
+
+        exit(-1)
+
+
+
+    if not os.path.exists(dest_folder):
+
+        os.mkdir(dest_folder)
+
+
+
+    dest_folder += delimit
+
+    log_filename = dest_folder + name + ".log"
+
+    log_file = open(log_filename, "w")
+
+
+    print("compilation begins...")
+        
+    cnt = 0
+    for flag in flags:
+        cnt += 1
+        exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        logline = "%s\t%s"%(exename, flag)
+
+        command = invoke_format.replace("flags", flag).replace("source", src_file).replace("exename", exename).split(" ")
+        compilation = Popen(command, stdout=PIPE, stderr=PIPE)
+        out, err = compilation.communicate()
+        log_file.write("%s, %s, %s\n"%(logline, out, err))
+
+    log_file.close()
+    print("compilation done!")
+
+if __name__ == "__main__":
+
+    if len(sys.argv) != 5:
+
+        sys.stderr.write("Usage: python make_compilation <source file> <output dir> <invoke_format> <flags>\n")
+
+        sys.stderr.flush()
+
+        exit(-1)
+
+    do_compilation(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+
+
+
+    
+
+
+
+    
+

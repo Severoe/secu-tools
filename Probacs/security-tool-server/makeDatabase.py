@@ -18,8 +18,8 @@ profile_all.delete()
 
 
 compiler_data = [
-	{'target_os':'linux','compiler':'gcc','version':'6.7','ip':'http://192.168.56.101','port':'8000','http_path':'','invoke_format':'gcc_$flags$_$source$_-o_$exename$'},
-	{'target_os':'linux','compiler':'sd','version':'6.7','ip':'http://192.67.56.101','port':'8000','http_path':'','invoke_format':'gcc_$flags$_$source$_-o_$exename$'},
+	{'target_os':'linux','compiler':'gcc','version':'6.7','ip':'http://192.168.56.101','port':'8000','http_path':'','invoke_format':'gcc_flags_source_-o_exename'},
+	{'target_os':'linux','compiler':'sd','version':'6.7','ip':'http://192.67.56.101','port':'8000','http_path':'','invoke_format':'gcc_flags_source_-o_exename'},
 ]
 profile_data = [
 	{'uploader':'jeffery','upload_time':'2006-10-25 14:30:59','name':'max_speed','target_os':'linux','compiler':'gcc','version':'6.7','flag':['-O1 -O0','-O0 -02']},
