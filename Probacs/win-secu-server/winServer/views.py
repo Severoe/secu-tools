@@ -25,20 +25,20 @@ def execute(request):
 	print('order received')
 	#save file in task folder
 	filename = request.FILES['file'].name
-	src_dir = taskFolder+'\\'+filename.split('.')[0]
+	src_dir = taskFolder+'\\'+'srcCodes'
 
 	with open(taskFolder+'\\'+filename,'wb+') as dest:
 		for chunk in request.FILES['file'].chunks():
 			dest.write(chunk)
 	tar = r'"C:\Program Files (x86)\GnuWin32\bin\tar.exe"'
-	os.system(tar+" "+"xvf "+ taskFolder+'\\'+filename+" -C "+src_dir)
+	os.system(tar+" "+"xvf "+ taskFolder+'\\'+filename)
 	print(request.FILES['file'])
 
 	############################################
 	# compilation work
 	srcpath = src_dir+'\\'+request.POST['Srcname']
-	os.system("mkdir "+taskFolder+'\\'+'secu_compile_win') #this is the working dir for storing exe 
 	compileDir = taskFolder+'\\'+'secu_compile_win'
+	os.system("mkdir "+compileDir)
 	# compilation start here, store executables and logs
 	# into compileDir
 	print("python make_compilation.py " + srcpath + " " + compileDir)
