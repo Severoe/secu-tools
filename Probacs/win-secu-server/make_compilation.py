@@ -6,16 +6,14 @@ from subprocess import Popen, PIPE
 
 
 
-def do_compilation(src_file, dest_folder, invoke_format, flags, env = None):
+def do_compilation(src_file, dest_folder, invoke_format, flags):
     """
     example invoke_format: gcc_flags_source_-o_exename
     """
-    print(env)
+
     invoke_format = invoke_format.replace("_", " ")
     flags = flags.replace("_", " ")
     flags = flags.split(",")
-    env = env.replace("_", " ")
-    print(env)
 
     if os.name == 'nt':
         delimit = "\\"
@@ -64,7 +62,6 @@ def do_compilation(src_file, dest_folder, invoke_format, flags, env = None):
         logline = "%s\t%s"%(exename, flag)
 
         command = invoke_format.replace("flags", flag).replace("source", src_file).replace("exename", exename).split(" ")
-        print(command)
         compilation = Popen(command, stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
         log_file.write("%s, %s, %s\n"%(logline, out, err))
@@ -74,7 +71,7 @@ def do_compilation(src_file, dest_folder, invoke_format, flags, env = None):
 
 if __name__ == "__main__":
 
-    if len(sys.argv) != 5 and len(sys.argv) != 6:
+    if len(sys.argv) != 5:
 
         sys.stderr.write("Usage: python make_compilation <source file> <output dir> <invoke_format> <flags>\n")
 
@@ -82,7 +79,7 @@ if __name__ == "__main__":
 
         exit(-1)
 
-    do_compilation(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5] if len(sys.argv) == 6 else None)
+    do_compilation(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
 
 
 

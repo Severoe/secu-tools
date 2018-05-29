@@ -147,8 +147,8 @@ def upload_to_platform(ip, compiler_invoke, flags, taskName, taskFolder, codeFol
 	#send request to specific platform servers
 	runEnv = None
 	if '&&' in compiler_invoke:
-		runEnv = compiler_invoke.split('&&')[1]
-		compiler_invoke = compiler_invoke.split('&&')[0]
+		runEnv = compiler_invoke.split('&&')[0]
+		compiler_invoke = compiler_invoke.split('&&')[1]
 	data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': flags,'env':runEnv}
 	print(data)
 	files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
