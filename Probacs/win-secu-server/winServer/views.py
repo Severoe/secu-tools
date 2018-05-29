@@ -51,8 +51,8 @@ def execute(request):
 	os.system(cl+"&& python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
 	############################################
 	# send back exe archive to host by http request
-	#responseFromHost,tmpzip = sendBackExe(taskFolder) # test purpose, replace hellomake later
-	# os.system("del /-f "+tmpzip) #delete tmp zip file
+	responseFromHost,tmpzip = sendBackExe(taskFolder) # test purpose, replace hellomake later
+	os.system("del /-f "+src_dir) #delete tmp zip file
 	# clean out directory
 	#os.system("del /-f "+taskFolder)
 	response = HttpResponse()
