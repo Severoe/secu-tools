@@ -1,8 +1,0 @@
-Compilation_tasks/linux_2018-05-28-00-39-07/secu_compile/hello_0_0	-Wall	-O0, b'', b''
-Compilation_tasks/linux_2018-05-28-00-39-07/secu_compile/hello_0_1	-Wall	-O1, b'', b''
-Compilation_tasks/linux_2018-05-28-00-39-07/secu_compile/hello_0_2	-Wall	-O2, b'', b''
-Compilation_tasks/linux_2018-05-28-00-39-07/secu_compile/hello_0_3	-Wall	-O3, b'', b''
-Compilation_tasks/linux_2018-05-28-00-39-07/secu_compile/hello_1_0	-Wextra	-O0, b'', b''
-Compilation_tasks/linux_2018-05-28-00-39-07/secu_compile/hello_1_1	-Wextra	-O1, b'', b''
-Compilation_tasks/linux_2018-05-28-00-39-07/secu_compile/hello_1_2	-Wextra	-O2, b'', b''
-Compilation_tasks/linux_2018-05-28-00-39-07/secu_compile/hello_1_3	-Wextra	-O3, b'', b''

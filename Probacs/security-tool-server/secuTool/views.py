@@ -52,10 +52,12 @@ def rcvSrc(request):
 	print(request.FILES['srcCodes'].content_type == 'application/zip')
 	# print(filename)
 	srcPath = taskFolder+"/"+filename
-	taskPath = taskFolder+"/"+taskfile
+	# write task specify file to taskFolder
 	with open(srcPath,'wb+') as dest:
 		for chunk in request.FILES['srcCodes'].chunks():
 			dest.write(chunk)
+	# write task specify file to taskFolder
+	taskPath = taskFolder+"/"+taskfile
 	with open(taskPath,'wb+') as dest:
 		for chunk in request.FILES['task_file'].chunks():
 			dest.write(chunk)
