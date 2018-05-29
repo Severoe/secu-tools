@@ -31,7 +31,7 @@ def execute(request):
 		for chunk in request.FILES['file'].chunks():
 			dest.write(chunk)
 	tar = r'"C:\Program Files (x86)\GnuWin32\bin\tar.exe"'
-	os.system(tar+" "+"-cvzf "+ taskFolder+'\\'+filename+" "+src_dir)
+	os.system(tar+" "+"xvf "+ taskFolder+'\\'+filename+" -C "+src_dir)
 	print(request.FILES['file'])
 
 	############################################

@@ -138,8 +138,8 @@ def upload_to_platform(ip, compiler_invoke, flags, taskName, taskFolder, codeFol
 	#################################
 	# form code archive for code folder
 	#################################
-	tarPath = taskFolder+'/src.tar'
-	print(tarPath)
+	tarPath = taskFolder+'/src.tgz'
+	print(codeFolder)
 	os.system('tar cvzf '+tarPath+' '+codeFolder)
 	#send request to specific platform servers
 	data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': flags}
