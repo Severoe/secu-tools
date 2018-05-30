@@ -58,7 +58,7 @@ def do_compilation(src_file, dest_folder, invoke_format, flags):
     cnt = 0
     for flag in flags:
         cnt += 1
-        exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_").replace("/", "-"))
         logline = "%s\t%s"%(exename, flag)
         command = invoke_format.replace("flags", flag).replace("source", src_file).replace("exename", exename).split(" ")
         print(command)
