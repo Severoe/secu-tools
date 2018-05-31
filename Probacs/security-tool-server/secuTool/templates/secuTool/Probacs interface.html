@@ -1,0 +1,93 @@
+<h2>Auto Compilation System</h2>
+
+<h3>Submit a job</h3>
+
+<h4> Please select your profiles. </h4>
+<form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
+			
+			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
+			<div class="" style="height: 10px;"></div>
+			<input type="submit" value="Select" class="submit-edition">
+			{% csrf_token %}
+</form>
+
+<h4> Please select your source code. </h4>
+<form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
+			
+			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
+			<div class="" style="height: 10px;"></div>
+			<input type="submit" value="Browse" class="submit-edition">
+			{% csrf_token %}
+
+			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
+			<div class="" style="height: 10px;"></div>
+			<input type="submit" value="Upload" class="submit-edition">
+			{% csrf_token %}
+
+<div class="upload-error">
+                {% if form.errors %} {{form.errors}} {% endif %}
+            </div>
+			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
+			<div class="" style="height: 10px;"></div>
+			<input type="submit" value="COMPILE" class="submit-edition">
+			{% csrf_token %}
+
+</form>
+
+
+
+
+<form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
+			<input type ="hidden" name="taskid" value = {{linux_taskFolder}}>
+			<input type="submit" value="Download Directory" class="submit-edition">
+			{% csrf_token %}
+		</form>
+<p>------------------------------------------------------------</p>
+<h3>Configuration Options</h3>
+			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
+			<div class="" style="height: 10px;"></div>
+			<input type="submit" value="Add a profile" class="submit-edition">
+			{% csrf_token %}
+
+			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
+			<div class="" style="height: 10px;"></div>
+			<input type="submit" value="Manage profiles" class="submit-edition">
+			{% csrf_token %}
+	
+			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
+			<div class="" style="height: 10px;"></div>
+			<input type="submit" value="Add a compiler" class="submit-edition">
+			{% csrf_token %}
+	
+			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
+			<div class="" style="height: 10px;"></div>
+			<input type="submit" value="Add a flag" class="submit-edition">
+			{% csrf_token %}
+
+<p>------------------------------------------------------------</p>
+<h3>Track a job</h3>
+	
+			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
+			<div class="" style="height: 10px;"></div>
+			<input type="submit" value="Enter Job ID" class="submit-edition">
+			{% csrf_token %}
+
+		
+			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
+			<div class="" style="height: 10px;"></div>
+			<input type="submit" value="Go" class="submit-edition">
+			{% csrf_token %}
+
+
+
+
