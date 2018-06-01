@@ -239,3 +239,13 @@ def printRcd(rcd):
 
 
 
+
+
+
+
+# test funciton
+def test(request):
+	context = {}
+	return render(request, 'secuTool/test.html',context)
+
+

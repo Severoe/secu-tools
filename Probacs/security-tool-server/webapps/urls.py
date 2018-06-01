@@ -27,7 +27,7 @@ urlpatterns = [
     # url(r'^serve_pdf$', views.serve_pdf, name='serve_pdf'),
     url(r'^download_tar$', views.wrap_dir, name='download_tar'),
 
-    
+    url(r'^test', views.test, name='test'),
 
 # download_fil
 ]
