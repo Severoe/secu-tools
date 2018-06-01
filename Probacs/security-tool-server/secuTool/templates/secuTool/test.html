@@ -1,50 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <style>
+      #myProgress {
+      width: 100%;
+      background-color: #ddd;
+    }
 
-<h2>Auto Compilation System</h2>
-<h3>hello </h3>
+    #myBar {
+      width: 1%;
+      height: 30px;
+      background-color: #4CAF50;
+    }
+header, footer {
+    
+    color: white;
+    background-color: orange;
+    clear: left;
+    text-align: center;
+}
 
+article {
+    margin-left: 170px;
+    border-left: 1px blue;
+    padding: 1em;
+    overflow: hidden;
+}
 
-{{ message }}
-<p>------------------------------------------------------------</p>
-<h4> Please specify task information inside a txt file</h4>
+aside {
+    margin-left: 700px;
+    margin-top: 0px;
+    border-left: 1px blue;
+    color:purple;
+    background: red;
+    padding: 1em;
+    overflow: hidden;
+}
+.debug{
+  border: 1px solid red;
+}
+
+</style>
+</head>
+<body>
+  <header>  <h1 style="background-color:Tomato;">Profile Based Auto Compilation System</h1></header>
+
+  <div class="container">
+    <div class="row"> 
+      <div class="col-sm-6 debug">
+        
+<h3>Submit a job</h3>
+
+<h4> Please select your profiles. </h4>
 <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
-			<div class="upload-error">
-                {% if form.errors %} {{form.errors}} {% endif %}
-            </div>
-			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
-			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
-			<div class="" style="height: 10px;"></div>
-			<input type="submit" value="submit" class="submit-edition">
-			{% csrf_token %}
+      
+      <div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+      <div class="photo-upload">upload task specify file {{form.task_file}} </div>
+      <div class="" style="height: 10px;"></div>
+      <input type="submit" value="Select" class="submit-edition">
+      {% csrf_token %}
 </form>
 
+<h4> Please select your source code. </h4>
+<form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
+      
+      <div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+      <div class="photo-upload">upload task specify file {{form.task_file}} </div>
+      <div class="" style="height: 10px;"></div>
+      <input type="submit" value="Browse" class="submit-edition">
+      {% csrf_token %}
 
-
-
-<form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
-			<input type ="hidden" name="taskid" value = {{linux_taskFolder}}>
-			<input type="submit" value="download directory" class="submit-edition">
-			{% csrf_token %}
-		</form>
-
-
-
-<!-- 
-<p></p>
-<h4>compile in windows</h4>
-<p>  {{filename}}</p>
-<form enctype="multipart/form-data" action="{% url 'uploadWin' %}" method='post'>
-			<div class="upload-error">
+      <div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+      <div class="photo-upload">upload task specify file {{form.task_file}} </div>
+      <div class="" style="height: 10px;"></div>
+      <input type="submit" value="Upload" class="submit-edition">
+      {% csrf_token %}
+</form>
+<div class="upload-error">
                 {% if form.errors %} {{form.errors}} {% endif %}
             </div>
-			<div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
-			<div class="photo-upload">upload task specify file {{form.task_file}} </div>
-			<input type="submit" value="submit" class="submit-edition">
-			{% csrf_token %}
-		</form>
+      <div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+      <div class="photo-upload">upload task specify file {{form.task_file}} </div>
+      <div class="" style="height: 10px;"></div>
+      <!-- <input type="submit" value="COMPILE" class="submit-edition"> -->
+      {% csrf_token %}
+<!-- </form> -->
 
 <form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
-			<input type ="hidden" name="taskid" value = {{win_taskFolder}}>
-			<input type="submit" value="download directory" class="submit-edition">
-			{% csrf_token %}
-		</form>
- -->
+      <input type ="hidden" name="taskid" value = {{linux_taskFolder}}>
+      <input type="submit" value="Download Directory" class="submit-edition">
+      {% csrf_token %}
+    </form>
+  </div>
+
+
+
+      <div class="col-sm-6 debug">
+        <div class="">
+        <h3>Configuration Options</h3>
+      <div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+      <div class="photo-upload">upload task specify file {{form.task_file}} </div>
+      <div class="" style="height: 10px;"></div>
+      <input type="submit" value="Add a profile" class="submit-edition"/>
+      {% csrf_token %}
+
+      <div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+      <div class="photo-upload">upload task specify file {{form.task_file}} </div>
+      <div class="" style="height: 10px;"></div>
+      <input type="submit" value="Manage profiles" class="submit-edition"/>
+      {% csrf_token %}
+  
+      <div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+      <div class="photo-upload">upload task specify file {{form.task_file}} </div>
+      <div class="" style="height: 10px;"></div>
+      <input type="submit" value="Add a compiler" class="submit-edition">
+      {% csrf_token %}
+  
+      <div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+      <div class="photo-upload">upload task specify file {{form.task_file}} </div>
+      <div class="" style="height: 10px;"></div>
+      <input type="submit" value="Add a flag" class="submit-edition">
+      {% csrf_token %}
+      </div>
+
+      <div class="">
+        <h3>Track a job</h3>
+  
+      <div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
+      <div class="photo-upload">upload task specify file {{form.task_file}} </div>
+      <div class="" style="height: 10px;"></div>
+      <!-- <input type="submit" value="Enter Job ID" class="submit-edition"> -->
+      <!-- {% csrf_token %} -->
+
+      <p>-----------------------------------------------</p>
+    <h4>Job Progress</h4>
+
+    <div id="myProgress">
+      <div id="myBar"></div>
+    </div>
+
+    <br>
+    <button onclick="move()">Go</button> 
+
+    <script>
+    function move() {
+      var elem = document.getElementById("myBar");   
+      var width = 1;
+      var id = setInterval(frame, 10);
+      function frame() {
+        if (width >= 100) {
+          clearInterval(id);
+        } else {
+          width++; 
+          elem.style.width = width + '%'; 
+        }
+      }
+    }
+    </script>
+      </div>
+
+
+
+    </div>
+  </div>
+
+</body>
+</html>
