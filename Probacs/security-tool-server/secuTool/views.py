@@ -257,7 +257,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
 	def onComplete(task_info):
 		'''
 		keys = 'task_id', 'target_os', 'compiler', 'version', 'src_path', 
-		'dest_folder', 'filename', 'out', 'err'
+		'dest_folder', 'exename', 'out', 'err'
 		'''
 	"""
 
