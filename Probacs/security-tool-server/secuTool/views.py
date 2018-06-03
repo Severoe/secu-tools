@@ -191,7 +191,6 @@ def saveExe(request):
 	return response
 
 
-
 #need to pack task based on taskid, also return blank page if request is empty
 @transaction.atomic
 def wrap_dir(request):
@@ -238,14 +237,8 @@ def printRcd(rcd):
 	return
 
 
-
-
-
-
-
 # test funciton
 def test(request):
 	context = {}
 	return render(request, 'secuTool/test.html',context)
-
 
