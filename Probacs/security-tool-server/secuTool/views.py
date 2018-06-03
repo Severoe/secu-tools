@@ -210,7 +210,6 @@ def saveExe(request):
 	return response
 
 
-
 #need to pack task based on taskid, also return blank page if request is empty
 @transaction.atomic
 def wrap_dir(request):
@@ -257,11 +256,6 @@ def printRcd(rcd):
 	return
 
 
-
-
-
-
-
 # test funciton
 def test(request):
 	context = {}
@@ -270,4 +264,22 @@ def test(request):
 	# context['status'] = statuses
 	return render(request, 'secuTool/test.html',context)
 
+
+def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, on_complete):
+	"""
+	task_id: string, task id of this job
+	target_os: string, target os for this task
+	compiler: string, compiler name
+	version: string, version number of this compiler
+	src_path: string, the source code file path
+	dest_folder: string, folder name where you want the executables and log to be
+	invoke_format: string, how to invoke the compiler, example: cc_flags_source_-o_exename
+	flags: string, combinations of flags to be used, comma seperated
+	on_complete: callback function, takes a dictionary as argument
+	def onComplete(task_info):
+		'''
+		keys = 'task_id', 'target_os', 'compiler', 'version', 'src_path', 
+		'dest_folder', 'exename', 'out', 'err'
+		'''
+	"""
 
