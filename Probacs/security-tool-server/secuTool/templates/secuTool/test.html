@@ -41,7 +41,7 @@ aside {
 .debug{
 
   border: 1px solid yellow;
-  background: black;
+  /*background: black;*/
 }
 
 </style>
@@ -54,7 +54,7 @@ aside {
       <div class="col-sm-6 debug">
         
 <h3>Submit a job</h3>
-
+	{{message}}
 <h4> Please select your profiles. </h4>
 <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
       

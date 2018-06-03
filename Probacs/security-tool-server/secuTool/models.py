@@ -26,7 +26,16 @@ class Profile_conf(models.Model):
 	version = models.CharField(max_length=60)
 	flag = models.TextField()
 	
-
+class Task(models.Model):
+	task_id = models.CharField(max_length=200)
+	src_file = models.CharField(max_length=200) # file name<hello.c>
+	target_os = models.CharField(max_length=60)
+	compiler = models.CharField(max_length=60)
+	version = models.CharField(max_length=60)
+	flag = models.TextField() #flag used for one specific compilation task
+	exename = models.TextField(null=True,blank=True)
+	out = models.TextField(null=True,blank=True)
+	err = models.TextField(null=True,blank=True)
 
 
 class ProfileUser(models.Model):

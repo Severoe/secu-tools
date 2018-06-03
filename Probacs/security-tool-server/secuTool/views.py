@@ -36,16 +36,20 @@ def rcvSrc(request):
 	#create unique task forder for each task, inside which includes:
 	# srcCode, <profiles>, compiled file & log, 
 	# the archive for downloading will be delete 
-	taskName = 'task_'+timestr
-	taskFolder = taskdir+'task_'+timestr
+	taskName = timestr
+	taskFolder = taskdir+timestr
 	codeFolder = taskFolder+"/"+"srcCodes"
 	os.system("mkdir "+taskFolder)
 	context = {}
 	srcPath = ''
+	#######################
 	# handle bad submit request (attention, undergoing compilation info may be missing by rendering blank)
+	#######################
 	if 'srcCodes' not in request.FILES or 'task_file' not in request.FILES:
 		return redirect(home)
-	#save file in taskfolder
+	#######################
+	#save source files in taskfolder
+	#######################
 	filename = request.FILES['srcCodes'].name
 	taskfile = request.FILES['task_file'].name
 	print(request.FILES['srcCodes'].content_type)
@@ -65,8 +69,10 @@ def rcvSrc(request):
 		os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+srcCodes)
 		os.system('mv '+taskFolder+'/'+filename.split('.')[0]+' '+codeFolder)
 		srcPath = codeFolder+"/"+filename
-
+		# update filename to be the main srcfile name if tast srcfile is a tarbar
+	#######################
 	# write task specify file to taskFolder
+	#######################
 	taskPath = taskFolder+"/"+taskfile
 	with open(taskPath,'wb+') as dest:
 		for chunk in request.FILES['task_file'].chunks():
@@ -100,24 +106,37 @@ def rcvSrc(request):
 		compile_combination = [i + [y] for y in x for i in compile_combination]
 	compile_combination = [" ".join(x) for x in compile_combination]
 	compile_combination = [x.replace(" ","_") for x in compile_combination]
+	#############################
+	# add entries into task database 
+	for ele in compile_combination:
+		new_task = Task(task_id=taskName,src_file=filename,target_os=param['target_os'], compiler=param['compiler'],
+		version=param['version'],flag=ele)
+		new_task.save()
 	final_flags = ",".join(compile_combination) 
-	print(final_flags)
 	#############################
 	# calling compilation tasks
 	#############################
 	if task_http == self_ip:
 		## compile in this host linux
-		# specify working dir id
+		# asyn request
 		outputDir = taskFolder+"/"+"secu_compile"
 		print(final_flags)
-		os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
-		print("finished compile")
-		context['linux_taskFolder'] = taskName
-		context['form']  = ProfileUserForm()
-		context['message'] = 'file compile finished !'
-		print(filename)
-		settings.TASKS[taskName] = 1
-		return render(request, 'secuTool/index.html', context)
+		# divide compilation into a new thread
+		pid = os.fork()
+		if pid == 0:
+			#new thread
+			# time.sleep(5)
+			os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
+			print("finished compile")
+			os._exit(0)  
+		else:
+			#parent process, simply return to client
+			context['linux_taskFolder'] = taskName
+			context['form']  = ProfileUserForm()
+			context['message'] = 'file is compiling'
+			print("asyn call finished")
+			settings.TASKS[taskName] = 1
+			return render(request, 'secuTool/index.html', context)
 	# if not compiling on linux host, send params to another function, interacting with specific platform server
 	upload_to_platform(task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
 	context['message'] = "file is compiling..."
@@ -246,6 +265,9 @@ def printRcd(rcd):
 # test funciton
 def test(request):
 	context = {}
+	context['message'] = 'shkadhlaskdjask'
+	context['form'] = ProfileUserForm()
+	# context['status'] = statuses
 	return render(request, 'secuTool/test.html',context)
 
 
