@@ -126,14 +126,16 @@ def rcvSrc(request):
 		if pid == 0:
 			#new thread
 			# time.sleep(5)
-			os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
+			compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
+			# os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
 			print("finished compile")
 			os._exit(0)  
 		else:
 			#parent process, simply return to client
 			context['linux_taskFolder'] = taskName
 			context['form']  = ProfileUserForm()
-			context['message'] = 'file is compiling'
+			context['message'] = 'file is compiling...'
+			context['task_id'] = taskName
 			print("asyn call finished")
 			settings.TASKS[taskName] = 1
 			return render(request, 'secuTool/index.html', context)
@@ -241,11 +243,31 @@ def wrap_dir(request):
 	# os.system("rm "+taskFolder+'/'+new_name)
 	return response
 
+@transaction.atomic
+def check_status(request):
+	context = {}
+	task_id = request.POST['task_id']
+	flags = request.POST['flags']
+	context['form'] = ProfileUserForm()
+
+
+	context['tasks'] = Task.objects.filter(task_id = task_id)
+	for ele in context['tasks']:
+		ele.flag = ele.flag.replace("_", " ")
+		ele.status = 'not finished' if ele.exename == None else 'finished'
+		ele.exename = '-' if not ele.exename else ele.exename
+		ele.out = '-' if not ele.out else ele.out
+		ele.err = '-' if not ele.err else ele.err
+
+	context['task_id'] = request.POST['task_id']
+	return render(request, 'secuTool/index.html',context)
+
 
 
 #used for database computing
 def printRcd(rcd):
 	print("============rcd report")
+
 	if rcd == None:
 		print('rcd not exists')
 		return
@@ -265,6 +287,24 @@ def test(request):
 	return render(request, 'secuTool/test.html',context)
 
 
+@transaction.atomic
+def on_complete(task_info):
+	'''
+	called when each time compilation finished
+	'''
+	task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'])
+	#handle error case
+	if task == None or task.exename != None:
+		print('task already gone or already updated')
+		return
+	task.exename = task_info['exename']
+	task.out = task_info['out']
+	task.err = task_info['err']
+	print('update finished')
+	task.save()
+	return
+
+@transaction.atomic
 def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, on_complete):
 	"""
 	task_id: string, task id of this job
@@ -278,8 +318,14 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
 	on_complete: callback function, takes a dictionary as argument
 	def onComplete(task_info):
 		'''
-		keys = 'task_id', 'target_os', 'compiler', 'version', 'src_path', 
+		keys = 'task_id', 'target_os', 'compiler', 'version', 'src_path', 'flag'
 		'dest_folder', 'exename', 'out', 'err'
 		'''
 	"""
+
+
+	#test:
+	# tmp = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'])
+	#print(tmp.exename)
+
 

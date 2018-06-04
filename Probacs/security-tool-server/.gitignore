@@ -26,4 +26,4 @@ local_settings.py
 
 
 # compilation files
-/security-tool-server/Compilation_tasks/*
+/Compilation_tasks/*
