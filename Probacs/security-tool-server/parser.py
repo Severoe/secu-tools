@@ -6,6 +6,8 @@ Author: Shipei Zhou
 Email: shipeiz@andrew.cmu.edu
 Date: May 27, 2018
 """
+import sys
+import copy
 
 def parseTaskFile(filename):
     """
@@ -13,7 +15,7 @@ def parseTaskFile(filename):
     filename: name of the user uploaded task file
     return:
     tuple, tuple[0] = parse message, None for no problem, string for any error
-    tuple[1] = dict of parsed content
+    tuple[1] = list of dicts of parsed content
     """
     line_no = 0
     d = {}
@@ -22,8 +24,9 @@ def parseTaskFile(filename):
             line_no += 1
             line = file.readline()
             # print(line)
-            if not line:
+            if not line or line.strip() == "":
                 break
+
             if ':' not in str(line):
                 msg = "Malformatted line %d: no ':'' found"%line_no
                 return msg, None
@@ -44,12 +47,40 @@ def parseTaskFile(filename):
                 msg = "Duplicate key at line %d: %s already speficied"%(line_no, key)
                 return msg, None
             
-            if key == "profile":
+            if key in ["profile", "target_os", "compiler", "version"]:
                 value = value.split(",")
-                value = filter(lambda x: x, value)
+                value = filter(lambda x: x, map(lambda x: x.strip(), value))
                 value = list(value)
                 # print(list(value))
             d[key] = value
 
-    return None, d
+    for key in ['target_os', 'compiler', 'version', 'profile', 'username']:
+        if key not in d:
+            msg = "Must specify %s in the task file"%(key)
+            return msg, None
 
+    if not d['username']:
+        msg = "Must specify non-null username"
+        return msg, None
+
+    if len(d['target_os']) != len(d['compiler']) or len(d['target_os']) != len(d['version']):
+        msg = "Number of target_os, compiler and version must be the same"
+        return msg, None
+
+
+    ret = []
+
+    task = {'profile': d['profile'], 'username': d['username']}
+    if 'tag' in d:
+        task['tag'] = d['tag']
+
+    for i in range(len(d['target_os'])):
+        task['target_os'] = d['target_os'][i]
+        task['compiler'] = d['compiler'][i]
+        task['version'] = d['version'][i]
+        ret.append(copy.deepcopy(task))
+
+    return None, ret
+
+if __name__ == "__main__":
+    print parseTaskFile(sys.argv[1])
