@@ -1,4 +1,10 @@
 target_os:linux,win
-Compiler:gcc,vs
+compiler:gcc,vs
 version:6.7,6.7
+username: jeff       
+tag:my first compilation. 
 profile:max_speed,max_optimization
+
+
+
+
