@@ -126,8 +126,8 @@ def rcvSrc(request):
         if pid == 0:
             #new thread
             # time.sleep(5)
-            # compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
-            os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
+            compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
+            # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
             print("finished compile")
             os._exit(0)  
         else:
@@ -292,7 +292,8 @@ def on_complete(task_info):
     '''
     called when each time compilation finished
     '''
-    task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'])
+    task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
+    # print("exename "+str(task.exename))
     #handle error case
     if task == None or task.exename != None:
         print('task already gone or already updated')
@@ -302,6 +303,8 @@ def on_complete(task_info):
     task.err = task_info['err']
     print('update finished')
     task.save()
+    task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
+    # print("exename "+str(task.exename))
     return
 
 @transaction.atomic
@@ -366,7 +369,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
         logline = "%s\t%s"%(exename, flag)
 
         command = invoke_format.replace("flags", flag).replace("source", src_path).replace("exename", exename).split(" ")
-        print(command)
+        # print(command)
         compilation = Popen(command, stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
         log_file.write("%s, %s, %s\n"%(logline, out, err))
