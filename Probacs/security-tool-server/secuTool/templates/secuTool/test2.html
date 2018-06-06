@@ -14,7 +14,6 @@
       height: 30px;
       background-color: #4CAF50;
     }
-<<<<<<< HEAD
 
     header, footer {  
       color: white;
@@ -22,58 +21,6 @@
       clear: left;
       text-align: center;
     }
-=======
-header, footer {
-    
-    color: white;
-    background-color: orange;
-    clear: left;
-    text-align: center;
-}
-
-article {
-    margin-left: 170px;
-    border-left: 1px blue;
-    padding: 1em;
-    overflow: hidden;
-}
-
-aside {
-    margin-left: 700px;
-    margin-top: 0px;
-    border-left: 1px blue;
-    color:purple;
-    background: red;
-    padding: 1em;
-    overflow: hidden;
-}
-.debug{
-
-  border: 1px solid yellow;
-  /*background: black;*/
-}
-
-</style>
-</head>
-<body>
-  <header>  <h1 style="background-color:Tomato;">Profile Based Auto Compilation System</h1></header>
-
-  <div class="container">
-    <div class="row"> 
-      <div class="col-sm-6 debug">
-        
-<h3>Submit a job</h3>
-	{{message}}
-<h4> Please select your profiles. </h4>
-<form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
-      
-      <div class="photo-upload" >upload source code  {{form.srcCodes}} </div>
-      <div class="photo-upload">upload task specify file {{form.task_file}} </div>
-      <div class="" style="height: 10px;"></div>
-      <input type="submit" value="Select" class="submit-edition">
-      {% csrf_token %}
-</form>
->>>>>>> e6ee4af4adafb34d66fc2cadff2d036a8d85a577
 
     article {
       margin-left: 170px;
