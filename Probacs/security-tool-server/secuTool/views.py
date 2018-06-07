@@ -12,6 +12,7 @@ from django.db import transaction
 import requests
 from django.conf import settings
 from parser import *
+
 # Create your views here.
 ################################
 # global variables
