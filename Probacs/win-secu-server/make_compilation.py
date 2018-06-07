@@ -96,7 +96,7 @@ def on_complete(task_info):
 
 
 if __name__ == "__main__":
-
+    print(sys.argv)
     if len(sys.argv) != 10:
 
         sys.stderr.write("Usage: python make_compilation <source file> <output dir> <invoke_format> <flags>\n")
