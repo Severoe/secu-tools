@@ -146,7 +146,6 @@ def rcvSrc(request):
     # taskRecord = Tasks(taskFolder=taskName, totalCompilation = 1, finishedCompilation = 1, status = 1)
     # taskRecord.save()
 
-@transaction.atomic
 def upload_to_platform(param,ip, compiler_invoke, flags, taskName, taskFolder, codeFolder,mainSrcName):
     '''
     flags is compressed string used for make_compilation.py
@@ -169,8 +168,12 @@ def upload_to_platform(param,ip, compiler_invoke, flags, taskName, taskFolder, c
     print(data)
     files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
     settings.TASKS[taskFolder] = 0
-    response = requests.post(winurl, files=files,data=data) 
-    return
+    pid = fork()
+    if pid == 0:
+        response = requests.post(winurl, files=files,data=data) 
+        os._exit(0)  
+    else:
+        return
 
 
 

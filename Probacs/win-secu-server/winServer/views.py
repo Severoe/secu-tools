@@ -9,7 +9,7 @@ from django.core.files import File
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import requests    #need pip install requests
-from multiprocessing import Process
+# from multiprocessing import Process
 
 # hostserver = "http://192.168.27.131:8000/" #ip/port of the host server
 # hostserver = "http://172.16.165.125:8000/" #ip/port of the host server
@@ -50,9 +50,11 @@ def execute(request):
 	cl = None
 	if 'env' in request.POST and request.POST['env'] != None:
 		cl = request.POST['env'].replace("_",' ')
+	compile(taskFolder, request.POST['target_os'], request.POST['compiler'], request.POST['version'],
+		srcpath, compileDir, request.POST['command'], request.POST['flags'],cl)
 	# make compilation async
-	p = Process(target=sub_process,args=(request.POST,taskFolder,srcpath,compileDir,cl,src_dir))
-	p.start()
+	# p = Process(target=sub_process,args=(request.POST,taskFolder,srcpath,compileDir,cl,src_dir))
+	# p.start()
 	# print("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
 	# cl = r'"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
 	# os.system(cl+"&& python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
@@ -62,13 +64,13 @@ def execute(request):
 	print("send back request")
 	return response
 
-def sub_process(info, taskFolder, srcpath, compileDir,cl,src_dir):
-	compile(taskFolder, info['target_os'], info['compiler'], info['version'],
-		srcpath, compileDir, info['command'], info['flags'],cl)
-	print("finished compile")
-	responseFromHost,tmpzip = sendBackExe(taskFolder) # test purpose, replace hellomake later
-	os.system("del /-f "+src_dir +" /Q") #delete tmp zip file
-	return
+# def sub_process(info, taskFolder, srcpath, compileDir,cl,src_dir):
+# 	compile(taskFolder, info['target_os'], info['compiler'], info['version'],
+# 		srcpath, compileDir, info['command'], info['flags'],cl)
+# 	print("finished compile")
+# 	responseFromHost,tmpzip = sendBackExe(taskFolder) # test purpose, replace hellomake later
+# 	os.system("del /-f "+src_dir +" /Q") #delete tmp zip file
+# 	return
 
 
 def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, cl):
@@ -129,7 +131,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
     Popen(cl)
     for flag in flag_list:
         cnt += 1
-        time.sleep(5)
+        time.sleep(3)
         exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         logline = "%s\t%s"%(exename, flag)
 
