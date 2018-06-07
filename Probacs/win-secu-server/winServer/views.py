@@ -26,6 +26,7 @@ def execute(request):
 	#save file in task folder
 	filename = request.FILES['file'].name
 	host_ip = request.META['REMOTE_ADDR']
+	print(host_ip)
 	src_dir = 'srcCodes'
 
 	with open(taskFolder+'\\'+filename,'wb+') as dest:
