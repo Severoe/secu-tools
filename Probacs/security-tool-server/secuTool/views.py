@@ -135,7 +135,7 @@ def rcvSrc(request):
                 # settings.TASKS[taskName] = 1
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
-            upload_to_platform(task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
+            upload_to_platform(param,task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
         
     context['task_id'] = taskName
     context['message'] = "file is compiling..."
@@ -147,7 +147,7 @@ def rcvSrc(request):
     # taskRecord.save()
 
 @transaction.atomic
-def upload_to_platform(ip, compiler_invoke, flags, taskName, taskFolder, codeFolder,mainSrcName):
+def upload_to_platform(param,ip, compiler_invoke, flags, taskName, taskFolder, codeFolder,mainSrcName):
     '''
     flags is compressed string used for make_compilation.py
     compiler_invoke is a string used for cmd line compilation
@@ -164,7 +164,8 @@ def upload_to_platform(ip, compiler_invoke, flags, taskName, taskFolder, codeFol
     if '&&' in compiler_invoke:
         runEnv = compiler_invoke.split('&&')[0]
         compiler_invoke = compiler_invoke.split('&&')[1]
-    data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': flags,'env':runEnv}
+    data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': flags,
+    'env':runEnv,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version']}
     print(data)
     files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
     settings.TASKS[taskFolder] = 0
@@ -306,6 +307,26 @@ def test(request):
     context['form'] = ProfileUserForm()
     # context['status'] = statuses
     return render(request, 'secuTool/test.html',context)
+
+@transaction.atomic
+def rcv_platform_result(request):
+    '''
+    called when platform server sending back compilation result for each single compilation
+    '''
+    task = Task.objects.get(task_id=request.POST['task_id'],flag=request.POST['flag'].replace(" ","_"))
+    # print("exename "+str(task.exename))
+    #handle error case
+    if task == None or task.exename != None:
+        print('task already gone or already updated')
+        return HttpResponse()
+    task.exename = task_info['exename']
+    task.out = task_info['out']
+    task.err = task_info['err']
+    print('update finished')
+    task.save()
+    # task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
+    # print("exename "+str(task.exename))
+    return HttpResponse()
 
 
 @transaction.atomic
