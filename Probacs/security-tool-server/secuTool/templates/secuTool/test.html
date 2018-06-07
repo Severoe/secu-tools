@@ -11,7 +11,7 @@
 
     #myBar {
       width: 1%;
-      height: 30px;
+      height: 20px;
       background-color: #4CAF50;
     }
 
@@ -42,7 +42,6 @@
     .debug{
       border: 1px solid yellow;
     }
-
   </style>
 </head>
 
@@ -57,7 +56,7 @@
   <div class="col-sm-6 debug">      
     <h3>Submit a job.</h3>
     <br>
-    <h4> Please select your profiles. </h4>
+    <h5> Please select your profiles. </h5>
     <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
       <div class="" style="height: 10px;"></div>
       <input type="file" value="Select" class="submit-edition">
@@ -65,7 +64,7 @@
     </form>
     <br>
 
-    <h4> Please select your source code. </h4>
+    <h5> Please select your source code. </h5>
     <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
       <div class="" style="height: 10px;"></div>
       <input type="file" value="Upload" class="submit-edition">
@@ -73,40 +72,51 @@
     </form>
     <br>
 
-    <h4> Please select your OS. </h4>
-    <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
-      <div class="" style="height: 10px;"></div>
-      <input type="file" value="Upload" class="submit-edition"> {% csrf_token %}
-    </form>
-    <br>
+    <h5> Please select your OS, Compilers and Flags. </h5>
+    
+    <select name="meal" id="meal" onChange="changecat(this.value);">
+    <option value="" disabled selected>Select</option>
+    <option value="Linux">Linux</option>
+    <option value="Windows">Windows</option>
 
-    <h4> Please select your compilers. </h4>
-    <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
-      <div class="" style="height: 10px;"></div>
-      <input type="file" value="Upload" class="submit-edition"> {% csrf_token %}
-    </form>
-    <br>
+</select>
+<select name="category" id="category">
+    <option value="" disabled selected>Select</option>
+</select>
 
-    <h4> Please select your flags. </h4>
-    <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
-      <div class="" style="height: 10px;"></div>
-      <input type="file" value="Upload" class="submit-edition"> {% csrf_token %}
-    </form>
-    <br>
+<script>
+
+
+var flagsByOS = {
+    Linux: ["None","-fsyntax-only","-w","-Werror","-Wpedantic","-Wall","-Wextra","-Wno-coverage-mismatch","-Wno-cpp","-Wformat","-Wfatal-errors","-Wmain","-Wunused","O0","O1","O2","O3","Og","Ofast","Os"],
+    Windows: ["None","/W0","/W1","/W2","/W3","/W4","/Wall","/WX"],
+ 
+}
+
+    function changecat(value) {
+        if (value.length == 0) document.getElementById("category").innerHTML = "<option></option>";
+        else {
+            var catOptions = "";
+            for (categoryId in flagsByOS[value]) {
+                catOptions += "<option>" + flagsByOS[value][categoryId] + "</option>";
+            }
+            document.getElementById("category").innerHTML = catOptions;
+        }
+    }
+
+
+
+</script>
+
     
     <div class="" style="height: 10px;"></div>
-    <input type="submit" value="Submit Job" class="submit-edition">
+    <input type="submit" value="Submit Job" onclick="showProgressCursor()">
     {% csrf_token %}
     <br> <br>
-
-    <h5>Job Progress</h5>
-    <div id="myProgress">
-      <div id="myBar"></div>
-    </div>
-    <p> </p>
-    <button onclick="move()">Go</button>
     <script>
-      function move() {
+      function showProgressCursor() {
+        var x = document.getElementById("progressbar");
+        x.style.display = "block";
         var elem = document.getElementById("myBar");
         var width = 1;
         var id = setInterval(frame, 10);
@@ -114,13 +124,21 @@
           if (width >= 100) {
             clearInterval(id);
           } else {
-            width++;
+            width ++;
             elem.style.width = width + '%';
           }
         }
-      }
+     }
     </script>
-    <p> </p>
+    
+    <div id="progressbar" style = "display: none">
+    <h6>Job Progress</h6>
+      <div id="myProgress">
+        <div id="myBar"></div>
+      </div>
+      <br>
+    </div>
+    <br>
 
     <form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
       <input type ="hidden" name="taskid" value = {{linux_taskFolder}}>
@@ -130,64 +148,61 @@
     </div>
 
   <div class="col-sm-6 debug">
-    <div class="row-sm-6 debug">
-      <h3>Configuration Options</h3>
-        <div class="photo-upload" >Add a profile {{form.srcCodes}} </div>
-        <div class="" style="height: 10px;"></div>
-        <input type="submit" value="Add a profile" class="submit-edition"/>
-        {% csrf_token %}
-        <p> </p>
-
-        <div class="photo-upload" >Manage profiles  {{form.srcCodes}} </div>
-        <div class="" style="height: 10px;"></div>
-        <input type="submit" value="Manage profiles" class="submit-edition"/>
-        {% csrf_token %}
-        <p> </p>
-
-        <div class="photo-upload" >Add a compiler  {{form.srcCodes}} </div>
-        <div class="" style="height: 10px;"></div>
-        <input type="submit" value="Add a compiler" class="submit-edition">
-        {% csrf_token %}
-        <p> </p>
-
-        <div class="photo-upload" >Add a flag  {{form.srcCodes}} </div>
-        <div class="" style="height: 10px;"></div>
-        <input type="submit" value="Add a flag" class="submit-edition">
-        {% csrf_token %}
-        <p> </p>        
-    </div>
-    <p> </p>
-    <p> </p>
-    
-    <div class="row-sm-6 debug">
-      <h3>Track a job</h3>
-      <div class="photo-upload" >Enter Job ID  {{form.srcCodes}} </div>
+    <h3>Configuration Options</h3>
+      <br>
+      <div class="photo-upload" >Add a profile</div>
       <div class="" style="height: 10px;"></div>
-      <input type="submit" value="Enter Job ID" class="submit-edition">
+      <input type="file" value="Add a profile" class="submit-edition"/>
       {% csrf_token %}
-      <p> </p>
-      
-      <table style="width: 400px;">
-        <tbody>
-          <tr>
-            <th style="width: 100px;">JID</th>
-            <th style="width: 200px;">Combinations</th>
-            <th style="width: 60px;">Status</th>
-          </tr>
-          <tr>
-            <td style="width: 100px;"> 1</td>
-            <td style="width: 200px;"> -O1, -Wall</td>
-            <td style="width: 60px;"> To do</td>
-          </tr>
-          <tr>
-            <td style="width: 100px"> 2</td>
-            <td style="width: 200px;"> -O2, -W1</td>
-            <td style="width: 60px;"> Completed</td>
-          </tr>
-        </tbody>
-      </table>
-    <p> </p>
-    </div>
+      <br> <br>
+
+      <div class="photo-upload" >Manage profiles</div>
+      <div class="" style="height: 10px;"></div>
+      <input type="submit" value="Manage profiles" class="submit-edition"/>
+      {% csrf_token %}
+      <br> <br>
+
+      <div class="photo-upload" >Add a compiler</div>
+      <div class="" style="height: 10px;"></div>
+      <input type="file" value="Add a compiler" class="submit-edition">
+      {% csrf_token %}
+      <br> <br>
+
+      <div class="photo-upload" >Add a flag</div>
+      <div class="" style="height: 10px;"></div>
+      <input type="file" value="Add a flag" class="submit-edition">
+      {% csrf_token %}
+      <br> <br>
+    <br>
+    
+    <h3>Track a job</h3>
+    <br>
+    <form action="/action_page.php">
+      Searching: &nbsp;
+      <input type="text" name="Keywords" value="Keywords">
+      <input type="submit" value="Submit" class="submit-edition"> <br> <br>
+    </form>
+
+    <table style="width: 400px;">
+      <tbody>
+        <tr>
+          <th style="width: 100px;">JID</th>
+          <th style="width: 200px;">Combinations</th>
+          <th style="width: 60px;">Status</th>
+        </tr>
+        <tr>
+          <td style="width: 100px;"> 1</td>
+          <td style="width: 200px;"> -O1, -Wall</td>
+          <td style="width: 60px;"> To do</td>
+        </tr>
+        <tr>
+          <td style="width: 100px"> 2</td>
+          <td style="width: 200px;"> -O2, -W1</td>
+          <td style="width: 60px;"> Completed</td>
+        </tr>
+      </tbody>
+    </table>
+  <p> </p>
   
   </div>
   </div>
