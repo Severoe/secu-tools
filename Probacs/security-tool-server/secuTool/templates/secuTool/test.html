@@ -56,32 +56,50 @@
   
   <div class="col-sm-6 debug">      
     <h3>Submit a job.</h3>
-    <p> </p>
+    <br>
     <h4> Please select your profiles. </h4>
     <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
-      <div class="photo-upload" >Upload the profiles  {{form.srcCodes}} </div>
-      <div class="photo-upload">Upload task specify file {{form.task_file}} </div>
       <div class="" style="height: 10px;"></div>
-      <input type="submit" value="Select" class="submit-edition">
+      <input type="file" value="Select" class="submit-edition">
       {% csrf_token %}
     </form>
-    <p> </p>
+    <br>
 
     <h4> Please select your source code. </h4>
     <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
-      <div class="photo-upload" >Upload source code  {{form.srcCodes}} </div>
-      <div class="photo-upload">Upload task specify file {{form.task_file}} </div>
       <div class="" style="height: 10px;"></div>
       <input type="file" value="Upload" class="submit-edition">
       {% csrf_token %}
-
-      <div class="" style="height: 10px;"></div>
-      <input type="submit" value="Compile" class="submit-edition">
-      {% csrf_token %}
     </form>
-    <p> </p>
+    <br>
 
-    <h4>Job Progress</h4>
+    <h4> Please select your OS. </h4>
+    <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
+      <div class="" style="height: 10px;"></div>
+      <input type="file" value="Upload" class="submit-edition"> {% csrf_token %}
+    </form>
+    <br>
+
+    <h4> Please select your compilers. </h4>
+    <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
+      <div class="" style="height: 10px;"></div>
+      <input type="file" value="Upload" class="submit-edition"> {% csrf_token %}
+    </form>
+    <br>
+
+    <h4> Please select your flags. </h4>
+    <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
+      <div class="" style="height: 10px;"></div>
+      <input type="file" value="Upload" class="submit-edition"> {% csrf_token %}
+    </form>
+    <br>
+    
+    <div class="" style="height: 10px;"></div>
+    <input type="submit" value="Submit Job" class="submit-edition">
+    {% csrf_token %}
+    <br> <br>
+
+    <h5>Job Progress</h5>
     <div id="myProgress">
       <div id="myBar"></div>
     </div>
