@@ -51,16 +51,24 @@ def execute(request):
 	cl = None
 	if 'env' in request.POST and request.POST['env'] != None:
 		cl = request.POST['env'].replace("_",' ')
-	compile(taskFolder, request.POST['target_os'], request.POST['compiler'], request.POST['version'],
-		srcpath, compileDir, request.POST['command'], request.POST['flags'],cl)
+	# compile(taskFolder, request.POST['target_os'], request.POST['compiler'], request.POST['version'],
+	# 	srcpath, compileDir, request.POST['command'], request.POST['flags'],cl)
 	# make compilation async
 	# p = Process(target=sub_process,args=(request.POST,taskFolder,srcpath,compileDir,cl,src_dir))
 	# p.start()
 	# print("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
 	# cl = r'"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
-	# os.system(cl+"&& python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
+	os.system(cl+"&& python make_compilation.py "+taskFolder+" "+
+		request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+
+		srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
+	
+	# def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags):
+
+
 	############################################
 	# send back exe archive to host by http request
+	responseFromHost,tmpzip = sendBackExe(taskFolder) # test purpose, replace hellomake later
+	os.system("del /-f "+src_dir +" /Q") #delete tmp zip file
 	response = HttpResponse()
 	print("send back request")
 	return response
@@ -69,101 +77,9 @@ def execute(request):
 # 	compile(taskFolder, info['target_os'], info['compiler'], info['version'],
 # 		srcpath, compileDir, info['command'], info['flags'],cl)
 # 	print("finished compile")
-# 	responseFromHost,tmpzip = sendBackExe(taskFolder) # test purpose, replace hellomake later
-# 	os.system("del /-f "+src_dir +" /Q") #delete tmp zip file
+
 # 	return
 
-
-def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, cl):
-    """
-    task_id: string, task id of this job
-    target_os: string, target os for this task
-    compiler: string, compiler name
-    version: string, version number of this compiler
-    src_path: string, the source code file path
-    dest_folder: string, folder name where you want the executables and log to be
-    invoke_format: string, how to invoke the compiler, example: cc_flags_source_-o_exename
-    flags: string, combinations of flags to be used, comma seperated
-    on_complete: callback function, takes a dictionary as argument
-    def onComplete(task_info):
-        '''
-        keys = 'task_id', 'target_os', 'compiler', 'version', 'src_path', 'flag'
-        'dest_folder', 'exename', 'out', 'err'
-        '''
-    """
-    #test:
-    # tmp = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'])
-    #print(tmp.exename)
-    invoke_format = invoke_format.replace("_", " ")
-    flag_list = flags.replace("_", " ").split(",")
-
-    task_info = {"task_id": task_id,
-                "target_os": target_os,
-                "compiler": compiler,
-                "version": version,
-                "src_path": src_path,
-                "dest_folder": dest_folder}
-
-    if os.name == 'nt':
-        delimit = "\\"
-    else:
-        delimit = "/"
-
-    name, extension = src_path.split(delimit)[-1].split('.')
-
-    if dest_folder[-1] == delimit:
-        dest_folder = dest_folder[0:-1]
-
-    if os.path.exists(dest_folder) and not os.path.isdir(dest_folder):
-        sys.stderr.write("Output directory already exists!\n")
-        sys.stderr.flush()
-        exit(-1)
-
-    if not os.path.exists(dest_folder):
-        os.mkdir(dest_folder)
-
-    dest_folder += delimit
-    log_filename = dest_folder + name + ".log"
-    log_file = open(log_filename, "w")
-
-    print("compilation begins...")
-        
-    cnt = 0
-    Popen(cl)
-    for flag in flag_list:
-        cnt += 1
-        time.sleep(3)
-        exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
-        logline = "%s\t%s"%(exename, flag)
-
-        command = invoke_format.replace("flags", flag).replace("source", src_path).replace("exename", exename).split(" ")
-        if cl != None:
-        	command.insert(0,cl)
-        	command.insert(1,"&&")
-        print(command)
-        compilation = Popen(command, stdout=PIPE, stderr=PIPE)
-        out, err = compilation.communicate()
-        log_file.write("%s, %s, %s\n"%(logline, out, err))
-        
-        # execute callback to notice the completion of a single compilation
-        task_info['out'] = out
-        task_info['err'] = err
-        task_info['exename'] = exename
-        task_info['flag'] = flag
-        on_complete(task_info)
-
-    log_file.close()
-    print("compilation done!")
-
-
-
-def on_complete(task_info):
-	# send back compilation information back to host server
-	# rcv_compilation
-	print(task_info)
-	data = task_info
-	response = requests.post(hostserver+"rcv_compilation", data=data) 
-	return
 
 
 
