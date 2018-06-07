@@ -5,6 +5,7 @@ import os, sys
 from subprocess import Popen, PIPE
 
 
+hostserver = ""
 
 def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags):
     """
@@ -96,13 +97,14 @@ def on_complete(task_info):
 
 if __name__ == "__main__":
 
-    if len(sys.argv) != 9:
+    if len(sys.argv) != 10:
 
         sys.stderr.write("Usage: python make_compilation <source file> <output dir> <invoke_format> <flags>\n")
 
         sys.stderr.flush()
 
         exit(-1)
+    hostserver = sys.argv[9]
     compile(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4],sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
 
     # do_compilation(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
