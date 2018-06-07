@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, time
+import os, sys, time, requests
 
 from subprocess import Popen, PIPE
 
