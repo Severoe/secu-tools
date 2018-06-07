@@ -137,6 +137,9 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
         logline = "%s\t%s"%(exename, flag)
 
         command = invoke_format.replace("flags", flag).replace("source", src_path).replace("exename", exename).split(" ")
+        if cl != None:
+        	command.insert(0,cl)
+        	command.insert(1,"&&")
         print(command)
         compilation = Popen(command, stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
