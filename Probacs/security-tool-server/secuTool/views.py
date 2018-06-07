@@ -134,7 +134,8 @@ def rcvSrc(request):
                 print("asyn call finished")
                 # settings.TASKS[taskName] = 1
         # if not compiling on linux host, send params to another function, interacting with specific platform server
-        upload_to_platform(task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
+        else:
+            upload_to_platform(task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
         
     context['task_id'] = taskName
     context['message'] = "file is compiling..."
