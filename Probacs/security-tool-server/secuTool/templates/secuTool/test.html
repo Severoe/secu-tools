@@ -132,64 +132,61 @@
     </div>
 
   <div class="col-sm-6 debug">
-    <div class="row-sm-6 debug">
-      <h3>Configuration Options</h3>
-        <div class="photo-upload" >Add a profile {{form.srcCodes}} </div>
-        <div class="" style="height: 10px;"></div>
-        <input type="submit" value="Add a profile" class="submit-edition"/>
-        {% csrf_token %}
-        <br> <br>
+    <h3>Configuration Options</h3>
+      <br>
+      <div class="photo-upload" >Add a profile</div>
+      <div class="" style="height: 10px;"></div>
+      <input type="file" value="Add a profile" class="submit-edition"/>
+      {% csrf_token %}
+      <br> <br>
 
-        <div class="photo-upload" >Manage profiles  {{form.srcCodes}} </div>
-        <div class="" style="height: 10px;"></div>
-        <input type="submit" value="Manage profiles" class="submit-edition"/>
-        {% csrf_token %}
-        <br> <br>
+      <div class="photo-upload" >Manage profiles</div>
+      <div class="" style="height: 10px;"></div>
+      <input type="submit" value="Manage profiles" class="submit-edition"/>
+      {% csrf_token %}
+      <br> <br>
 
-        <div class="photo-upload" >Add a compiler  {{form.srcCodes}} </div>
-        <div class="" style="height: 10px;"></div>
-        <input type="submit" value="Add a compiler" class="submit-edition">
-        {% csrf_token %}
-        <br> <br>
+      <div class="photo-upload" >Add a compiler</div>
+      <div class="" style="height: 10px;"></div>
+      <input type="file" value="Add a compiler" class="submit-edition">
+      {% csrf_token %}
+      <br> <br>
 
-        <div class="photo-upload" >Add a flag  {{form.srcCodes}} </div>
-        <div class="" style="height: 10px;"></div>
-        <input type="submit" value="Add a flag" class="submit-edition">
-        {% csrf_token %}
-        <br> <br>
-    </div>
+      <div class="photo-upload" >Add a flag</div>
+      <div class="" style="height: 10px;"></div>
+      <input type="file" value="Add a flag" class="submit-edition">
+      {% csrf_token %}
+      <br> <br>
     <br>
     
-    <div class="row-sm-6 debug">
-      <h3>Track a job</h3>
-      <br>
-      <form action="/action_page.php">
-        Searching: &nbsp;
-        <input type="text" name="Keywords" value="Keywords">
-        <input type="submit" value="Submit" class="submit-edition"> <br> <br>
-      </form>
+    <h3>Track a job</h3>
+    <br>
+    <form action="/action_page.php">
+      Searching: &nbsp;
+      <input type="text" name="Keywords" value="Keywords">
+      <input type="submit" value="Submit" class="submit-edition"> <br> <br>
+    </form>
 
-      <table style="width: 400px;">
-        <tbody>
-          <tr>
-            <th style="width: 100px;">JID</th>
-            <th style="width: 200px;">Combinations</th>
-            <th style="width: 60px;">Status</th>
-          </tr>
-          <tr>
-            <td style="width: 100px;"> 1</td>
-            <td style="width: 200px;"> -O1, -Wall</td>
-            <td style="width: 60px;"> To do</td>
-          </tr>
-          <tr>
-            <td style="width: 100px"> 2</td>
-            <td style="width: 200px;"> -O2, -W1</td>
-            <td style="width: 60px;"> Completed</td>
-          </tr>
-        </tbody>
-      </table>
-    <p> </p>
-    </div>
+    <table style="width: 400px;">
+      <tbody>
+        <tr>
+          <th style="width: 100px;">JID</th>
+          <th style="width: 200px;">Combinations</th>
+          <th style="width: 60px;">Status</th>
+        </tr>
+        <tr>
+          <td style="width: 100px;"> 1</td>
+          <td style="width: 200px;"> -O1, -Wall</td>
+          <td style="width: 60px;"> To do</td>
+        </tr>
+        <tr>
+          <td style="width: 100px"> 2</td>
+          <td style="width: 200px;"> -O2, -W1</td>
+          <td style="width: 60px;"> Completed</td>
+        </tr>
+      </tbody>
+    </table>
+  <p> </p>
   
   </div>
   </div>
