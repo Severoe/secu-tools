@@ -323,10 +323,10 @@ def rcv_platform_result(request):
     if task == None or task.exename != None:
         print('task already gone or already updated')
         return HttpResponse()
-    task.exename = task_info['exename']
-    task.out = task_info['out']
-    task.err = task_info['err']
-    print('update finished')
+    task.exename = request.POST['exename'] 
+    task.out = request.POST['out']
+    task.err = request.POST['err']
+    print('update from platform finished')
     task.save()
     # task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
     # print("exename "+str(task.exename))

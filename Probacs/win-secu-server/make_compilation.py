@@ -88,7 +88,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
 def on_complete(task_info):
     # send back compilation information back to host server
     # rcv_compilation
-    print(task_info)
+    print("update finished")
     data = task_info
     response = requests.post(hostserver+"rcv_compilation", data=data) 
     return
