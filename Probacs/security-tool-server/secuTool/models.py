@@ -28,6 +28,8 @@ class Profile_conf(models.Model):
 	
 class Task(models.Model):
 	task_id = models.CharField(max_length=200)
+	username = models.CharField(max_length=200)
+	tag = models.TextField(null=True,blank=True)
 	src_file = models.CharField(max_length=200) # file name<hello.c>
 	target_os = models.CharField(max_length=60)
 	compiler = models.CharField(max_length=60)
