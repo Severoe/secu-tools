@@ -72,26 +72,42 @@
     </form>
     <br>
 
-    <h5> Please select your OS. </h5>
-    <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
-      <div class="" style="height: 10px;"></div>
-      <input type="file" value="Upload" class="submit-edition"> {% csrf_token %}
-    </form>
-    <br>
+    <h5> Please select your OS, Compilers and Flags. </h5>
+    
+    <select name="meal" id="meal" onChange="changecat(this.value);">
+    <option value="" disabled selected>Select</option>
+    <option value="Linux">Linux</option>
+    <option value="Windows">Windows</option>
 
-    <h5> Please select your compilers. </h5>
-    <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
-      <div class="" style="height: 10px;"></div>
-      <input type="file" value="Upload" class="submit-edition"> {% csrf_token %}
-    </form>
-    <br>
+</select>
+<select name="category" id="category">
+    <option value="" disabled selected>Select</option>
+</select>
 
-    <h5> Please select your flags. </h5>
-    <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
-      <div class="" style="height: 10px;"></div>
-      <input type="file" value="Upload" class="submit-edition"> {% csrf_token %}
-    </form>
-    <br>
+<script>
+
+
+var flagsByOS = {
+    Linux: ["None","-fsyntax-only","-w","-Werror","-Wpedantic","-Wall","-Wextra","-Wno-coverage-mismatch","-Wno-cpp","-Wformat","-Wfatal-errors","-Wmain","-Wunused","O0","O1","O2","O3","Og","Ofast","Os"],
+    Windows: ["None","/W0","/W1","/W2","/W3","/W4","/Wall","/WX"],
+ 
+}
+
+    function changecat(value) {
+        if (value.length == 0) document.getElementById("category").innerHTML = "<option></option>";
+        else {
+            var catOptions = "";
+            for (categoryId in flagsByOS[value]) {
+                catOptions += "<option>" + flagsByOS[value][categoryId] + "</option>";
+            }
+            document.getElementById("category").innerHTML = catOptions;
+        }
+    }
+
+
+
+</script>
+
     
     <div class="" style="height: 10px;"></div>
     <input type="submit" value="Submit Job" onclick="showProgressCursor()">
