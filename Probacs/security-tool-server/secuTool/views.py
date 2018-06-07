@@ -313,6 +313,7 @@ def test(request):
     return render(request, 'secuTool/test.html',context)
 
 @transaction.atomic
+@csrf_exempt
 def rcv_platform_result(request):
     '''
     called when platform server sending back compilation result for each single compilation

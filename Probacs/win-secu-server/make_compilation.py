@@ -66,6 +66,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
         cnt += 1
         time.sleep(3)
         exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        exename = exename.replace("//","-")
         logline = "%s\t%s"%(exename, flag)
 
         command = invoke_format.replace("flags", flag).replace("source", src_path).replace("exename", exename).split(" ")
