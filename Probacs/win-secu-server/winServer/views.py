@@ -25,6 +25,7 @@ def execute(request):
 	print('order received')
 	#save file in task folder
 	filename = request.FILES['file'].name
+	host_ip = request.META['REMOTE_ADDR']
 	src_dir = 'srcCodes'
 
 	with open(taskFolder+'\\'+filename,'wb+') as dest:

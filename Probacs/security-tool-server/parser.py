@@ -83,4 +83,4 @@ def parseTaskFile(filename):
     return None, ret
 
 if __name__ == "__main__":
-    print parseTaskFile(sys.argv[1])
+    print(parseTaskFile(sys.argv[1]))

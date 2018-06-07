@@ -82,65 +82,61 @@ def rcvSrc(request):
     #######################
     # parse task file
     #######################
-    message, param = parseTaskFile(taskPath)
-    print(param)
+    message, p = parseTaskFile(taskPath)
+    print(p)
     if message != None:
         context['form']  = ProfileUserForm()
         context['message'] = message
         return render(request, 'secuTool/index.html',context)
 
-    #form request format from parse.py
-    task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
+    #form request format from parse.py for each task
+    for param in p:
+        task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
         version=param['version'])
-    task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
-    # permute flags combination  from diff flags
-    jsonDec = json.decoder.JSONDecoder()
-    flag_from_profile = []
-    for profile_name in param['profile']:
-        print(profile_name)
-        p_tmp = Profile_conf.objects.get(name=profile_name, target_os=param['target_os'],compiler=param['compiler'],
-            version=param['version'])
-        flag_from_profile.append(jsonDec.decode(p_tmp.flag))
-    compile_combination = [[]]
-    for x in flag_from_profile:
-        compile_combination = [i + [y] for y in x for i in compile_combination]
-    compile_combination = [" ".join(x) for x in compile_combination]
-    compile_combination = [x.replace(" ","_") for x in compile_combination]
-    #############################
-    # add entries into task database 
-    for ele in compile_combination:
-        new_task = Task(task_id=taskName,src_file=filename,target_os=param['target_os'], compiler=param['compiler'],
-        version=param['version'],flag=ele)
-        new_task.save()
-    final_flags = ",".join(compile_combination) 
-    #############################
-    # calling compilation tasks
-    #############################
-    if task_http == self_ip:
-        ## compile in this host linux
-        # asyn request
-        outputDir = taskFolder+"/"+"secu_compile"
-        print(final_flags)
-        # divide compilation into a new thread
-        pid = os.fork()
-        if pid == 0:
-            #new thread
-            # time.sleep(5)
-            compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
-            # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
-            print("finished compile")
-            os._exit(0)  
-        else:
-            #parent process, simply return to client
-            context['linux_taskFolder'] = taskName
-            context['form']  = ProfileUserForm()
-            context['message'] = 'file is compiling...'
-            context['task_id'] = taskName
-            print("asyn call finished")
-            settings.TASKS[taskName] = 1
-            return render(request, 'secuTool/index.html', context)
-    # if not compiling on linux host, send params to another function, interacting with specific platform server
-    upload_to_platform(task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
+        task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
+        # permute flags combination  from diff flags
+        jsonDec = json.decoder.JSONDecoder()
+        flag_from_profile = []
+        for profile_name in param['profile']:
+            # print(profile_name)
+            p_tmp = Profile_conf.objects.get(name=profile_name, target_os=param['target_os'],compiler=param['compiler'],
+                version=param['version'])
+            flag_from_profile.append(jsonDec.decode(p_tmp.flag))
+        compile_combination = [[]]
+        for x in flag_from_profile:
+            compile_combination = [i + [y] for y in x for i in compile_combination]
+        compile_combination = [" ".join(x) for x in compile_combination]
+        compile_combination = [x.replace(" ","_") for x in compile_combination]
+        #############################
+        # add entries into task database 
+        for ele in compile_combination:
+            new_task = Task(task_id=taskName,username=param['username'],
+                tag=None if 'tag' in param else param['tag'],
+                src_file=filename,target_os=param['target_os'], 
+                compiler=param['compiler'],version=param['version'],flag=ele)
+            new_task.save()
+        final_flags = ",".join(compile_combination) 
+        #############################
+        # calling compilation tasks
+        #############################
+        if task_http == self_ip:
+            outputDir = taskFolder+"/"+"secu_compile"
+            pid = os.fork()
+            if pid == 0:
+                #new thread
+                # time.sleep(5)
+                compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
+                # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
+                print("finished compile")
+                os._exit(0)  
+            else:
+                #parent process, simply return to client
+                print("asyn call finished")
+                # settings.TASKS[taskName] = 1
+        # if not compiling on linux host, send params to another function, interacting with specific platform server
+        upload_to_platform(task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
+        
+    context['task_id'] = taskName
     context['message'] = "file is compiling..."
     context['form'] = ProfileUserForm()
     context['linux_taskFolder'] = taskName
