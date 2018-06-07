@@ -248,10 +248,34 @@ def check_status(request):
     context = {}
     task_id = request.POST['task_id']
     flags = request.POST['flags']
+    obj = Task.objects.all()
+    query_dict = {}
+    query_dict['task_id'] = None if request.POST['task_id']==None else request.POST['task_id'].split(",")
+    query_dict['flag'] = None if request.POST['flags']==None else request.POST['flags'].split(",")
+    query_dict['username'] = None if request.POST['username']==None else request.POST['username'].split(",")
+    query_dict['compiler'] = None if request.POST['compilers']==None else request.POST['compilers'].split(",")
+    query_dict['tag'] = None if request.POST['tag']==None else request.POST['tag'].split(",")
+    # query_dict['profiles'] = None if request.POST['profiles']==None else request.POST['profiles'].split(",")
+    for key, val in query_dict.items():
+        if val == None or obj == None:
+            break
+        else:
+            if key=='task_id':
+                obj = obj.filter(task_id__contains=val)
+            elif key=='flag':
+                obj = obj.filter(flag__contains=val)
+            elif key=='username':
+                obj = obj.filter(username__contains=val)
+            elif key=='compiler':
+                obj = obj.filter(compiler__contains=val)
+            elif key=='tag':
+                obj = obj.filter(tag__contains=val)
+                
+
     context['form'] = ProfileUserForm()
 
 
-    context['tasks'] = Task.objects.filter(task_id = task_id)
+    context['tasks'] = obj
     for ele in context['tasks']:
         ele.flag = ele.flag.replace("_", " ")
         ele.status = 'not finished' if ele.exename == None else 'finished'
@@ -259,7 +283,7 @@ def check_status(request):
         ele.out = '-' if not ele.out else ele.out
         ele.err = '-' if not ele.err else ele.err
 
-    context['task_id'] = request.POST['task_id']
+    # context['task_id'] = request.POST['task_id']
     return render(request, 'secuTool/index.html',context)
 
 

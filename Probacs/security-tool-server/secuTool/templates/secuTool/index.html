@@ -43,14 +43,28 @@ table, th, td {
 		</form>
 
 <p>------------------------------------------------------------</p>
-Trace your tasks by specifying task id and flags
+<h2>Trace your tasks </h2>
+<p>* Leaving field blank means no search requirement for this field</p>
+<p>* Separate data inside each field by comma</p>
 <form action="{% url 'check_status' %}" method='post' >
-	<div class="">task id: <input type="text" name='task_id'></div>
-	<div class=""> flags (use * to require all flags, or separate flags by comma)<input type="text" name="flags"></div>
-	<div class="">  (use * to require all flags, or separate flags by comma)<input type="text" name="flags"></div>
-	<div class=""> compilers (use * to require all flags, or separate compilers by comma)<input type="text" name="compilers"></div>
-	<div class=""> flags (use * to require all flags, or separate flags by comma)<input type="text" name="flags"></div>
-	<div class=""> flags (use * to require all flags, or separate flags by comma)<input type="text" name="flags"></div>
+	<table >
+		<tr >
+    		<th>task id</th>
+    		<th>flags</th> 
+    		<th>username</th>
+    		<th>compilers</th>
+    		<th>tag</th>
+    		<!-- <th>profiles</th> -->
+		</tr>
+		<tr>
+			<td><input type="text" name='task_id'></td>
+			<td><input type="text" name='flags'></td>
+			<td><input type="text" name='username'></td>
+			<td><input type="text" name='compilers'></td>
+			<td><input type="text" name='tag'></td>
+			<!-- <td><input type="text" name='profiles'></td> -->
+		</tr>
+	</table>
 	<input type="submit" value="submit" class="submit-edition">
 	{% csrf_token %}
 </form>
@@ -60,6 +74,8 @@ Trace your tasks by specifying task id and flags
 <table >
 <tr >
     <th>task id</th>
+    <th>username</th>       
+    <th>tag</th>
     <th>source file</th> 
     <th>target os</th>
     <th>compiler</th>
@@ -73,6 +89,8 @@ Trace your tasks by specifying task id and flags
 {% for ele in tasks %}
 <tr style="border-right: 1px solid black;">
 	<td>{{ele.task_id}}</td>
+	<td>{{ele.username}}</td>
+	<td>{{ele.tag}}</td>
 	<td>{{ele.src_file}}</td>
 	<td>{{ele.target_os}}</td>
 	<td>{{ele.compiler}}</td>
