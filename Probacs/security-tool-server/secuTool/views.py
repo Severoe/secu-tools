@@ -258,6 +258,7 @@ def check_status(request):
     query_dict['compiler'] = None if request.POST['compilers']==None else request.POST['compilers'].split(",")
     query_dict['tag'] = None if request.POST['tag']==None else request.POST['tag'].split(",")
     # query_dict['profiles'] = None if request.POST['profiles']==None else request.POST['profiles'].split(",")
+    print(query_dict)
     for key, val in query_dict.items():
         if val == None or obj == None:
             break
@@ -304,13 +305,6 @@ def printRcd(rcd):
     return
 
 
-# test funciton
-def test(request):
-    context = {}
-    context['message'] = 'shkadhlaskdjask'
-    context['form'] = ProfileUserForm()
-    # context['status'] = statuses
-    return render(request, 'secuTool/test.html',context)
 
 @transaction.atomic
 @csrf_exempt
@@ -430,5 +424,20 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
 
     log_file.close()
     print("compilation done!")
+
+
+
+
+
+# test funciton
+def test(request):
+    context = {}
+    context['message'] = 'shkadhlaskdjask'
+    context['form'] = ProfileUserForm()
+    # context['status'] = statuses
+    return render(request, 'secuTool/test.html',context)
+
+
+
 
 
