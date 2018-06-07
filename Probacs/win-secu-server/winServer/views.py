@@ -59,7 +59,7 @@ def execute(request):
 	# print("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
 	# cl = r'"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
 	os.system(cl+"&& python make_compilation.py "+taskFolder+" "+
-		request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+
+		request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
 		srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
 	
 	# def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags):

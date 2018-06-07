@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys
+import os, sys, time
 
 from subprocess import Popen, PIPE
 
@@ -95,7 +95,7 @@ def on_complete(task_info):
 
 
 if __name__ == "__main__":
-
+    #print(sys.argv)
     if len(sys.argv) != 9:
 
         sys.stderr.write("Usage: python make_compilation <source file> <output dir> <invoke_format> <flags>\n")
