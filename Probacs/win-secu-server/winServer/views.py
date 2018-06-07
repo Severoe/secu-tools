@@ -61,6 +61,7 @@ def execute(request):
 	os.system(cl+"&& python make_compilation.py "+taskFolder+" "+
 		request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+
 		srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
+
 	
 	# def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags):
 
