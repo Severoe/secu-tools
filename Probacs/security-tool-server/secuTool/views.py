@@ -168,7 +168,7 @@ def upload_to_platform(param,ip, compiler_invoke, flags, taskName, taskFolder, c
     print(data)
     files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
     settings.TASKS[taskFolder] = 0
-    pid = fork()
+    pid = os.fork()
     if pid == 0:
         response = requests.post(winurl, files=files,data=data) 
         os._exit(0)  
