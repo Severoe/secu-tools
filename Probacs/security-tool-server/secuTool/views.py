@@ -224,20 +224,6 @@ def saveExe(request):
 def wrap_dir(request):
     taskFolder = request.POST['taskid']
     print("taskFolder: "+taskFolder )
-    print(settings.TASKS)
-    # records = Tasks.objects.get(taskFolder=taskFolder)
-    if os.path.exists(taskdir+taskFolder) == False:# or records == None:
-        print(os.path.exists(taskdir+taskFolder))
-        # print(str(taskFolder) not in taskTrace)
-        return redirect(home)
-    elif settings.TASKS[taskFolder] == 0:
-        context = {}
-        context['form'] = ProfileUserForm()
-        context['message'] = "win compilation did not finish! try later"
-        context['win_taskFolder'] = taskFolder
-        return render(request,'secuTool/index.html',context)
-    elif settings.TASKS[taskFolder] == 1:
-        print('task exists')
     #pack executables inside task folder, send back
     new_name = "archive_"+taskFolder+".tgz"
     current_taskdir = taskdir+taskFolder+'/'
