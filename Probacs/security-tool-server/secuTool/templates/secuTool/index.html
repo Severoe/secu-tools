@@ -14,6 +14,9 @@ table, th, td {
 	border: 1px solid grey;
 	width: 300px;
 }
+#result-trace{
+	display: none;
+}
 #bar-growth{
 	width: 0%;
 	background: black;
@@ -40,7 +43,7 @@ table, th, td {
 {% endif %}
 </p>
 <p></p>
-<div id="result-trace" style="display: {{progress}}">
+<div id="result-trace" >
  		<div class="progressbar">
  			<div id="bar-growth"> </div>
 		</div>
