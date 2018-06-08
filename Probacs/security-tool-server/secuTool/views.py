@@ -367,7 +367,6 @@ def on_complete(task_info):
     task.err = task_info['err']
     print('update finished')
     task.save()
-    transaction.commit()
     task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
     printRcd(task)
     return
