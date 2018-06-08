@@ -4,7 +4,7 @@ var interval = 1000;
 function tracejob() {
 	var job_id = $('#task_id').text()
 	// console.log("job: "+job_id)
-	if(job_id === "") {
+	if(job_id === "" || ) {
 		return
 	}
     $.ajax({
@@ -15,6 +15,8 @@ function tracejob() {
         },
         success:  function(response) {
         	console.log(response)
+        	var report = str(response.finished)+" / "+str(response.total)+" compilation finished for job id: "+response.task_id
+        	$('#result-trace').text(report)
         }
     });
     return

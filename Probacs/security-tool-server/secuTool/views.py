@@ -354,20 +354,6 @@ def on_complete(task_info):
     called when each time compilation finished
     '''
     response = requests.post(url=self_ip+"/rcv_compilation",data = task_info)  
-    # task = Task.objects.filter(task_id=,flag=task_info['flag'].replace(" ","_"),
-        # target_os=task_info['target_os'],compiler=task_info['compiler'],version=task_info['version'])[0]
-    #handle error case
-    # if task == None or task.exename != None:
-    #     print('task already gone or already updated')
-    #     return
-    # # print("exename before "+str(task.exename))
-    # task.exename = task_info['exename']
-    # task.out = task_info['out']
-    # task.err = task_info['err']
-    # print('update finished')
-    # task.save()
-    # task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
-    # printRcd(task)
     return
 
 @transaction.atomic
@@ -467,6 +453,7 @@ def trace(request):
         if ele.exename != None:
             finished+= 1
     response['finished'] = finished
+    response['task_id'] = task_id
     return HttpResponse(json.dumps(response),content_type="application/json")
 
 # test funciton
