@@ -4,7 +4,7 @@ var interval = 1000;
 function tracejob() {
 	var job_id = $('#task_id').text()
 	// console.log("job: "+job_id)
-	if(job_id === "" || ) {
+	if(job_id === "") {
 		return
 	}
     $.ajax({
