@@ -150,13 +150,13 @@ def rcvSrc(request):
     #add task into database, database approach
     # taskRecord = Tasks(taskFolder=taskName, totalCompilation = 1, finishedCompilation = 1, status = 1)
     # taskRecord.save()
-    
+
 @transaction.atomic
 @csrf_exempt
 def self_compile(request):
     # compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
     compile(request.POST['task_id'],request.POST['target_os'],request.POST['compiler'],request.POST['version'],
-        request.POST['srcPath'],request.POST['outputDir'],request.POST['format'],request.POST['flags'],on_complete)
+        request.POST['srcPath'],request.POST['output'],request.POST['format'],request.POST['flags'],on_complete)
     return HttpResponse()
 
 
