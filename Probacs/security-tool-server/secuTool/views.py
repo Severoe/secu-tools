@@ -122,17 +122,21 @@ def rcvSrc(request):
         #############################
         if task_http == self_ip:
             outputDir = taskFolder+"/"+"secu_compile"
-            # pid = os.fork()
-            # if pid == 0:
+            data = {
+            'task_id':taskName,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
+            'output':outputDir,'format':task_compiler.invoke_format,'flags':final_flags,
+            }
+            pid = os.fork()
+            if pid == 0:
+                response = requests.post(self_ip+"/self_compile", data=data) 
                 #new thread
-                # time.sleep(5)
-            compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
+                time.sleep(5)
                 # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
-            print("finished compile")
-                # os._exit(0)  
-            # else:
+                print("finished compile")
+                os._exit(0)  
+            else:
                 #parent process, simply return to client
-                # print("asyn call finished")
+                print("asyn call encountered")
                 # settings.TASKS[taskName] = 1
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
@@ -146,6 +150,16 @@ def rcvSrc(request):
     #add task into database, database approach
     # taskRecord = Tasks(taskFolder=taskName, totalCompilation = 1, finishedCompilation = 1, status = 1)
     # taskRecord.save()
+    
+@transaction.atomic
+@csrf_exempt
+def self_compile(request):
+    # compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
+    compile(request.POST['task_id'],request.POST['target_os'],request.POST['compiler'],request.POST['version'],
+        request.POST['srcPath'],request.POST['outputDir'],request.POST['format'],request.POST['flags'],on_complete)
+    return HttpResponse()
+
+
 
 def upload_to_platform(param,ip, compiler_invoke, flags, taskName, taskFolder, codeFolder,mainSrcName):
     '''
@@ -276,6 +290,8 @@ def check_status(request):
             elif key=='tag':
                 obj = obj.filter(tag__in=val)
 
+    # obj = obj.filter({"task_id__in":val, })
+
     context['form'] = ProfileUserForm()
 
 
@@ -333,7 +349,6 @@ def rcv_platform_result(request):
 
 
 @transaction.atomic
-
 def on_complete(task_info):
     '''
     called when each time compilation finished
@@ -352,6 +367,7 @@ def on_complete(task_info):
     task.err = task_info['err']
     print('update finished')
     task.save()
+    transaction.commit()
     task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
     printRcd(task)
     return
