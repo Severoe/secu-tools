@@ -19,7 +19,7 @@ from secuTool import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', views.home),
+    url(r'^$', views.home, name='home'),
     url(r'^uploadSrc$', views.rcvSrc, name='uploadSrc'),
     # url(r'^uploadWin$', views.upWin, name='uploadWin'),
     url(r'^saveExe$', views.saveExe, name='saveExe'),

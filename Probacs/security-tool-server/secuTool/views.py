@@ -27,7 +27,6 @@ taskdir = 'Compilation_tasks/'
 def home(request):
     context = {}
     context['form'] = ProfileUserForm()
-    context['progress'] = 'none'
     return render(request,'secuTool/index.html',context)
 
 
@@ -223,6 +222,8 @@ def saveExe(request):
 @transaction.atomic
 def wrap_dir(request):
     taskFolder = request.POST['taskid']
+    if taskFolder == None or taskFolder == "":
+        return redirect('home')
     print("taskFolder: "+taskFolder )
     #pack executables inside task folder, send back
     new_name = "archive_"+taskFolder+".tgz"
