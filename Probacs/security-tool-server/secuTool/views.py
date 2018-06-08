@@ -128,9 +128,9 @@ def rcvSrc(request):
             }
             pid = os.fork()
             if pid == 0:
-                response = requests.post(self_ip+"/self_compile", data=data) 
+                # response = requests.post(self_ip+"/self_compile", data=data) 
+                compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
                 #new thread
-                time.sleep(2)
                 # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
                 print("finished compile")
                 os._exit(0)  
@@ -155,7 +155,6 @@ def rcvSrc(request):
 @transaction.atomic
 @csrf_exempt
 def self_compile(request):
-    # compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
     compile(request.POST['task_id'],request.POST['target_os'],request.POST['compiler'],request.POST['version'],
         request.POST['srcPath'],request.POST['output'],request.POST['format'],request.POST['flags'],on_complete)
     return HttpResponse()
@@ -392,7 +391,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
     cnt = 0
     for flag in flag_list:
         cnt += 1
-        time.sleep(5)
+        time.sleep(2)
         exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         logline = "%s\t%s"%(exename, flag)
 
