@@ -18,6 +18,9 @@ function tracejob() {
         	console.log(response)
             finished = response.finished
             total = response.total
+            if(finished === total) {
+                clearInterval(event_id)
+            }
         	percent = finished*100/total
         	report = finished.toString()+" / "+total.toString()+" compilation finished for job id: "+response.task_id
         	$('#result-trace').css('display','block')
@@ -25,9 +28,7 @@ function tracejob() {
         	$('#bar-growth').width(percent.toString()+'%')
         }
     });
-    if(finished === total) {
-        clearInterval(event_id)
-    }
+
     return
 }
 
