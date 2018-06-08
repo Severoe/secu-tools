@@ -1,4 +1,9 @@
 
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+ {% load staticfiles %}
 <style>
 table, th, td {
     border: 1px solid black;
@@ -6,8 +11,11 @@ table, th, td {
     padding: 3px;
 }
 </style>
+<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="{% static 'secuTool/trace_job.js'%}"></script>
 
 
+</head>
 
 <h2>Auto Compilation System</h2>
 <h3>hello </h3>
@@ -16,10 +24,19 @@ table, th, td {
 
 
 
-{{ message }}
+<p>{{ message }}</p>
+<p>
 {% if task_id %}
-	task id: {{task_id}}
+	task id: <span id="task_id">{{task_id}}</span>
 {% endif %}
+</p>
+<p></p>
+<p>
+	{% if progress %}
+		{{progress}}
+	{% endif%}
+</p>
+
 <p>------------------------------------------------------------</p>
 <h4> Please specify task information inside a txt file</h4>
 <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
@@ -111,6 +128,7 @@ table, th, td {
 
 	
 	
+</html>
 	
 	
 	

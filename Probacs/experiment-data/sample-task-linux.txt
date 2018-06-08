@@ -2,3 +2,5 @@ target_os:linux
 compiler:gcc
 version:6.7
 profile:max_speed,max_optimization
+username: jeff 
+tag:test ajax on linux

@@ -27,7 +27,12 @@ urlpatterns = [
     # url(r'^serve_pdf$', views.serve_pdf, name='serve_pdf'),
     url(r'^download_tar$', views.wrap_dir, name='download_tar'),
     url(r'^check_status$', views.check_status, name='check_status'),
-    url(r'^test', views.test, name='test'),
-
+    url(r'^test$', views.test, name='test'),
+    url(r'^rcv_compilation', views.rcv_platform_result, name='rcv_platform_result'),
+    url(r'^self_compile$', views.self_compile, name='self_compile'),
+    
+    url(r'^trace$', views.trace, name='trace'),
+    url(r'^tracetest$', views.tracetest, name='tracetest'),
+    url(r'^trace_test$', views.trace_test, name='trace_test'),
 # download_fil
 ]

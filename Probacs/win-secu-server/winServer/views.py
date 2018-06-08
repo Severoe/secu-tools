@@ -1,5 +1,5 @@
 
-import os, tempfile, zipfile,tarfile, time
+import os, tempfile, zipfile,tarfile, time,sys
 from datetime import datetime
 from wsgiref.util import FileWrapper
 from django.shortcuts import render
@@ -9,10 +9,12 @@ from django.core.files import File
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import requests    #need pip install requests
+from subprocess import Popen, PIPE
+# from multiprocessing import Process
 
 # hostserver = "http://192.168.27.131:8000/" #ip/port of the host server
 # hostserver = "http://172.16.165.125:8000/" #ip/port of the host server
-hostserver = "http://192.168.56.101:8000/" #ip/port of the host server on virtualbox
+hostserver = "" #ip/port of the host server on virtualbox
 
 
 @csrf_exempt
@@ -42,26 +44,45 @@ def execute(request):
 	# compilation work
 	srcpath = src_dir+'\\'+request.POST['Srcname']
 	print(srcpath)
-	compileDir = taskFolder+'\\'+'secu_compile_win'
+	compileDir = taskFolder+'\\'+'secu_compile_platform'
 	os.system("mkdir "+compileDir)
 	# compilation start here, store executables and logs
 	# into compileDir
 	cl = None
 	if 'env' in request.POST and request.POST['env'] != None:
 		cl = request.POST['env'].replace("_",' ')
-
-	print("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
+	# compile(taskFolder, request.POST['target_os'], request.POST['compiler'], request.POST['version'],
+	# 	srcpath, compileDir, request.POST['command'], request.POST['flags'],cl)
+	# make compilation async
+	# p = Process(target=sub_process,args=(request.POST,taskFolder,srcpath,compileDir,cl,src_dir))
+	# p.start()
+	# print("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
 	# cl = r'"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
-	# os.system(cl + " && python make_compilation.py " + srcpath + " " + compileDir)
-	os.system(cl+"&& python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
+	os.system(cl+"&& python make_compilation.py "+taskFolder+" "+
+		request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
+		srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
+
+	
+	# def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags):
+
+
 	############################################
 	# send back exe archive to host by http request
 	responseFromHost,tmpzip = sendBackExe(taskFolder) # test purpose, replace hellomake later
 	os.system("del /-f "+src_dir +" /Q") #delete tmp zip file
-	# clean out directory
-	#os.system("del /-f "+taskFolder)
 	response = HttpResponse()
+	print("send back request")
 	return response
+
+# def sub_process(info, taskFolder, srcpath, compileDir,cl,src_dir):
+# 	compile(taskFolder, info['target_os'], info['compiler'], info['version'],
+# 		srcpath, compileDir, info['command'], info['flags'],cl)
+# 	print("finished compile")
+
+# 	return
+
+
+
 
 # create zip file containing exe and log, then send to host
 # delete zip file after sending to host
@@ -70,7 +91,7 @@ def sendBackExe(folder):
 	print("send back exe")
 	timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 	new_name = "winexe_"+timestr+".tgz"
-	exe_folderPath = folder+'\\'+'secu_compile_win'
+	exe_folderPath = folder+'\\'+'secu_compile_platform'
 	with tarfile.open(new_name, "w:gz") as tar:
 		tar.add(exe_folderPath, arcname=os.path.basename(exe_folderPath))
 	compressed_dir = open(new_name,'rb')
