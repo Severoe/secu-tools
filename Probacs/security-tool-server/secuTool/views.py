@@ -145,6 +145,7 @@ def rcvSrc(request):
     context['task_id'] = taskName
     context['message'] = "file is compiling..."
     context['form'] = ProfileUserForm()
+    context['progress'] = 0
     context['linux_taskFolder'] = taskName
     return render(request, 'secuTool/index.html', context)
     #add task into database, database approach
@@ -214,17 +215,6 @@ def saveExe(request):
     response = HttpResponse()
     response.write("file received")
 
-    #change task status, database methods
-    # records = Tasks.objects.get(taskFolder=taskFolder)
-    # printRcd(records)
-    # records.finishedCompilation += 1
-    # if records.finishedCompilation == records.totalCompilation:
-    #     records.status == 1
-    # records.save()
-
-    print(settings.TASKS)
-    settings.TASKS[taskFolder] = 1
-    print(settings.TASKS)
     return response
 
 
