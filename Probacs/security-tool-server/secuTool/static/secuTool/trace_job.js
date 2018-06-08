@@ -18,7 +18,7 @@ function tracejob() {
         	var percent = response.finished*100/response.total
         	var report = (response.finished).toString()+" / "+(response.total).toString()+" compilation finished for job id: "+response.task_id
         	$('#result-trace').css('display','block')
-            $('#result-trace').text(report)
+            $('#result-report').text(report)
         	$('#bar-growth').width(percent.toString()+'%')
         }
     });
