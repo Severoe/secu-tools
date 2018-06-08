@@ -353,7 +353,7 @@ def on_complete(task_info):
     '''
     called when each time compilation finished
     '''
-    response = request.post(url=self_ip+"/rcv_compilation",data = task_info)  
+    response = requests.post(url=self_ip+"/rcv_compilation",data = task_info)  
     # task = Task.objects.filter(task_id=,flag=task_info['flag'].replace(" ","_"),
         # target_os=task_info['target_os'],compiler=task_info['compiler'],version=task_info['version'])[0]
     #handle error case
