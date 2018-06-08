@@ -14,7 +14,7 @@ from subprocess import Popen, PIPE
 
 # hostserver = "http://192.168.27.131:8000/" #ip/port of the host server
 # hostserver = "http://172.16.165.125:8000/" #ip/port of the host server
-hostserver = "http://192.168.56.101:8000/" #ip/port of the host server on virtualbox
+hostserver = "" #ip/port of the host server on virtualbox
 
 
 @csrf_exempt

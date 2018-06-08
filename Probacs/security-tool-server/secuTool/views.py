@@ -122,17 +122,17 @@ def rcvSrc(request):
         #############################
         if task_http == self_ip:
             outputDir = taskFolder+"/"+"secu_compile"
-            pid = os.fork()
-            if pid == 0:
+            # pid = os.fork()
+            # if pid == 0:
                 #new thread
                 # time.sleep(5)
-                compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
+            compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
                 # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
-                print("finished compile")
-                os._exit(0)  
-            else:
+            print("finished compile")
+                # os._exit(0)  
+            # else:
                 #parent process, simply return to client
-                print("asyn call finished")
+                # print("asyn call finished")
                 # settings.TASKS[taskName] = 1
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
@@ -260,20 +260,21 @@ def check_status(request):
     # query_dict['profiles'] = None if request.POST['profiles']==None else request.POST['profiles'].split(",")
     print(query_dict)
     for key, val in query_dict.items():
-        if val == None or obj == None:
+        if obj == None:
             break
+        if val == None or val==['']:
+            continue
         else:
             if key=='task_id':
-                obj = obj.filter(task_id__contains=val)
+                obj = obj.filter(task_id__in=val)
             elif key=='flag':
-                obj = obj.filter(flag__contains=val)
+                obj = obj.filter(flag__in=[ele.replace(" ","_") for ele in val])
             elif key=='username':
-                obj = obj.filter(username__contains=val)
+                obj = obj.filter(username__in=val)
             elif key=='compiler':
-                obj = obj.filter(compiler__contains=val)
+                obj = obj.filter(compiler__in=val)
             elif key=='tag':
-                obj = obj.filter(tag__contains=val)
-                
+                obj = obj.filter(tag__in=val)
 
     context['form'] = ProfileUserForm()
 
@@ -298,10 +299,12 @@ def printRcd(rcd):
     if rcd == None:
         print('rcd not exists')
         return
-    print("folder: "+ str(rcd.taskFolder))
-    print("finished: "+ str(rcd.finishedCompilation))
-    print("total: "+ str(rcd.totalCompilation))
-    print("status: "+ str(rcd.status))
+    print("id: "+ str(rcd.task_id))
+    print("flag: "+ str(rcd.flag))
+    print("exename: "+ str(rcd.exename))
+    print("err: "+ str(rcd.err))
+    print("out: "+ str(rcd.out))
+    
     return
 
 
@@ -312,7 +315,8 @@ def rcv_platform_result(request):
     '''
     called when platform server sending back compilation result for each single compilation
     '''
-    task = Task.objects.get(task_id=request.POST['task_id'],flag=request.POST['flag'].replace(" ","_"))
+    task = Task.objects.get(task_id=request.POST['task_id'],flag=request.POST['flag'].replace(" ","_"),
+        target_os=request.POST['target_os'],compiler=request.POST['compiler'],version=request.POST['version'])
     # print("exename "+str(task.exename))
     #handle error case
     if task == None or task.exename != None:
@@ -329,23 +333,27 @@ def rcv_platform_result(request):
 
 
 @transaction.atomic
+
 def on_complete(task_info):
     '''
     called when each time compilation finished
     '''
-    task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
+    # print()
+    task = Task.objects.filter(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"),
+        target_os=task_info['target_os'],compiler=task_info['compiler'],version=task_info['version'])[0]
     # print("exename "+str(task.exename))
     #handle error case
     if task == None or task.exename != None:
         print('task already gone or already updated')
         return
+    # print("exename before "+str(task.exename))
     task.exename = task_info['exename']
     task.out = task_info['out']
     task.err = task_info['err']
     print('update finished')
     task.save()
     task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
-    # print("exename "+str(task.exename))
+    printRcd(task)
     return
 
 @transaction.atomic
@@ -406,6 +414,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
     cnt = 0
     for flag in flag_list:
         cnt += 1
+        time.sleep(5)
         exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         logline = "%s\t%s"%(exename, flag)
 
@@ -421,13 +430,30 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
         task_info['exename'] = exename
         task_info['flag'] = flag
         on_complete(task_info)
+        task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
+        printRcd(task)
+
 
     log_file.close()
     print("compilation done!")
+    return
 
 
 
-
+#trace job status
+def trace(request):
+    task_id = request.GET['task_id']
+    obj = Task.objects.filter(task_id=task_id)
+    response = {}
+    response['total'] = obj.count()
+    finished = 0
+    for ele in obj:
+        # printRcd(ele)
+        # print(ele.exename == None)
+        if ele.exename != None:
+            finished+= 1
+    response['finished'] = finished
+    return HttpResponse(json.dumps(response),content_type="application/json")
 
 # test funciton
 def test(request):
@@ -437,7 +463,20 @@ def test(request):
     # context['status'] = statuses
     return render(request, 'secuTool/test.html',context)
 
+def tracetest(request):
+    return render(request, 'secuTool/blank.html')
+def trace_test(request):
+    obj = Task.objects.all()
+    response = {}
+    response['total'] = obj.count()
+    finished = 0
+    for ele in obj:
+        # printRcd(ele)
+        # print(ele.exename == None)
+        if ele.exename != None:
+            finished+= 1
+    response['finished'] = finished
 
-
+    return HttpResponse(json.dumps(response),content_type="application/json")
 
 
