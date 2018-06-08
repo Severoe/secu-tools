@@ -128,7 +128,6 @@ def rcvSrc(request):
             }
             pid = os.fork()
             if pid == 0:
-                # response = requests.post(self_ip+"/self_compile", data=data) 
                 compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
                 #new thread
                 # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
@@ -137,7 +136,6 @@ def rcvSrc(request):
             else:
                 #parent process, simply return to client
                 print("asyn call encountered")
-                # settings.TASKS[taskName] = 1
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
             upload_to_platform(param,task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
@@ -148,17 +146,6 @@ def rcvSrc(request):
     context['progress'] = 'block'
     context['linux_taskFolder'] = taskName
     return render(request, 'secuTool/index.html', context)
-    #add task into database, database approach
-    # taskRecord = Tasks(taskFolder=taskName, totalCompilation = 1, finishedCompilation = 1, status = 1)
-    # taskRecord.save()
-
-@transaction.atomic
-@csrf_exempt
-def self_compile(request):
-    compile(request.POST['task_id'],request.POST['target_os'],request.POST['compiler'],request.POST['version'],
-        request.POST['srcPath'],request.POST['output'],request.POST['format'],request.POST['flags'],on_complete)
-    return HttpResponse()
-
 
 
 def upload_to_platform(param,ip, compiler_invoke, flags, taskName, taskFolder, codeFolder,mainSrcName):
@@ -285,22 +272,6 @@ def check_status(request):
 
 
 
-#used for database computing
-def printRcd(rcd):
-    print("============rcd report")
-
-    if rcd == None:
-        print('rcd not exists')
-        return
-    print("id: "+ str(rcd.task_id))
-    print("flag: "+ str(rcd.flag))
-    print("exename: "+ str(rcd.exename))
-    print("err: "+ str(rcd.err))
-    print("out: "+ str(rcd.out))
-    
-    return
-
-
 
 @transaction.atomic
 @csrf_exempt
@@ -407,18 +378,16 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
         task_info['exename'] = exename
         task_info['flag'] = flag
         on_complete(task_info)
-        # task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
-        # printRcd(task)
 
 
     log_file.close()
     print("compilation done!")
     return
 
-
-
-#trace job status
 def trace(request):
+    '''
+    trace job status, INVOKED BY AJAX
+    '''
     task_id = request.GET['task_id']
     obj = Task.objects.filter(task_id=task_id)
     response = {}
@@ -432,6 +401,12 @@ def trace(request):
     response['finished'] = finished
     response['task_id'] = task_id
     return HttpResponse(json.dumps(response),content_type="application/json")
+
+###########################################################################
+###########################################################################
+#########           BELOW ARE SOME HELPER/TEST FUNCTIONS       ############
+###########################################################################
+###########################################################################
 
 # test funciton
 def test(request):
@@ -457,4 +432,18 @@ def trace_test(request):
 
     return HttpResponse(json.dumps(response),content_type="application/json")
 
+#used for database debugging
+def printRcd(rcd):
+    print("============rcd report")
+
+    if rcd == None:
+        print('rcd not exists')
+        return
+    print("id: "+ str(rcd.task_id))
+    print("flag: "+ str(rcd.flag))
+    print("exename: "+ str(rcd.exename))
+    print("err: "+ str(rcd.err))
+    print("out: "+ str(rcd.out))
+    
+    return
 

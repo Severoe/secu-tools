@@ -29,7 +29,6 @@ urlpatterns = [
     url(r'^check_status$', views.check_status, name='check_status'),
     url(r'^test$', views.test, name='test'),
     url(r'^rcv_compilation', views.rcv_platform_result, name='rcv_platform_result'),
-    url(r'^self_compile$', views.self_compile, name='self_compile'),
     
     url(r'^trace$', views.trace, name='trace'),
     url(r'^tracetest$', views.tracetest, name='tracetest'),
