@@ -3,7 +3,7 @@ var interval = 1000;
 //send request to check job process
 function tracejob() {
 	var job_id = $('#task_id').text()
-    var percent,report;
+    var finished,total;
 	// console.log("job: "+job_id)
 	if(job_id === "" ) {
 		return
@@ -16,14 +16,16 @@ function tracejob() {
         },
         success:  function(response) {
         	console.log(response)
-        	percent = response.finished*100/response.total
-        	report = (response.finished).toString()+" / "+(response.total).toString()+" compilation finished for job id: "+response.task_id
+            finished = response.finished
+            total = response.total
+        	percent = finished*100/total
+        	report = finished.toString()+" / "+total.toString()+" compilation finished for job id: "+response.task_id
         	$('#result-trace').css('display','block')
             $('#result-report').text(report)
         	$('#bar-growth').width(percent.toString()+'%')
         }
     });
-    if(percent === report) {
+    if(finished === total) {
         clearInterval(event_id)
     }
     return
