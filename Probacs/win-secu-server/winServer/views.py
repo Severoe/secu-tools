@@ -30,7 +30,6 @@ def execute(request):
 	host_ip = request.META['REMOTE_ADDR']
 	host_port = request.META['SERVER_PORT']
 	hostserver = "http://"+host_ip+":"+host_port+"/"
-	print(hostserver)
 	src_dir = 'srcCodes'
 
 	with open(taskFolder+'\\'+filename,'wb+') as dest:
@@ -68,7 +67,7 @@ def execute(request):
 
 	############################################
 	# send back exe archive to host by http request
-	responseFromHost,tmpzip = sendBackExe(taskFolder) # test purpose, replace hellomake later
+	responseFromHost,tmpzip = sendBackExe(taskFolder, hostserver) # test purpose, replace hellomake later
 	os.system("del /-f "+src_dir +" /Q") #delete tmp zip file
 	response = HttpResponse()
 	print("send back request")
@@ -86,7 +85,7 @@ def execute(request):
 
 # create zip file containing exe and log, then send to host
 # delete zip file after sending to host
-def sendBackExe(folder):
+def sendBackExe(folder,hostserver):
 	#create a zip file first
 	print("send back exe")
 	timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
