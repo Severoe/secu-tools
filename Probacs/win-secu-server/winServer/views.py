@@ -97,6 +97,7 @@ def sendBackExe(folder):
 	compressed_dir = open(new_name,'rb')
 	#form http request
 	files = {'file':(new_name,compressed_dir)}
+	print(hostserver)
 	url = hostserver+'saveExe';
 	response = requests.post(url, files = files,data={'taskid': folder})
 	print("response received from host")
