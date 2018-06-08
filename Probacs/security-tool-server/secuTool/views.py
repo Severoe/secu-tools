@@ -353,22 +353,21 @@ def on_complete(task_info):
     '''
     called when each time compilation finished
     '''
-    # print()
-    task = Task.objects.filter(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"),
-        target_os=task_info['target_os'],compiler=task_info['compiler'],version=task_info['version'])[0]
-    # print("exename "+str(task.exename))
+    response = request.post(url=self_ip+"/rcv_compilation",data = task_info)  
+    # task = Task.objects.filter(task_id=,flag=task_info['flag'].replace(" ","_"),
+        # target_os=task_info['target_os'],compiler=task_info['compiler'],version=task_info['version'])[0]
     #handle error case
-    if task == None or task.exename != None:
-        print('task already gone or already updated')
-        return
-    # print("exename before "+str(task.exename))
-    task.exename = task_info['exename']
-    task.out = task_info['out']
-    task.err = task_info['err']
-    print('update finished')
-    task.save()
-    task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
-    printRcd(task)
+    # if task == None or task.exename != None:
+    #     print('task already gone or already updated')
+    #     return
+    # # print("exename before "+str(task.exename))
+    # task.exename = task_info['exename']
+    # task.out = task_info['out']
+    # task.err = task_info['err']
+    # print('update finished')
+    # task.save()
+    # task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
+    # printRcd(task)
     return
 
 @transaction.atomic
@@ -445,8 +444,8 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
         task_info['exename'] = exename
         task_info['flag'] = flag
         on_complete(task_info)
-        task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
-        printRcd(task)
+        # task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
+        # printRcd(task)
 
 
     log_file.close()
