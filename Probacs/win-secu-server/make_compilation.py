@@ -64,7 +64,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
     cnt = 0
     for flag in flag_list:
         cnt += 1
-        time.sleep(3)
+        time.sleep(2)
         exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         exename = exename.replace("/","-")
         logline = "%s\t%s"%(exename, flag)

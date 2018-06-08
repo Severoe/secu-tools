@@ -113,7 +113,7 @@ def rcvSrc(request):
         # add entries into task database 
         for ele in compile_combination:
             new_task = Task(task_id=taskName,username=param['username'],
-                tag=None if 'tag' in param else param['tag'],
+                tag=None if not 'tag' in param else param['tag'],
                 src_file=filename,target_os=param['target_os'], 
                 compiler=param['compiler'],version=param['version'],flag=ele)
             new_task.save()
@@ -131,7 +131,7 @@ def rcvSrc(request):
             if pid == 0:
                 response = requests.post(self_ip+"/self_compile", data=data) 
                 #new thread
-                time.sleep(5)
+                time.sleep(2)
                 # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
                 print("finished compile")
                 os._exit(0)  
