@@ -10,6 +10,15 @@ table, th, td {
     text-align: center;
     padding: 3px;
 }
+.progressbar{
+	border: 1px solid grey;
+	width: 300px;
+}
+#bar-growth{
+	width: 40%;
+	background: black;
+	height: 20px;
+}
 </style>
 <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script src="{% static 'secuTool/trace_job.js'%}"></script>
@@ -31,13 +40,10 @@ table, th, td {
 {% endif %}
 </p>
 <p></p>
-<p id="result-trace">
-	{% if progress %}
-	<div class="progress">
-  		<div class="progress-bar" role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" style="width:{{progress}}%">
-  		</div>
-	</div>
-	{% endif%}
+<p id="result-trace" style="display: {{progress}}">
+ 		<div class="progressbar">
+ 			<div id="bar-growth"> </div>
+		</div>
 </p>
 
 <p>------------------------------------------------------------</p>

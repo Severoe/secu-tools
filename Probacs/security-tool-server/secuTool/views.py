@@ -27,6 +27,7 @@ taskdir = 'Compilation_tasks/'
 def home(request):
     context = {}
     context['form'] = ProfileUserForm()
+    context['progress'] = 'none'
     return render(request,'secuTool/index.html',context)
 
 
@@ -145,7 +146,7 @@ def rcvSrc(request):
     context['task_id'] = taskName
     context['message'] = "file is compiling..."
     context['form'] = ProfileUserForm()
-    context['progress'] = 0
+    context['progress'] = 'block'
     context['linux_taskFolder'] = taskName
     return render(request, 'secuTool/index.html', context)
     #add task into database, database approach
