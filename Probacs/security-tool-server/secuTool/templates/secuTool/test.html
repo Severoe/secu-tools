@@ -43,6 +43,13 @@
         margin-top: 20px;
       }
 
+      .scroll {
+        border: 2px solid #ccc;
+        width: 300px;
+        height: 100px;
+        overflow-y: scroll;
+      }
+
       table, th, td {
         column-width: 100px;
         border: 1px solid black;
@@ -84,8 +91,8 @@
               </form>
               <br>
               <br>
-              <form method="get" action="/page2">
-                <button type="submit">Preview</button>
+              <form action="login.html">
+                <input type="submit" value="Preview">
               </form>
             </div>
           </div>
@@ -135,22 +142,15 @@
               <br>
               <br>
               <h5> Please select your profiles. </h5>
-              <div>
-                <input type="checkbox" id="max_optimization" name="profiles" value="max_optimization">
-                <label for="max_optimization">max_optimization</label>
-              </div>
-              <div>
-                <input type="checkbox" id="warning" name="profiles" value="warning">
-                <label for="warning">warning</label>
-              </div>
-              <div>
-                <input type="checkbox" id="preprocessing" name="profiles" value="preprocessing">
-                <label for="preprocessing">preprocessing</label>
+              <div class="scroll">
+                <input type="checkbox" /> max_optimization<br/>
+                <input type="checkbox" /> warning<br/>
+                <input type="checkbox" /> preprocessing<br/>
               </div>
               <br>
               <br>
-              <form method="get" action="/page2">
-                <button type="submit">Preview</button>
+              <form action="login.html">
+                <input type="submit" value="Preview">
               </form>
             </div>
           </div>

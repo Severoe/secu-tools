@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+      header, footer {  
+        color: white;
+        background-color: orange;
+        clear: left;
+        text-align: center;
+      }
+
+      article {
+        margin-left: 170px;
+        border-left: 1px blue;
+        padding: 1em;
+        overflow: hidden;
+      }
+
+      aside {
+        margin-left: 700px;
+        margin-top: 0px;
+        border-left: 1px blue;
+        color:purple;
+        background: red;
+        padding: 1em;
+        overflow: hidden;
+      }
+
+      .debug{
+        border: 1px solid yellow;
+      }
+
+      .container {
+        margin-left: 150px;
+        margin-top: 50px;
+      }
+      
+      .scroll {
+        border: 2px solid #ccc;
+        width: 200px;
+        height: 100px;
+        overflow-y: scroll;
+      }
+
+      #myProgress {
+        width: 100%;
+        background-color: #ddd;
+      }
+
+      #myBar {
+        width: 1%;
+        height: 20px;
+        background-color: #4CAF50;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
+    </header>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-5 debug">
+          <h3>Preview</h3>
+          <br>
+          <p> OS: Linux</p>
+          <p> Compiler: GCC 4.8</p>
+          <p> Profiles: max_optimization, warnings</p>
+          <p> Flags: -O1, -O2, -O3, -Wall, -Werror</p>
+          <br>
+          <br>
+        </div>
+        <div class="col-sm-7 debug">
+          <h3>Select more flags</h3>
+          <br>
+          <div class="scroll">
+            <input type="checkbox"/> -O1<br/>
+            <input type="checkbox"/> -O2<br/>
+            <input type="checkbox"/> -O3<br/>
+            <input type="checkbox"/> -Wall<br/>
+            <input type="checkbox"/> -Werror<br/>
+          </div>
+          <br>
+          <br>
+          <button onclick="document.getElementById('myInput').value = ''">Clear</button>
+          <input type="text" value="AAA" id="myInput">
+          <br>
+          <br>
+          <input type="submit" value="Submit Job" onclick="showProgressCursor()"> {% csrf_token %}
+          <br>
+          <br>
+          <script>
+            function showProgressCursor() {
+              var x = document.getElementById("progressbar");
+              x.style.display = "block";
+              var elem = document.getElementById("myBar");
+              var width = 1;
+              var id = setInterval(frame, 10);
+              function frame() {
+                if (width >= 100) {
+                  clearInterval(id);
+                } else {
+                  width++;
+                  elem.style.width = width + '%';
+                }
+              }
+            }
+          </script>
+          <div id="progressbar" style="display: none">
+            <h6>Job Progress</h6>
+            <div id="myProgress">
+              <div id="myBar"></div>
+            </div>
+            <br>
+          </div>
+          <br>
+          <form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
+            <input type="hidden" name="taskid" value={ {linux_taskFolder}}>
+            <input type="submit" value="Download Directory" class="submit-edition"> {% csrf_token %}
+          </form>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+  </body>
+</html>
