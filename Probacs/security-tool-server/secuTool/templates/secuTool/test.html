@@ -1,212 +1,234 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  <style>
-    #myProgress {
-      width: 100%;
-      background-color: #ddd;
-    }
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+      header, footer {  
+        color: white;
+        background-color: orange;
+        clear: left;
+        text-align: center;
+      }
 
-    #myBar {
-      width: 1%;
-      height: 20px;
-      background-color: #4CAF50;
-    }
+      article {
+        margin-left: 170px;
+        border-left: 1px blue;
+        padding: 1em;
+        overflow: hidden;
+      }
 
-    header, footer {  
-      color: white;
-      background-color: orange;
-      clear: left;
-      text-align: center;
-    }
+      aside {
+        margin-left: 700px;
+        margin-top: 0px;
+        border-left: 1px blue;
+        color:purple;
+        background: red;
+        padding: 1em;
+        overflow: hidden;
+      }
 
-    article {
-      margin-left: 170px;
-      border-left: 1px blue;
-      padding: 1em;
-      overflow: hidden;
-    }
+      .debug{
+        border: 1px solid yellow;
+      }
 
-    aside {
-      margin-left: 700px;
-      margin-top: 0px;
-      border-left: 1px blue;
-      color:purple;
-      background: red;
-      padding: 1em;
-      overflow: hidden;
-    }
+      nav {
+        margin-left: 170px;
+        margin-right: 170px;
+        margin-top: 50px;
+        border-left: 1px blue;
+      }
 
-    .debug{
-      border: 1px solid yellow;
-    }
-  </style>
-</head>
+      .container {
+        margin-left: 200px;
+        margin-top: 20px;
+      }
 
-<body>
-  <header>
-    <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
-  </header>
+      table, th, td {
+        column-width: 100px;
+        border: 1px solid black;
+        text-align: center;
+      }
+    </style>
+  </head>
 
-  <div class="container">
-    <div class="row"> 
-  
-  <div class="col-sm-6 debug">      
-    <h3>Submit a job.</h3>
-    <br>
-    <h5> Please select your profiles. </h5>
-    <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
-      <div class="" style="height: 10px;"></div>
-      <input type="file" value="Select" class="submit-edition">
-      {% csrf_token %}
-    </form>
-    <br>
-
-    <h5> Please select your source code. </h5>
-    <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post' >
-      <div class="" style="height: 10px;"></div>
-      <input type="file" value="Upload" class="submit-edition">
-      {% csrf_token %}
-    </form>
-    <br>
-
-    <h5> Please select your OS, Compilers and Flags. </h5>
-    
-    <select name="meal" id="meal" onChange="changecat(this.value);">
-    <option value="" disabled selected>Select</option>
-    <option value="Linux">Linux</option>
-    <option value="Windows">Windows</option>
-
-</select>
-<select name="category" id="category">
-    <option value="" disabled selected>Select</option>
-</select>
-
-<script>
-
-
-var flagsByOS = {
-    Linux: ["None","-fsyntax-only","-w","-Werror","-Wpedantic","-Wall","-Wextra","-Wno-coverage-mismatch","-Wno-cpp","-Wformat","-Wfatal-errors","-Wmain","-Wunused","O0","O1","O2","O3","Og","Ofast","Os"],
-    Windows: ["None","/W0","/W1","/W2","/W3","/W4","/Wall","/WX"],
- 
-}
-
-    function changecat(value) {
-        if (value.length == 0) document.getElementById("category").innerHTML = "<option></option>";
-        else {
-            var catOptions = "";
-            for (categoryId in flagsByOS[value]) {
-                catOptions += "<option>" + flagsByOS[value][categoryId] + "</option>";
-            }
-            document.getElementById("category").innerHTML = catOptions;
-        }
-    }
-
-
-
-</script>
-
-    
-    <div class="" style="height: 10px;"></div>
-    <input type="submit" value="Submit Job" onclick="showProgressCursor()">
-    {% csrf_token %}
-    <br> <br>
-    <script>
-      function showProgressCursor() {
-        var x = document.getElementById("progressbar");
-        x.style.display = "block";
-        var elem = document.getElementById("myBar");
-        var width = 1;
-        var id = setInterval(frame, 10);
-        function frame() {
-          if (width >= 100) {
-            clearInterval(id);
-          } else {
-            width ++;
-            elem.style.width = width + '%';
-          }
-        }
-     }
-    </script>
-    
-    <div id="progressbar" style = "display: none">
-    <h6>Job Progress</h6>
-      <div id="myProgress">
-        <div id="myBar"></div>
+  <body>
+    <header>
+      <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
+    </header>
+    <nav>
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link" id="nav-1-tab" data-toggle="tab" href="#nav-1" role="tab" aria-controls="nav-1" aria-selected="true">Upload files</a>
+        <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Select flags</a>
+        <a class="nav-item nav-link" id="nav-3-tab" data-toggle="tab" href="#nav-3" role="tab" aria-controls="nav-3" aria-selected="false">Configuration</a>
+        <a class="nav-item nav-link" id="nav-4-tab" data-toggle="tab" href="#nav-4" role="tab" aria-controls="nav-4" aria-selected="false">Tracking jobs</a>
       </div>
-      <br>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+      <div class="tab-pane fade show active" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-6 debug">
+              <h3>Submit a job.</h3>
+              <br>
+              <h5> Please upload your source codes. </h5>
+              <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
+                <div class="" style="height: 10px;"></div>
+                <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
+              </form>
+              <br>
+              <br>
+              <h5> Please upload your task file. </h5>
+              <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
+                <div class="" style="height: 10px;"></div>
+                <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
+              </form>
+              <br>
+              <br>
+              <form method="get" action="/page2">
+                <button type="submit">Preview</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="nav-2" role="tabpanel" aria-labelledby="nav-2-tab">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-6 debug">
+              <h3>Submit a job.</h3>
+              <br>
+              <h5> Please upload your source codes. </h5>
+              <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
+                <div class="" style="height: 10px;"></div>
+                <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
+              </form>
+              <br>
+              <br>
+              <h5> Please select your OS. </h5>
+              <select name="meal" id="meal" onChange="changecat(this.value);">
+                <option value="" disabled selected>Select</option>
+                <option value="Linux">Linux</option>
+                <option value="Windows">Windows</option>
+              </select>
+              <br>
+              <br>
+              <h5> Please select your compiler. </h5>
+              <select name="category" id="category">
+                <option value="" disabled selected>Select</option>
+              </select>
+              <script>
+                var flagsByOS = {
+                  Linux: ["None", "GCC 4.8", "GCC 5.5", "GCC 6.4", "GCC 7.3", "GCC 8.1"],
+                  Windows: ["None", "MSVC++ 14.11", "MSVC++ 14.12", "MSVC++ 14.13", "MSVC++ 14.14"],
+                }
+                function changecat(value) {
+                  if (value.length == 0) document.getElementById("category").innerHTML = "<option></option>";
+                  else {
+                    var catOptions = "";
+                    for (categoryId in flagsByOS[value]) {
+                      catOptions += "<option>" + flagsByOS[value][categoryId] + "</option>";
+                    }
+                    document.getElementById("category").innerHTML = catOptions;
+                  }
+                }
+              </script>
+              <br>
+              <br>
+              <h5> Please select your profiles. </h5>
+              <div>
+                <input type="checkbox" id="max_optimization" name="profiles" value="max_optimization">
+                <label for="max_optimization">max_optimization</label>
+              </div>
+              <div>
+                <input type="checkbox" id="warning" name="profiles" value="warning">
+                <label for="warning">warning</label>
+              </div>
+              <div>
+                <input type="checkbox" id="preprocessing" name="profiles" value="preprocessing">
+                <label for="preprocessing">preprocessing</label>
+              </div>
+              <br>
+              <br>
+              <form method="get" action="/page2">
+                <button type="submit">Preview</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="nav-3" role="tabpanel" aria-labelledby="nav-3-tab">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-6 debug">
+              <h3>Configuration Options.</h3>
+              <br>
+              <div class="photo-upload">Add new profiles.</div>
+              <div class="" style="height: 10px;"></div>
+              <input type="file" value="Add a profile" class="submit-edition" /> {% csrf_token %}
+              <br>
+              <br>
+              <div class="photo-upload">Manage profiles.</div>
+              <div class="" style="height: 10px;"></div>
+              <input type="submit" value="Manage profiles" class="submit-edition" /> {% csrf_token %}
+              <br>
+              <br>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="nav-4" role="tabpanel" aria-labelledby="nav-4-tab">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-10 debug">
+              <h3>Trace your tasks.</h3>
+              <br>
+              <p>* Leaving field blank means no search requirement for this field.</p>
+              <p>* Separate data inside each field by comma.</p>
+              <form action="{% url 'check_status' %}" method='post'>
+                <table>
+                  <tr>
+                    <th>Task id</th>
+                    <th>Compilers</th>
+                    <th>Flags</th>
+                    <th>Username</th>
+                    <th>Tags</th>
+                    <th>Date after</th>
+                    <th>Date before</th>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input style="width:100px;" type="text" name='task_id'>
+                    </td>
+                    <td>
+                      <input style="width:100px;" type="text" name='compilers'>
+                    </td>
+                    <td>
+                      <input style="width:100px;" type="text" name='flags'>
+                    </td>
+                    <td>
+                      <input style="width:100px;" type="text" name='username'>
+                    </td>
+                    <td>
+                      <input style="width:100px;" type="text" name='tags'>
+                    </td>
+                    <td>
+                      <input style="width:100px;" type="text" name='date after'>
+                    </td>
+                    <td>
+                      <input style="width:100px;" type="text" name='date before'>
+                    </td>
+                  </tr>
+                </table>
+                <br>
+                <input type="submit" value="submit" class="submit-edition"> {% csrf_token %}
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <br>
-
-    <form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
-      <input type ="hidden" name="taskid" value = {{linux_taskFolder}}>
-      <input type="submit" value="Download Directory" class="submit-edition">
-      {% csrf_token %}
-    </form>
-    </div>
-
-  <div class="col-sm-6 debug">
-    <h3>Configuration Options</h3>
-      <br>
-      <div class="photo-upload" >Add a profile</div>
-      <div class="" style="height: 10px;"></div>
-      <input type="file" value="Add a profile" class="submit-edition"/>
-      {% csrf_token %}
-      <br> <br>
-
-      <div class="photo-upload" >Manage profiles</div>
-      <div class="" style="height: 10px;"></div>
-      <input type="submit" value="Manage profiles" class="submit-edition"/>
-      {% csrf_token %}
-      <br> <br>
-
-      <div class="photo-upload" >Add a compiler</div>
-      <div class="" style="height: 10px;"></div>
-      <input type="file" value="Add a compiler" class="submit-edition">
-      {% csrf_token %}
-      <br> <br>
-
-      <div class="photo-upload" >Add a flag</div>
-      <div class="" style="height: 10px;"></div>
-      <input type="file" value="Add a flag" class="submit-edition">
-      {% csrf_token %}
-      <br> <br>
-    <br>
-    
-    <h3>Track a job</h3>
-    <br>
-    <form action="/action_page.php">
-      Searching: &nbsp;
-      <input type="text" name="Keywords" value="Keywords">
-      <input type="submit" value="Submit" class="submit-edition"> <br> <br>
-    </form>
-
-    <table style="width: 400px;">
-      <tbody>
-        <tr>
-          <th style="width: 100px;">JID</th>
-          <th style="width: 200px;">Combinations</th>
-          <th style="width: 60px;">Status</th>
-        </tr>
-        <tr>
-          <td style="width: 100px;"> 1</td>
-          <td style="width: 200px;"> -O1, -Wall</td>
-          <td style="width: 60px;"> To do</td>
-        </tr>
-        <tr>
-          <td style="width: 100px"> 2</td>
-          <td style="width: 200px;"> -O2, -W1</td>
-          <td style="width: 60px;"> Completed</td>
-        </tr>
-      </tbody>
-    </table>
-  <p> </p>
-  
-  </div>
-  </div>
-  </div>
-
-</body>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+  </body>
 </html>
