@@ -31,13 +31,6 @@
         border: 1px solid yellow;
       }
 
-      nav {
-        margin-left: 170px;
-        margin-right: 170px;
-        margin-top: 50px;
-        border-left: 1px blue;
-      }
-
       .container {
         margin-left: 200px;
         margin-top: 20px;
@@ -55,6 +48,21 @@
         border: 1px solid black;
         text-align: center;
       }
+
+      .tab1 {
+        margin-left: 170px;
+        margin-right: 170px;
+        margin-top: 50px;
+        border-left: 1px blue;
+      }
+
+      .tab2{
+        margin-left: 200px;
+        margin-right: 200px;
+        margin-top: 5px;
+        border-left: 1px blue;
+        font-size: 15px;
+      }
     </style>
   </head>
 
@@ -62,38 +70,103 @@
     <header>
       <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
     </header>
-    <nav>
-      <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link" id="nav-1-tab" data-toggle="tab" href="#nav-1" role="tab" aria-controls="nav-1" aria-selected="true">Upload files</a>
-        <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Select flags</a>
-        <a class="nav-item nav-link" id="nav-3-tab" data-toggle="tab" href="#nav-3" role="tab" aria-controls="nav-3" aria-selected="false">Configuration</a>
-        <a class="nav-item nav-link" id="nav-4-tab" data-toggle="tab" href="#nav-4" role="tab" aria-controls="nav-4" aria-selected="false">Tracking jobs</a>
-      </div>
-    </nav>
+    <div class="nav nav-tabs tab1" id="nav-tab" role="tablist">
+      <a class="nav-item nav-link" id="nav-1-tab" data-toggle="tab" href="#nav-1" role="tab" aria-controls="nav-1" aria-selected="true">Submit jobs</a>
+      <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Configuration</a>
+      <a class="nav-item nav-link" id="nav-3-tab" data-toggle="tab" href="#nav-3" role="tab" aria-controls="nav-3" aria-selected="false">Tracking jobs</a>
+    </div>
     <div class="tab-content" id="nav-tabContent">
       <div class="tab-pane fade show active" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-6 debug">
-              <h3>Submit a job.</h3>
-              <br>
-              <h5> Please upload your source codes. </h5>
-              <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
-                <div class="" style="height: 10px;"></div>
-                <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
-              </form>
-              <br>
-              <br>
-              <h5> Please upload your task file. </h5>
-              <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
-                <div class="" style="height: 10px;"></div>
-                <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
-              </form>
-              <br>
-              <br>
-              <form action="/preview">
-                <input type="submit" value="Preview">
-              </form>
+        <div class="nav nav-tabs tab2" id="nav-tab" role="tablist">
+          <a class="nav-item nav-link" id="nav-11-tab" data-toggle="tab" href="#nav-11" role="tab" aria-controls="nav-11" aria-selected="true">Upload files</a>
+          <a class="nav-item nav-link" id="nav-12-tab" data-toggle="tab" href="#nav-12" role="tab" aria-controls="nav-12" aria-selected="false">Select flags</a>
+        </div>
+        <div class="tab-content" id="nav-tabContent">
+          <div class="tab-pane fade show active" id="nav-11" role="tabpanel" aria-labelledby="nav-11-tab">
+            <div class="container">
+              <div class="row">
+                <div class="col-sm-6 debug">
+                  <h3>Submit a job.</h3>
+                  <br>
+                  <h5> Please upload your source code. </h5>
+                  <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
+                    <div class="" style="height: 10px;"></div>
+                    <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
+                  </form>
+                  <br>
+                  <br>
+                  <h5> Please upload your task file. </h5>
+                  <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
+                    <div class="" style="height: 10px;"></div>
+                    <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
+                  </form>
+                  <br>
+                  <br>
+                  <form action="/preview">
+                    <input type="submit" value="Preview">
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="nav-12" role="tabpanel" aria-labelledby="nav-12-tab">
+            <div class="container">
+              <div class="row">
+                <div class="col-sm-6 debug">
+                  <h3>Submit a job.</h3>
+                  <br>
+                  <h5> Please upload your source code. </h5>
+                  <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
+                    <div class="" style="height: 10px;"></div>
+                    <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
+                  </form>
+                  <br>
+                  <br>
+                  <h5> Please select your OS. </h5>
+                  <select name="meal" id="meal" onChange="changecat(this.value);">
+                    <option value="" disabled selected>Select</option>
+                    <option value="Linux">Linux</option>
+                    <option value="Windows">Windows</option>
+                  </select>
+                  <br>
+                  <br>
+                  <h5> Please select your compiler. </h5>
+                  <select name="category" id="category">
+                    <option value="" disabled selected>Select</option>
+                  </select>
+                  <script>
+                    var flagsByOS = {
+                      Linux: ["None", "GCC 4.8", "GCC 5.5", "GCC 6.4", "GCC 7.3", "GCC 8.1"],
+                      Windows: ["None", "MSVC++ 14.11", "MSVC++ 14.12", "MSVC++ 14.13", "MSVC++ 14.14"],
+                    }
+                    function changecat(value) {
+                      if (value.length == 0) document.getElementById("category").innerHTML = "<option></option>";
+                      else {
+                        var catOptions = "";
+                        for (categoryId in flagsByOS[value]) {
+                          catOptions += "<option>" + flagsByOS[value][categoryId] + "</option>";
+                        }
+                        document.getElementById("category").innerHTML = catOptions;
+                      }
+                    }
+                  </script>
+                  <br>
+                  <br>
+                  <h5> Please select your profiles. </h5>
+                  <div class="scroll">
+                    <input type="checkbox" /> debugging<br/>
+                    <input type="checkbox" /> link<br/>
+                    <input type="checkbox" /> optimization<br/>
+                    <input type="checkbox" /> preprocessing<br/>
+                    <input type="checkbox" /> warning<br/>
+                  </div>
+                  <br>
+                  <br>
+                  <form action="preview.html">
+                    <input type="submit" value="Preview">
+                  </form>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -102,67 +175,9 @@
         <div class="container">
           <div class="row">
             <div class="col-sm-6 debug">
-              <h3>Submit a job.</h3>
-              <br>
-              <h5> Please upload your source codes. </h5>
-              <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
-                <div class="" style="height: 10px;"></div>
-                <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
-              </form>
-              <br>
-              <br>
-              <h5> Please select your OS. </h5>
-              <select name="meal" id="meal" onChange="changecat(this.value);">
-                <option value="" disabled selected>Select</option>
-                <option value="Linux">Linux</option>
-                <option value="Windows">Windows</option>
-              </select>
-              <br>
-              <br>
-              <h5> Please select your compiler. </h5>
-              <select name="category" id="category">
-                <option value="" disabled selected>Select</option>
-              </select>
-              <script>
-                var flagsByOS = {
-                  Linux: ["None", "GCC 4.8", "GCC 5.5", "GCC 6.4", "GCC 7.3", "GCC 8.1"],
-                  Windows: ["None", "MSVC++ 14.11", "MSVC++ 14.12", "MSVC++ 14.13", "MSVC++ 14.14"],
-                }
-                function changecat(value) {
-                  if (value.length == 0) document.getElementById("category").innerHTML = "<option></option>";
-                  else {
-                    var catOptions = "";
-                    for (categoryId in flagsByOS[value]) {
-                      catOptions += "<option>" + flagsByOS[value][categoryId] + "</option>";
-                    }
-                    document.getElementById("category").innerHTML = catOptions;
-                  }
-                }
-              </script>
-              <br>
-              <br>
-              <h5> Please select your profiles. </h5>
-              <div class="scroll">
-                <input type="checkbox" /> max_optimization<br/>
-                <input type="checkbox" /> warning<br/>
-                <input type="checkbox" /> preprocessing<br/>
-              </div>
-              <br>
-              <br>
-              <form action="preview.html">
-                <input type="submit" value="Preview">
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="tab-pane fade" id="nav-3" role="tabpanel" aria-labelledby="nav-3-tab">
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-6 debug">
               <h3>Configuration Options.</h3>
               <br>
-              <div class="photo-upload">Add new profiles.</div>
+              <div class="photo-upload">Add a profile.</div>
               <div class="" style="height: 10px;"></div>
               <input type="file" value="Add a profile" class="submit-edition" /> {% csrf_token %}
               <br>
@@ -172,11 +187,15 @@
               <input type="submit" value="Manage profiles" class="submit-edition" /> {% csrf_token %}
               <br>
               <br>
+              <div class="photo-upload">Add a compiler.</div>
+              <div class="" style="height: 10px;"></div>
+              <input type="file" value="Add a profile" class="submit-edition" /> {% csrf_token %}
+              <br>
             </div>
           </div>
         </div>
       </div>
-      <div class="tab-pane fade" id="nav-4" role="tabpanel" aria-labelledby="nav-4-tab">
+      <div class="tab-pane fade" id="nav-3" role="tabpanel" aria-labelledby="nav-3-tab">
         <div class="container">
           <div class="row">
             <div class="col-sm-10 debug">
