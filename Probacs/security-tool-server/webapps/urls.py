@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^download_tar$', views.wrap_dir, name='download_tar'),
     url(r'^check_status$', views.check_status, name='check_status'),
     url(r'^test$', views.test, name='test'),
+    url(r'^preview$', views.preview, name='preview'),
     url(r'^rcv_compilation', views.rcv_platform_result, name='rcv_platform_result'),
     
     url(r'^trace$', views.trace, name='trace'),

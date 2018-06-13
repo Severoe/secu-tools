@@ -416,6 +416,13 @@ def test(request):
     # context['status'] = statuses
     return render(request, 'secuTool/test.html',context)
 
+def preview(request):
+    context = {}
+    context['message'] = 'shkadhlaskdjask'
+    context['form'] = ProfileUserForm()
+    # context['status'] = statuses
+    return render(request, 'secuTool/preview.html',context)
+
 def tracetest(request):
     return render(request, 'secuTool/blank.html')
 def trace_test(request):

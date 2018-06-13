@@ -68,7 +68,12 @@
           <p> OS: Linux</p>
           <p> Compiler: GCC 4.8</p>
           <p> Profiles: max_optimization, warnings</p>
-          <p> Flags: -O1, -O2, -O3, -Wall, -Werror</p>
+          <p> Flags: </p>
+          <p> &nbsp; -O1</p>
+          <p> &nbsp; -O2</p>
+          <p> &nbsp; -O3</p>
+          <p> &nbsp; -Wall</p>
+          <p> &nbsp; -O1, -Wall</p>
           <br>
           <br>
         </div>
@@ -82,10 +87,6 @@
             <input type="checkbox"/> -Wall<br/>
             <input type="checkbox"/> -Werror<br/>
           </div>
-          <br>
-          <br>
-          <button onclick="document.getElementById('myInput').value = ''">Clear</button>
-          <input type="text" value="AAA" id="myInput">
           <br>
           <br>
           <input type="submit" value="Submit Job" onclick="showProgressCursor()"> {% csrf_token %}
