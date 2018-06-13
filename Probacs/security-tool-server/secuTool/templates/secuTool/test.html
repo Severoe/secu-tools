@@ -67,7 +67,8 @@
         <a class="nav-item nav-link" id="nav-1-tab" data-toggle="tab" href="#nav-1" role="tab" aria-controls="nav-1" aria-selected="true">Upload files</a>
         <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Select flags</a>
         <a class="nav-item nav-link" id="nav-3-tab" data-toggle="tab" href="#nav-3" role="tab" aria-controls="nav-3" aria-selected="false">Configuration</a>
-        <a class="nav-item nav-link" id="nav-4-tab" data-toggle="tab" href="#nav-4" role="tab" aria-controls="nav-4" aria-selected="false">Tracking jobs</a>
+        <a class="nav-item nav-link" id="nav-4-tab" data-toggle="tab" href="#nav-4" role="tab" aria-controls="nav-4" aria-selected="false">Job status</a>
+        <a class="nav-item nav-link" id="nav-5-tab" data-toggle="tab" href="#nav-5" role="tab" aria-controls="nav-5" aria-selected="false">Search jobs</a>
       </div>
     </nav>
     <div class="tab-content" id="nav-tabContent">
@@ -77,7 +78,7 @@
             <div class="col-sm-6 debug">
               <h3>Submit a job.</h3>
               <br>
-              <h5> Please upload your source codes. </h5>
+              <h5> Please upload your source code. </h5>
               <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
                 <div class="" style="height: 10px;"></div>
                 <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
@@ -104,14 +105,14 @@
             <div class="col-sm-6 debug">
               <h3>Submit a job.</h3>
               <br>
-              <h5> Please upload your source codes. </h5>
+              <h5> Please upload your source code*. </h5>
               <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
                 <div class="" style="height: 10px;"></div>
                 <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
               </form>
               <br>
               <br>
-              <h5> Please select your OS. </h5>
+              <h5> Please select your OS*. </h5>
               <select name="meal" id="meal" onChange="changecat(this.value);">
                 <option value="" disabled selected>Select</option>
                 <option value="Linux">Linux</option>
@@ -119,7 +120,7 @@
               </select>
               <br>
               <br>
-              <h5> Please select your compiler. </h5>
+              <h5> Please select your compiler*. </h5>
               <select name="category" id="category">
                 <option value="" disabled selected>Select</option>
               </select>
@@ -141,14 +142,24 @@
               </script>
               <br>
               <br>
-              <h5> Please select your profiles. </h5>
+              <h5> Please select your profiles*. </h5>
               <div class="scroll">
                 <input type="checkbox" /> max_optimization<br/>
                 <input type="checkbox" /> warning<br/>
                 <input type="checkbox" /> preprocessing<br/>
               </div>
               <br>
+              <h5> Please type username*. </h5>
+              <div class="text">
+                <input type="text" /> <br/>
+              </div>
               <br>
+              <h5> Please enter a tag for your job. </h5>
+              <div class="text">
+                <input type="text" /> <br/>
+              </div>
+              <br>
+
               <form action="preview.html">
                 <input type="submit" value="Preview">
               </form>
