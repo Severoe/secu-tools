@@ -86,7 +86,6 @@
       <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Configuration</a>
       <a class="nav-item nav-link" id="nav-3-tab" data-toggle="tab" href="#nav-3" role="tab" aria-controls="nav-3" aria-selected="false">Search</a>
       <a class="nav-item nav-link" id="nav-4-tab" data-toggle="tab" href="#nav-4" role="tab" aria-controls="nav-4" aria-selected="false">Job Tracker</a>
-      
     </div>
     <div class="tab-content" id="nav-tabContent">
       <div class="tab-pane fade show active" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">
@@ -224,7 +223,7 @@
         <div class="container">
           <div class="row">
             <div class="col-sm-10 debug">
-              <h3>Trace your tasks.</h3>
+              <h3>Search your tasks.</h3>
               <br>
               <p>* Leaving field blank means no search requirement for this field.</p>
               <p>* Separate data inside each field by comma.</p>
@@ -270,7 +269,6 @@
           </div>
         </div>
       </div>
-
       <div class="tab-pane fade" id="nav-4" role="tabpanel" aria-labelledby="nav-4-tab">
         <div class="container">
           <div class="row">
@@ -291,8 +289,7 @@
                   </tr>
                   <tr>
                     <td>
-                      <input type="submit" value="Task ID" onclick="showProgressCursor()">  {% csrf_token %}
-
+                      <input type="submit" value="Task ID" onclick="showPogressCursor()">  {% csrf_token %}
                     </td>
                     <td>
                       <input style="width:100px;" type="text" name='Compilers'>
@@ -307,44 +304,40 @@
                       <input style="width:100px;" type="text" name='Tags'>
                     </td>
                     <td>
-                      <input style="width:100px;" type="text" name='Date Submitted'>
+                      <input style="width:120px;" type="text" name='Date Submitted'>
                     </td>
                     <td>
-                      <input style="width:100px;" type="text" name='Time Submitted'>
+                      <input style="width:120px;" type="text" name='Time Submitted'>
                     </td>
                   </tr>
                 </table>
                 <br>
-               
-
                 <script>
-            function showProgressCursor() {
-              var x = document.getElementById("progressbar");
-              x.style.display = "block";
-              var elem = document.getElementById("myBar");
-              var width = 1;
-              var id = setInterval(frame, 10);
-              function frame() {
-                if (width >= 100) {
-                  clearInterval(id);
-                } else {
-                  width++;
-                  elem.style.width = width + '%';
-                }
-              }
-            }
-          </script>
-          <div id="progressbar" style="display: none">
-            <h6>Job Progress</h6>
-            <div id="myProgress">
-              <div id="myBar"></div>
-            </div>
-            <br>
-          </div>
-
-
-	            <br>
-	          </div>
+                  function showPogressCursor() {
+                    var x = document.getElementById("progressbar");
+                    x.style.display = "block";
+                    var elem = document.getElementById("myBar");
+                    var width = 1;
+                    var id = setInterval(frame, 10);
+                    function frame() {
+                      if (width >= 100) {
+                        clearInterval(id);
+                      } else {
+                        width++;
+                        elem.style.width = width + '%';
+                      }
+                    }
+                  }
+                </script>
+                <div id="progressbar" style="display: none">
+                  <h6>Job Progress</h6>
+                  <div id="myProgress">
+                    <div id="myBar"></div>
+                  </div>
+                  <br>
+                </div>
+              </form>
+              <form>
                 <input type="submit" value="submit" class="submit-edition"> {% csrf_token %}
               </form>
             </div>

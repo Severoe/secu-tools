@@ -94,33 +94,9 @@
           </div>
           <br>
           <br>
-          <input type="submit" value="Submit Job" onclick="showProgressCursor()"> {% csrf_token %}
-          <br>
-          <br>
-          <script>
-            function showProgressCursor() {
-              var x = document.getElementById("progressbar");
-              x.style.display = "block";
-              var elem = document.getElementById("myBar");
-              var width = 1;
-              var id = setInterval(frame, 10);
-              function frame() {
-                if (width >= 100) {
-                  clearInterval(id);
-                } else {
-                  width++;
-                  elem.style.width = width + '%';
-                }
-              }
-            }
-          </script>
-          <div id="progressbar" style="display: none">
-            <h6>Job Progress</h6>
-            <div id="myProgress">
-              <div id="myBar"></div>
-            </div>
-            <br>
-          </div>
+          <form action="/test">
+            <input type="submit" value="Submit">
+          </form>
           <br>
           <form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
             <input type="hidden" name="taskid" value={ {linux_taskFolder}}>
