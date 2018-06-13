@@ -279,41 +279,43 @@
               <br>
           	  <h4>Currently running jobs.</h4>
               <form action="{% url 'check_status' %}" method='post'>
-                <table>
-                  <tr>
-                    <th>Task ID</th>
-                    <th>Compilers</th>
-                    <th>Flags</th>
-                    <th>Username</th>
-                    <th>Tag</th>
-                    <th>Date submitted</th>
-                    <th>Time submitted</th>
-                  </tr>
-                  <tr>
-                    <td>
-                      <input type="submit" value="Task ID" onclick="showProgressCursor()">  {% csrf_token %}
+        <table class="table table-hover" >
+		  <thead>
+		    <tr>
+		      <th scope="col">Task ID</th>
+		      <th scope="col">Compilers</th>
+		      <th scope="col">Flags</th>
+		      <th scope="col">Username</th>
+		      <th scope="col">Tags</th>
+		      <th scope="col">Date Submitted</th>
+		      <th scope="col">Time Submitted</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+		    <tr>
+		      <th scope="row" onclick="showProgressCursor()">00010</th>
+		      <td>GCC 4.8</td>
+		      <td>-O1,-Wall</td>
+		      <td>Jeffrey</td>
+		      <td>#test</td>
+		      <td>6/13/2018</td>
+		      <td>07:05</td>
+		    </tr>
+		    <tr>
+		      <th scope="row" onclick="showProgressCursor()">00011</th>
+		      <td>GCC 5.5</td>
+		      <td>-O3,-O2</td>
+		      <td>David</td>
+		      <td>#task1</td>
+		      <td>6/13/2018</td>
+		      <td>09:05</td>
+		    </tr>
 
-                    </td>
-                    <td>
-                      <input style="width:100px;" type="text" name='Compilers'>
-                    </td>
-                    <td>
-                      <input style="width:100px;" type="text" name='Flags'>
-                    </td>
-                    <td>
-                      <input style="width:100px;" type="text" name='Username'>
-                    </td>
-                    <td>
-                      <input style="width:100px;" type="text" name='Tags'>
-                    </td>
-                    <td>
-                      <input style="width:100px;" type="text" name='Date Submitted'>
-                    </td>
-                    <td>
-                      <input style="width:100px;" type="text" name='Time Submitted'>
-                    </td>
-                  </tr>
-                </table>
+		    
+		  </tbody>
+		
+
+		</table>
                 <br>
                
 
@@ -344,9 +346,8 @@
 
 
 	            <br>
-	          </div>
-                <input type="submit" value="submit" class="submit-edition"> {% csrf_token %}
-              </form>
+	          </div></form>
+
             </div>
           </div>
         </div>
