@@ -37,10 +37,15 @@
       }
       
       .scroll {
+        margin-left: 10px;
         border: 2px solid #ccc;
         width: 200px;
         height: 100px;
         overflow-y: scroll;
+      }
+
+      .flag {
+        font-size: 10px;
       }
 
       #myProgress {
@@ -67,13 +72,13 @@
           <br>
           <p> OS: Linux</p>
           <p> Compiler: GCC 4.8</p>
-          <p> Profiles: max_optimization, warnings</p>
-          <p> Flags: </p>
-          <p> &nbsp; -O1</p>
-          <p> &nbsp; -O2</p>
-          <p> &nbsp; -O3</p>
-          <p> &nbsp; -Wall</p>
-          <p> &nbsp; -O1, -Wall</p>
+          <p> Profiles: optimization, warning</p>
+          <p> Flags:</p>
+          <div class="scroll">
+            -O1<br>-O2<br>-Wall<br>-Werror<br>
+            -O1, -Wall<br>-O1, -Werror<br>
+            -O2, -Wall<br>-O2, -Werror
+          </div>
           <br>
           <br>
         </div>
@@ -89,33 +94,9 @@
           </div>
           <br>
           <br>
-          <input type="submit" value="Submit Job" onclick="showProgressCursor()"> {% csrf_token %}
-          <br>
-          <br>
-          <script>
-            function showProgressCursor() {
-              var x = document.getElementById("progressbar");
-              x.style.display = "block";
-              var elem = document.getElementById("myBar");
-              var width = 1;
-              var id = setInterval(frame, 10);
-              function frame() {
-                if (width >= 100) {
-                  clearInterval(id);
-                } else {
-                  width++;
-                  elem.style.width = width + '%';
-                }
-              }
-            }
-          </script>
-          <div id="progressbar" style="display: none">
-            <h6>Job Progress</h6>
-            <div id="myProgress">
-              <div id="myBar"></div>
-            </div>
-            <br>
-          </div>
+          <form action="/test">
+            <input type="submit" value="Submit">
+          </form>
           <br>
           <form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
             <input type="hidden" name="taskid" value={ {linux_taskFolder}}>

@@ -62,6 +62,7 @@
         margin-top: 5px;
         border-left: 1px blue;
         font-size: 15px;
+
       }
 
       #myProgress {
@@ -86,7 +87,6 @@
       <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Configuration</a>
       <a class="nav-item nav-link" id="nav-3-tab" data-toggle="tab" href="#nav-3" role="tab" aria-controls="nav-3" aria-selected="false">Search</a>
       <a class="nav-item nav-link" id="nav-4-tab" data-toggle="tab" href="#nav-4" role="tab" aria-controls="nav-4" aria-selected="false">Job Tracker</a>
-      
     </div>
     <div class="tab-content" id="nav-tabContent">
       <div class="tab-pane fade show active" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">
@@ -144,7 +144,7 @@
                   <br>
                   <br>
                   <h5> Please select your compiler*. </h5>
-                  <select name="category" id="category">
+                  <select name="compiler" id="compiler">
                     <option value="" disabled selected>Select</option>
                   </select>
                   <script>
@@ -153,13 +153,13 @@
                       Windows: ["None", "MSVC++ 14.11", "MSVC++ 14.12", "MSVC++ 14.13", "MSVC++ 14.14"],
                     }
                     function changecat(value) {
-                      if (value.length == 0) document.getElementById("category").innerHTML = "<option></option>";
+                      if (value.length == 0) document.getElementById("compiler").innerHTML = "<option></option>";
                       else {
                         var catOptions = "";
-                        for (categoryId in flagsByOS[value]) {
-                          catOptions += "<option>" + flagsByOS[value][categoryId] + "</option>";
+                        for (compilerId in flagsByOS[value]) {
+                          catOptions += "<option>" + flagsByOS[value][compilerId] + "</option>";
                         }
-                        document.getElementById("category").innerHTML = catOptions;
+                        document.getElementById("compiler").innerHTML = catOptions;
                       }
                     }
                   </script>
@@ -187,7 +187,7 @@
                   </div>
                   <br>
                   <br>
-                  <form action="preview.html">
+                  <form action="/preview">
                     <input type="submit" value="Preview">
                   </form>
                 </div>
@@ -214,7 +214,7 @@
               <br>
               <div class="photo-upload">Add a compiler.</div>
               <div class="" style="height: 10px;"></div>
-              <input type="file" value="Add a profile" class="submit-edition" /> {% csrf_token %}
+              <input type="file" value="Add a compiler" class="submit-edition" /> {% csrf_token %}
               <br>
             </div>
           </div>
@@ -224,7 +224,7 @@
         <div class="container">
           <div class="row">
             <div class="col-sm-10 debug">
-              <h3>Trace your tasks.</h3>
+              <h3>Search your tasks.</h3>
               <br>
               <p>* Leaving field blank means no search requirement for this field.</p>
               <p>* Separate data inside each field by comma.</p>
@@ -270,92 +270,91 @@
           </div>
         </div>
       </div>
-
       <div class="tab-pane fade" id="nav-4" role="tabpanel" aria-labelledby="nav-4-tab">
         <div class="container">
           <div class="row">
             <div class="col-sm-10 debug">
               <h3>Track job status.</h3>
               <br>
-          	  <h4>Currently running jobs.</h4>
+              <h4>Currently running jobs.</h4>
               <form action="{% url 'check_status' %}" method='post'>
-        <table class="table table-hover" >
-		  <thead>
-		    <tr>
-		      <th scope="col">Task ID</th>
-		      <th scope="col">Compilers</th>
-		      <th scope="col">Flags</th>
-		      <th scope="col">Username</th>
-		      <th scope="col">Tags</th>
-		      <th scope="col">Date Submitted</th>
-		      <th scope="col">Time Submitted</th>
-		    </tr>
-		  </thead>
-		  <tbody>
-		    <tr>
-		      <th scope="row" onclick="showProgressCursor()">00010</th>
-		      <td>GCC 4.8</td>
-		      <td>-O1,-Wall</td>
-		      <td>Jeffrey</td>
-		      <td>#test</td>
-		      <td>6/13/2018</td>
-		      <td>07:05</td>
-		    </tr>
-		    <tr>
-		      <th scope="row" onclick="showProgressCursor()">00011</th>
-		      <td>GCC 5.5</td>
-		      <td>-O3,-O2</td>
-		      <td>David</td>
-		      <td>#task1</td>
-		      <td>6/13/2018</td>
-		      <td>09:05</td>
-		    </tr>
-
-		    
-		  </tbody>
-		
-
-		</table>
-                <br>
-               
-
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">Task ID</th>
+                      <th scope="col">Compilers</th>
+                      <th scope="col">Flags</th>
+                      <th scope="col">Username</th>
+                      <th scope="col">Tags</th>
+                      <th scope="col">Date Submitted</th>
+                      <th scope="col">Time Submitted</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row" onclick="showProgressCursor()">00010</th>
+                      <td>GCC 4.8</td>
+                      <td>-O1,-Wall</td>
+                      <td>Jeffrey</td>
+                      <td>#test</td>
+                      <td>6/13/2018</td>
+                      <td>07:05</td>
+                    </tr>
+                    <tr>
+                      <th scope="row" onclick="showProgressCursor()">00011</th>
+                      <td>GCC 5.5</td>
+                      <td>-O2,-Werror</td>
+                      <td>David</td>
+                      <td>#hello world</td>
+                      <td>6/13/2018</td>
+                      <td>09:05</td>
+                    </tr>
+                    </tr>
+                  </tbody>
+                </table>
                 <script>
-            function showProgressCursor() {
-              var x = document.getElementById("progressbar");
-              x.style.display = "block";
-              var elem = document.getElementById("myBar");
-              var width = 1;
-              var id = setInterval(frame, 10);
-              function frame() {
-                if (width >= 100) {
-                  clearInterval(id);
-                } else {
-                  width++;
-                  elem.style.width = width + '%';
-                }
-              }
-            }
-          </script>
-          <div id="progressbar" style="display: none">
-            <h6>Job Progress</h6>
-            <div id="myProgress">
-              <div id="myBar"></div>
-            </div>
-            <br>
-          </div>
+                  function showProgressCursor() {
+                    var x = document.getElementById("progressbar");
+                    x.style.display = "block";
+                    var elem = document.getElementById("myBar");
+                    var width = 1;
+                    var id = setInterval(frame, 10);
+                    function frame() {
+                      if (width >= 100) {
+                        clearInterval(id);
+                      } else {
+                        width++;
+                        elem.style.width = width + '%';
+                      }
+
+                    }
 
 
-	            <br>
-	          </div></form>
+                  }
+                 
+                </script>
+                <div id="progressbar" style="display: none">
+                  <h6>Job Progress</h6>
+                  <div id="myProgress">
+                    <div id="myBar"></div>
+                  </div>
+                  <br>
+                  <h6>Task Log</h6>
+                  <br>
+                  
+                  <input type="text" name="y" id="y" readonly="True" />
 
+                  <br>
+                </div>
+
+ 
+
+              </form>
             </div>
           </div>
         </div>
       </div>
-
-
     </div>
-
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
