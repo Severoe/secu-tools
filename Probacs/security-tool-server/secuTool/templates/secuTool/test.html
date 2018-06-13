@@ -133,7 +133,7 @@
                   <br>
                   <br>
                   <h5> Please select your compiler*. </h5>
-                  <select name="category" id="category">
+                  <select name="compiler" id="compiler">
                     <option value="" disabled selected>Select</option>
                   </select>
                   <script>
@@ -142,13 +142,13 @@
                       Windows: ["None", "MSVC++ 14.11", "MSVC++ 14.12", "MSVC++ 14.13", "MSVC++ 14.14"],
                     }
                     function changecat(value) {
-                      if (value.length == 0) document.getElementById("category").innerHTML = "<option></option>";
+                      if (value.length == 0) document.getElementById("compiler").innerHTML = "<option></option>";
                       else {
                         var catOptions = "";
-                        for (categoryId in flagsByOS[value]) {
-                          catOptions += "<option>" + flagsByOS[value][categoryId] + "</option>";
+                        for (compilerId in flagsByOS[value]) {
+                          catOptions += "<option>" + flagsByOS[value][compilerId] + "</option>";
                         }
-                        document.getElementById("category").innerHTML = catOptions;
+                        document.getElementById("compiler").innerHTML = catOptions;
                       }
                     }
                   </script>
@@ -176,7 +176,7 @@
                   </div>
                   <br>
                   <br>
-                  <form action="preview.html">
+                  <form action="/preview">
                     <input type="submit" value="Preview">
                   </form>
                 </div>
