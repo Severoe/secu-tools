@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
+     {% load staticfiles %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+    <script src="{% static 'secuTool/demo-checkbox.js'%}"></script>
     <style>
       header, footer {  
         color: white;
@@ -54,6 +59,34 @@
         height: 20px;
         background-color: #4CAF50;
       }
+
+      /*style for js demo*/
+      .js-demo{
+        display: block;
+        /*margin: 20px 150px;*/
+        border: 1px solid red;
+      }
+      .js-col{
+        border: 1px solid red;
+      }
+      .js-debug{
+        /*border: 1px solid red;*/
+        /*width: 50%;*/
+        margin-left:50px;
+      }
+      .flag-group{
+        margin-bottom: 20px;
+      }
+      .button-check-box{
+        width: 10px !important;
+        height: 15px!important;
+        border-radius: 3px;
+        outline: none;
+      }
+      .chosen{
+        background-color: darkblue;
+      }
+
     </style>
   </head>
 
@@ -97,8 +130,31 @@
         </div>
       </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+
+    <div class="container js-demo">
+    <div class="row "> 
+      <div class="col-md-6 js-col"> 
+          <div class="js-debug" ><button class="button-check-box" id = "flag1" onclick="addflag('flag1')"></button> -O1</div>
+          <div class="js-debug"><button class="button-check-box" id = "flag2" onclick="addflag('flag2')"></button> -O2</div>
+          <div class="js-debug"><button class="button-check-box" id = "flag3" onclick="addflag('flag3')"></button> -O3</div>
+          <div class="js-debug"><button class="button-check-box" id = "flag4" onclick="addflag('flag4')"></button> -Wall</div>
+          <br><br>
+          <div class="js-debug"><button class= "btn btn-light" onclick="confirmgroup()">confirm flag combination</button></div>
+      </div>
+      <div class="col-md-6 js-col">
+        <div id="groups">
+        </div>
+        <form action="#" id="group-handin">
+          <input type="submit" value="Submit">
+        </form>
+      </div>
+    </div>
+      
+    </div>
+
+
+
+
+    
   </body>
 </html>
