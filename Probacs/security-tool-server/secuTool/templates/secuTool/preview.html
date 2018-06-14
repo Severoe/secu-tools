@@ -60,36 +60,33 @@
         background-color: #4CAF50;
       }
 
-      /*style for js demo*/
       .js-demo{
+        margin-top: 0px;
+        margin-left: 0px;
         display: block;
-        /*margin: 20px 150px;*/
-        border: 1px solid red;
       }
+
       .js-col{
         border: 1px solid red;
       }
-      .js-debug{
-        /*border: 1px solid red;*/
-        /*width: 50%;*/
-        margin-left:50px;
-      }
+
       .flag-group{
         margin-bottom: 20px;
       }
+
       .button-check-box{
         width: 10px !important;
         height: 15px!important;
         border-radius: 3px;
         outline: none;
       }
+
       .chosen{
         background-color: darkblue;
       }
 
     </style>
   </head>
-
   <body>
     <header>
       <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
@@ -114,12 +111,29 @@
         <div class="col-sm-7 debug">
           <h3>Select more flags</h3>
           <br>
-          <div class="scroll">
-            <input type="checkbox"/> -O1<br/>
-            <input type="checkbox"/> -O2<br/>
-            <input type="checkbox"/> -O3<br/>
-            <input type="checkbox"/> -Wall<br/>
-            <input type="checkbox"/> -Werror<br/>
+          <div class="container js-demo">
+            <div class="row ">
+              <div class="col-md-6 js-col">
+                <div class="js-debug">
+                  <button class="button-check-box" id="flag1" onclick="addflag('flag1')"></button> -O1</div>
+                <div class="js-debug">
+                  <button class="button-check-box" id="flag2" onclick="addflag('flag2')"></button> -O2</div>
+                <div class="js-debug">
+                  <button class="button-check-box" id="flag3" onclick="addflag('flag3')"></button> -O3</div>
+                <div class="js-debug">
+                  <button class="button-check-box" id="flag4" onclick="addflag('flag4')"></button> -Wall</div>
+                <div class="js-debug">
+                  <button class="button-check-box" id="flag5" onclick="addflag('flag5')"></button> -Werror</div>
+                <br>
+                <br>
+                <div class="js-debug">
+                  <button class="btn btn-light" onclick="confirmgroup()">Select</button>
+                </div>
+              </div>
+              <div class="col-md-6 js-col">
+                <div id="groups"></div>
+              </div>
+          </div>
           </div>
           <br>
           <br>
@@ -130,31 +144,5 @@
         </div>
       </div>
     </div>
-
-    <div class="container js-demo">
-    <div class="row "> 
-      <div class="col-md-6 js-col"> 
-          <div class="js-debug" ><button class="button-check-box" id = "flag1" onclick="addflag('flag1')"></button> -O1</div>
-          <div class="js-debug"><button class="button-check-box" id = "flag2" onclick="addflag('flag2')"></button> -O2</div>
-          <div class="js-debug"><button class="button-check-box" id = "flag3" onclick="addflag('flag3')"></button> -O3</div>
-          <div class="js-debug"><button class="button-check-box" id = "flag4" onclick="addflag('flag4')"></button> -Wall</div>
-          <br><br>
-          <div class="js-debug"><button class= "btn btn-light" onclick="confirmgroup()">confirm flag combination</button></div>
-      </div>
-      <div class="col-md-6 js-col">
-        <div id="groups">
-        </div>
-        <form action="#" id="group-handin">
-          <input type="submit" value="Submit">
-        </form>
-      </div>
-    </div>
-      
-    </div>
-
-
-
-
-    
   </body>
 </html>
