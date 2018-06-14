@@ -27,10 +27,6 @@
         overflow: hidden;
       }
 
-      .debug{
-        border: 1px solid yellow;
-      }
-
       .container {
         margin-left: 200px;
         margin-top: 20px;
@@ -264,6 +260,12 @@
                 </table>
                 <br>
                 <input type="submit" value="submit" class="submit-edition"> {% csrf_token %}
+                <br>
+                <br>
+                <form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
+                  <input type="hidden" name="taskid" value={ {linux_taskFolder}}>
+                  <input type="submit" value="Download Directory" class="submit-edition"> {% csrf_token %}
+                </form>
               </form>
             </div>
           </div>
@@ -311,7 +313,6 @@
                     </tr>
                   </tbody>
                 </table>
-                <br>
                 <script>
                   function showProgressCursor() {
                     var x = document.getElementById("progressbar");

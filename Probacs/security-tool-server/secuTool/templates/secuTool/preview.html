@@ -27,10 +27,6 @@
         overflow: hidden;
       }
 
-      .debug{
-        border: 1px solid yellow;
-      }
-
       .container {
         margin-left: 150px;
         margin-top: 50px;
@@ -98,10 +94,6 @@
             <input type="submit" value="Submit">
           </form>
           <br>
-          <form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
-            <input type="hidden" name="taskid" value={ {linux_taskFolder}}>
-            <input type="submit" value="Download Directory" class="submit-edition"> {% csrf_token %}
-          </form>
         </div>
       </div>
     </div>
