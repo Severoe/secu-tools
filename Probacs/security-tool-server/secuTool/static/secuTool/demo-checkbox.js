@@ -1,7 +1,7 @@
 var groupNumber = 0
 
 function addflag(flag) {
-	var id = "#"+flag
+	var id = "#" + flag
 	if($(id).hasClass("chosen")) {
 		$(id).removeClass("chosen")
 	}else {
@@ -46,6 +46,12 @@ function delflag(flag){
 		$(input_id).attr({"value":form_value})
 		$(button_id).remove()
 	}	
+}
+
+function add_row() {
+	var table = document.getElementById("preview");
+	for (var i = 1, row; row = table.rows[i]; i ++)
+		row.cells[4].innerHTML += "ddd";
 }
 
 function delete_row(no) {
