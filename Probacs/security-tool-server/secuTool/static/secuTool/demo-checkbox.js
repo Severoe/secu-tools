@@ -49,17 +49,6 @@ function delflag(flag) {
 }
 
 function add_row() {
-<<<<<<< HEAD
-	var ids = [];
-	var checkboxs = $('#preview-list').find('input[type="checkbox"]:checked');
-	if (checkboxs.length == 0) {
-		alert("Please select the candidates");
-		return false;
-	}
-	$(checkboxs).each(function () {
-		ids.push($(this).attr('id'));
-	});
-=======
 	var table = document.getElementById("preview");
 	for (var i = 1, row; row = table.rows[i]; i ++){
 		var checkBox = row[0];
@@ -69,8 +58,7 @@ function add_row() {
 		else{
 			row.cells[4].innerHTML += ", dud";
 		}
-		}
->>>>>>> c77d1cb4922d64d3ef48208809b699b75fc29abf
+	}
 }
 
 function delete_row(no) {
