@@ -50,8 +50,15 @@ function delflag(flag){
 
 function add_row() {
 	var table = document.getElementById("preview");
-	for (var i = 1, row; row = table.rows[i]; i ++)
-		row.cells[4].innerHTML += "ddd";
+	for (var i = 1, row; row = table.rows[i]; i ++){
+		var checkBox = row[0];
+		if(checkBox===0) {
+			row.cells[4].innerHTML += ", ddd";
+		}
+		else{
+			row.cells[4].innerHTML += ", dud";
+		}
+		}
 }
 
 function delete_row(no) {
