@@ -27,10 +27,6 @@
         overflow: hidden;
       }
 
-      .debug{
-        border: 1px solid yellow;
-      }
-
       .container {
         margin-left: 200px;
         margin-top: 20px;
@@ -62,7 +58,6 @@
         margin-top: 5px;
         border-left: 1px blue;
         font-size: 15px;
-
       }
 
       #myProgress {
@@ -214,7 +209,7 @@
               <br>
               <div class="photo-upload">Add a compiler.</div>
               <div class="" style="height: 10px;"></div>
-              <input type="file" value="Add a compiler" class="submit-edition" /> {% csrf_token %}
+              <input type="file" value="Add a profile" class="submit-edition" /> {% csrf_token %}
               <br>
             </div>
           </div>
@@ -265,6 +260,12 @@
                 </table>
                 <br>
                 <input type="submit" value="submit" class="submit-edition"> {% csrf_token %}
+                <br>
+                <br>
+                <form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
+                  <input type="hidden" name="taskid" value={ {linux_taskFolder}}>
+                  <input type="submit" value="Download Directory" class="submit-edition"> {% csrf_token %}
+                </form>
               </form>
             </div>
           </div>
@@ -305,7 +306,7 @@
                       <td>GCC 5.5</td>
                       <td>-O2,-Werror</td>
                       <td>David</td>
-                      <td>#hello world</td>
+                      <td>#task1</td>
                       <td>6/13/2018</td>
                       <td>09:05</td>
                     </tr>
@@ -326,12 +327,8 @@
                         width++;
                         elem.style.width = width + '%';
                       }
-
                     }
-
-
                   }
-                 
                 </script>
                 <div id="progressbar" style="display: none">
                   <h6>Job Progress</h6>
@@ -339,20 +336,7 @@
                     <div id="myBar"></div>
                   </div>
                   <br>
-                  <h6>Task Log</h6>
-                  <p>
-                  	Compilation_tasks/2018-06-03-15-05-44/secu_compile/hello_1_-O1_-O0_-Wall	-O1 -O0 -Wall, b'', b''
-				Compilation_tasks/2018-06-03-15-05-44/secu_compile/hello_2_-O0_-O2_-Wall	-O0 -O2 -Wall, b'', b''
-				Compilation_tasks/2018-06-03-15-05-44/secu_compile/hello_3_-O1_-O0_-O3	-O1 -O0 -O3, b'', b''
-				Compilation_tasks/2018-06-03-15-05-44/secu_compile/hello_4_-O0_-O2_-O3	-O0 -O2 -O3, b'', b''
-
-				</p>
-                <br> 
-                <br>
                 </div>
-
- 
-
               </form>
             </div>
           </div>
