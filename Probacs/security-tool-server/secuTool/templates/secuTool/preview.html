@@ -69,7 +69,7 @@
       }
 
       .js-col{
-        border: 1px solid red;
+        border: 1px solid transparent;
       }
 
       .flag-group{
@@ -77,6 +77,12 @@
       }
 
       .button-check-box{
+        width: 10px !important;
+        height: 15px!important;
+        border-radius: 3px;
+        outline: none;
+      }
+      .row-button{
         width: 10px !important;
         height: 15px!important;
         border-radius: 3px;
@@ -98,7 +104,8 @@
         <div class="row-sm-5 debug">
           <h3>Preview</h3>
           <br>
-          <form action="{% url 'check_status' %}" method='post'>
+          <button class="btn btn-light" onclick="selectall()">select all</button>
+          <button class="btn btn-light" onclick="deselectall()">deselect all</button>
             <table id="preview">
               <thead>
                 <tr>
@@ -113,34 +120,36 @@
                 </tr>
               </thead>
               <tbody id="preview-list">
-                <tr id="row1">
-                  <td><input type="checkbox" /></td>
-                  <td>Linux</td>
-                  <td>GCC 4.8</td>
-                  <td>optimization, warning</td>
-                  <td class='flag'>-O1, -Wall</td>
-                  <td>Jeffery</td>
-                  <td>#hello world1</td>
+                <tr>
                   <td>
-                    <input type="button" value="Delete" class="delete" onclick="delete_row('1')">
+                    <button class="row-button" id="r1" onclick="addflag('r1')"></button></div>
                   </td>
-                </tr>
-                <tr id="row2">
-                  <td><input type="checkbox"/></td>
-                  <td>Windows</td>
-                  <td>MSVC++ 14.11</td>
-                  <td>optimization, warning</td>
-                  <td class='flag'>/O1, /Wall</td>
-                  <td>Jeffery</td>
-                  <td>#hello world2</td>
+                  <td class="os">Linux</td>
+                  <td class="compiler">GCC 4.8</td>
+                  <td class="profile">optimization, warning</td>
+                  <td class='flag'>-O1, -Wall</td>
+                  <td class="username">Jeffery</td>
+                  <td class="tags">#hello world1</td>
                   <td>
-                    <input type="button" value="Delete" class="delete" onclick="delete_row('2')">
+                    <button class="btn btn-light btn-sm" onclick="delete_row('r1')">delete</button>
+                </tr>
+                <tr>
+                  <td>
+                    <button class="row-button" id="r2" onclick="addflag('r2')"></button></div>
+                  </td>
+                  <td class="os">Windows</td>
+                  <td class="compiler">MSVC++ 14.11</td>
+                  <td class="profile">optimization, warning</td>
+                  <td class='flag'>/O1, /Wall</td>
+                  <td class="username">Jeffery</td>
+                  <td class="tags">#hello world2</td>
+                  <td>
+                    <button class="btn btn-light btn-sm" onclick="delete_row('r2')">delete</button>
                   </td>
                 </tr>
               </tbody>
             </table>
             <br>
-          </form>
           <br>
         </div>
         <div class="row-sm-7 debug">
@@ -160,23 +169,22 @@
                 <br>
                 <br>
                 <div class="js-debug">
-                  <button class="btn btn-light" onclick="confirmgroup()">Confirm</button>
+                  <button class="btn btn-light" id="flag-confirm" onclick="confirmgroup()">>></button>
                 </div>
               </div>
               <div class="col-md-8 js-col">
                 <div id="groups">
                 </div>
-                <form action="#" id="group-handin">
-                  <input type="submit" value="Submit" onclick="add_row()">
-                </form>
+                <div id="group-handin">
+                </div>
+                <button onclick="add_row()">Submit</button>
               </div>
             </div>
           </div>
           <br>
           <br>
-          <form action="/test">
-            <input type="submit" value="Compile">
-          </form>
+          <button onclick="compile()">Compile</button>
+          <button id="redirect" style="visibility: none" url="/test"></button>
           <br>
         </div>
       </div>

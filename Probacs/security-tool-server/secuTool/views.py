@@ -425,6 +425,9 @@ def preview(request):
 
 def tracetest(request):
     return render(request, 'secuTool/blank.html')
+
+
+
 def trace_test(request):
     obj = Task.objects.all()
     response = {}
@@ -438,6 +441,9 @@ def trace_test(request):
     response['finished'] = finished
 
     return HttpResponse(json.dumps(response),content_type="application/json")
+
+
+
 
 #used for database debugging
 def printRcd(rcd):
