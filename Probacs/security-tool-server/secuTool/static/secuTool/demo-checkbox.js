@@ -30,7 +30,7 @@ function confirmgroup() {
 	if(flag_number === 0) return
 	groupNumber += 1
 	var form_item = '<input type="hidden" id="'+"input"+groupNumber+'" name="group'+groupNumber+'" value="'+flags+'">'
-	var group_item = '<div id="flag-group'+groupNumber+'"> <p>group:</p>'+buttons+
+	var group_item = '<div id="flag-group'+groupNumber+'"> <p style="display: inline-block">group:</p>'+buttons+
 	'<p hidden class = "cnter">'+flag_number+'</p>'+'</div>'
 	$('#groups').prepend(group_item)
 	$('#group-handin').prepend(form_item)
