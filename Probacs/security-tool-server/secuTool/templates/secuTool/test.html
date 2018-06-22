@@ -94,23 +94,24 @@
             <div class="container">
               <div class="row">
                 <div class="col-sm-6 debug">
+                  <form action="/preview" method="post" enctype="multipart/form-data">
                   <h3>Submit a job.</h3>
                   <br>
                   <h5> Please upload your source code. </h5>
-                  <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
+                  <!-- <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'> -->
                     <div class="" style="height: 10px;"></div>
-                    <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
-                  </form>
+                    <input type="file" value="Select" class="submit-edition" name="srcFile"> {% csrf_token %}
+                  <!-- </form> -->
                   <br>
                   <br>
                   <h5> Please upload your task file. </h5>
-                  <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
+                  <!-- <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'> -->
                     <div class="" style="height: 10px;"></div>
-                    <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
-                  </form>
+                    <input type="file" value="Select" class="submit-edition" name="taskFile"> {% csrf_token %}
+                  <!-- </form> -->
                   <br>
                   <br>
-                  <form action="/preview">
+                  
                     <input type="submit" value="Preview">
                   </form>
                 </div>

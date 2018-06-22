@@ -70,7 +70,7 @@ def rcvSrc(request):
         os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+srcCodes)
         os.system('mv '+taskFolder+'/'+filename.split('.')[0]+' '+codeFolder)
         srcPath = codeFolder+"/"+filename
-        # update filename to be the main srcfile name if tast srcfile is a tarbar
+        # update filename to be the main srcfile name if tast srcfile is a tarball
     #######################
     # write task specify file to taskFolder
     #######################
@@ -146,6 +146,62 @@ def rcvSrc(request):
     context['progress'] = 'block'
     context['linux_taskFolder'] = taskName
     return render(request, 'secuTool/index.html', context)
+
+
+def preview(request):
+    timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    #create unique task forder for each task, inside which includes:
+    # srcCode, <profiles>, compiled file & log, 
+    # the archive for downloading will be delete 
+    taskName = timestr
+    taskFolder = taskdir + timestr
+    codeFolder = taskFolder + "/" + "srcFile"
+
+    os.mkdir(taskFolder)
+
+    context = {}
+    if 'srcFile' not in request.FILES:
+        context['message'] = "no source file selected"
+        return render(request, 'secuTool/test.html', context)
+
+    #save source files in taskfolder
+    srcFile = request.FILES['srcFile'].name
+    taskFile = request.FILES['task_file'].name
+
+    if request.FILES['srcFile'].content_type not in ['application/x-tar','application/gzip','application/zip']:
+        #indicating a single file
+        os.mkdir(codeFolder)
+        srcPath = codeFolder + "/" + srcFile
+        with open(srcPath, 'wb+') as dest:
+            for chunk in request.FILES['srcFile'].chunks():
+                dest.write(chunk)
+    else:
+        # if user upload tar ball, extract and save into srcCode folder
+        # also upload filename to be main filename
+        with open(taskFolder + '/' + srcFile, 'wb+') as dest:
+            for chunk in request.FILES['srcFile'].chunks():
+                dest.write(chunk)
+        os.system('tar xvzf ' + taskFolder + '/' + filename + " -C " + srcFile)
+        os.system('mv ' + taskFolder + '/' + filename.split('.')[0] + ' ' + codeFolder)
+        srcPath = codeFolder+"/"+filename
+        # update filename to be the main srcfile name if tast srcfile is a tarball
+    #######################
+    # write task specify file to taskFolder
+    #######################
+    taskPath = taskFolder + "/" + taskfile
+    with open(taskPath,'wb+') as dest:
+        for chunk in request.FILES['task_file'].chunks():
+            dest.write(chunk)
+
+
+    context['form'] = ProfileUserForm()
+    # context['status'] = statuses
+    print "preview"
+    for name in request.FILES:
+        print name + "---" + request.FILES[name].name
+
+    return render(request, 'secuTool/preview.html',context)
+
 
 
 def upload_to_platform(param,ip, compiler_invoke, flags, taskName, taskFolder, codeFolder,mainSrcName):
@@ -416,12 +472,6 @@ def test(request):
     # context['status'] = statuses
     return render(request, 'secuTool/test.html',context)
 
-def preview(request):
-    context = {}
-    context['message'] = 'shkadhlaskdjask'
-    context['form'] = ProfileUserForm()
-    # context['status'] = statuses
-    return render(request, 'secuTool/preview.html',context)
 
 def tracetest(request):
     return render(request, 'secuTool/blank.html')
