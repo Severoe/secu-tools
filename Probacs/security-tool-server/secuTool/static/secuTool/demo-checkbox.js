@@ -55,8 +55,8 @@ function add_row() {
 		if(checkBox===0) {
 			row.cells[4].innerHTML += ", ddd";
 		}
-		else{
-			row.cells[4].innerHTML += ", dud";
+		else if (checkBox==1){
+			row.cells[4].innerHTML += ", dude";
 		}
 	}
 }
