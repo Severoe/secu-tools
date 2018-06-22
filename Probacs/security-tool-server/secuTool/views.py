@@ -196,9 +196,9 @@ def preview(request):
 
     context['form'] = ProfileUserForm()
     # context['status'] = statuses
-    print "preview"
+    print("preview")
     for name in request.FILES:
-        print name + "---" + request.FILES[name].name
+        print(name + "---" + request.FILES[name].name)
 
     return render(request, 'secuTool/preview.html',context)
 
