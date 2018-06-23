@@ -46,6 +46,7 @@ def preview(request):
     rows = []
     for param in params:
         # permute flags combination  from diff flags
+        print(param)
         jsonDec = json.decoder.JSONDecoder()
         flag_from_profile = []
         for profile_name in param['profile']:
@@ -67,9 +68,9 @@ def preview(request):
             rows.append({'target_os':param['target_os'],
                             'compiler':param['compiler']+" "+param['version'],
                             'username':param['username'],
-                            'profiles':profiles,
+                            'profiles':", ".join(profiles.split(",")),
                             'tag':param['tag'],
-                            'flag':flag,
+                            'flag':", ".join(flag.split(" ")),
                             'seq':seq})
             seq += 1
     context = {}
