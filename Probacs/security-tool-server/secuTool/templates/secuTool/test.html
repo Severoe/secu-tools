@@ -126,10 +126,10 @@
                 <div class="col-sm-6 debug">
                   <h3>Submit a job.</h3>
                   <br>
-                  <form action="/" method="post" enctype="multipart/form-data">
+                  <form action="/preview" method="post" enctype="multipart/form-data">
                     <h5> Please upload your source code*. </h5>
                       <div class="" style="height: 10px;"></div>
-                      <input type="file" value="Select" class="submit-edition" required>
+                      <input type="file" value="Select" class="submit-edition" name="srcFile" required>
                     <br>
                     <br>
                     <h5> Please select your OS*. </h5>
@@ -172,7 +172,7 @@
                     <div class="scroll" name="profiles" id="profiles">
                     </div>
                     <script>
-                      var options = ["debugging", "link", "optimization", "preprocessing", "warning"];
+                      var options = ["debugging", "link", "optimization", "preprocessing", "warning","max_speed","max_optimization"];
                       var catOptions = "";
                       for (profileId in options) {
                         catOptions += "<input type='checkbox' />" + options[profileId] + "<br/>";

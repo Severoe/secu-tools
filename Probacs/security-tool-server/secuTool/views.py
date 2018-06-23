@@ -33,9 +33,9 @@ def home(request):
 
 
 def preview(request):
+    print(request.POST)
     context = {}
     request.session['filename'] = request.FILES['srcFile'].name
-    context['taskid'] = "123"
 
     taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     message, params = process_files(request, taskName)
@@ -76,7 +76,7 @@ def preview(request):
     context['rows'] = rows
     # for row in rows:
     #     print row
-
+    context['taskid'] = taskName
     return render(request, 'secuTool/preview.html',context)
 
 
