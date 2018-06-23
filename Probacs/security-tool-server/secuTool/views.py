@@ -12,7 +12,9 @@ from django.db import transaction
 import requests
 from django.conf import settings
 from parser import *
-
+from django.core import serializers
+from io import BytesIO
+import zipfile,io,base64
 # Create your views here.
 ################################
 # global variables
@@ -20,7 +22,7 @@ from parser import *
 self_ip = 'http://192.168.56.101:8000'
 winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
-taskdir = 'Compilation_tasks/'
+rootDir = 'Compilation_tasks/'
 # the datastructure  is stored in settings
 ################################
 
@@ -30,107 +32,185 @@ def home(request):
     return render(request,'secuTool/index.html',context)
 
 
-
-@transaction.atomic
-def rcvSrc(request):
-    timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    #create unique task forder for each task, inside which includes:
-    # srcCode, <profiles>, compiled file & log, 
-    # the archive for downloading will be delete 
-    taskName = timestr
-    taskFolder = taskdir+timestr
-    codeFolder = taskFolder+"/"+"srcCodes"
-    os.system("mkdir "+taskFolder)
+def preview(request):
     context = {}
-    srcPath = ''
-    #######################
-    # handle bad submit request (attention, undergoing compilation info may be missing by rendering blank)
-    #######################
-    if 'srcCodes' not in request.FILES or 'task_file' not in request.FILES:
-        return redirect(home)
-    #######################
-    #save source files in taskfolder
-    #######################
-    filename = request.FILES['srcCodes'].name
-    taskfile = request.FILES['task_file'].name
-    print(request.FILES['srcCodes'].content_type)
-    if request.FILES['srcCodes'].content_type not in ['application/x-tar','application/gzip','application/zip']:
-        #indicating a single file
-        os.system("mkdir "+codeFolder)
-        srcPath = codeFolder+"/"+filename
-        with open(srcPath,'wb+') as dest:
-            for chunk in request.FILES['srcCodes'].chunks():
-                dest.write(chunk)
-    else:
-        #if user upload tar bar, extract and save into srcCode folder
-        #also upload filename to be main filename
-        with open(taskFolder+'/'+filename,'wb+') as dest:
-            for chunk in request.FILES['srcCodes'].chunks():
-                dest.write(chunk)
-        os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+srcCodes)
-        os.system('mv '+taskFolder+'/'+filename.split('.')[0]+' '+codeFolder)
-        srcPath = codeFolder+"/"+filename
-        # update filename to be the main srcfile name if tast srcfile is a tarball
-    #######################
-    # write task specify file to taskFolder
-    #######################
-    taskPath = taskFolder+"/"+taskfile
-    with open(taskPath,'wb+') as dest:
-        for chunk in request.FILES['task_file'].chunks():
+    request.session['filename'] = request.FILES['srcFile'].name
+    context['taskid'] = "123"
+
+    # taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    # message, params = process_files(request, taskName)
+
+    # if message:
+    #     return render(request, 'secuTool/test.html', {"message":message})
+
+    # rows = []
+    # for param in params:
+    #     # permute flags combination  from diff flags
+    #     jsonDec = json.decoder.JSONDecoder()
+    #     flag_from_profile = []
+    #     for profile_name in param['profile']:
+    #         # print(profile_name)
+    #         p_tmp = Profile_conf.objects.get(name=profile_name, 
+    #                                             target_os=param['target_os'],
+    #                                             compiler=param['compiler'],
+    #                                             version=param['version'])
+    #         flag_from_profile.append(jsonDec.decode(p_tmp.flag))
+    #     compile_combination = [[]]
+    #     for x in flag_from_profile:
+    #         compile_combination = [i + [y] for y in x for i in compile_combination]
+
+    #     # each element in compile_combination is a space-separated flag list
+    #     compile_combination = [" ".join(x) for x in compile_combination]
+    #     profiles = ",".join(param['profile'])
+    #     for flag in compile_combination:
+    #         rows.append({'target_os':param['target_os'],
+    #                         'compiler':param['compiler'],
+    #                         'version':param['version'],
+    #                         'username':param['username'],
+    #                         'profiles':profiles,
+    #                         'tag':param['tag'],
+    #                         'flag':flag})
+    # context = {}
+    # context['rows'] = rows
+    # # for row in rows:
+    # #     print row
+
+    return render(request, 'secuTool/preview.html',context)
+
+
+def process_files(request, taskName):
+    """
+    save and extract source code, and parse task file (or task form)
+    :type request: http request obbject
+    :type taskName: str, name of this task
+    :rtype: tuple
+        tuple[0] = message
+        tuple[1] = list of dictionary, each element is the information of a task
+    """
+    taskFolder = rootDir + taskName
+    srcFolder = taskFolder + "/src"
+    os.mkdir(taskFolder)
+    os.mkdir(srcFolder)
+
+    srcPath = srcFolder + "/" + request.FILES['srcFile'].name
+    with open(srcPath, 'wb+') as dest:
+        for chunk in request.FILES['srcFile'].chunks():
             dest.write(chunk)
 
+    cmd = None
+    if request.FILES['srcFile'].content_type == 'application/x-tar':
+        cmd = ['tar', 'xf', srcPath, '-C', srcFolder]
+    elif request.FILES['srcFile'].content_type == 'application/gzip':
+        cmd = ['tar', 'xzf', srcPath, '-C', srcFolder]
+    elif request.FILES['srcFile'].content_type == 'application/zip':
+        cmd = ['unzip', srcPath, '-d', srcFolder]
 
-    #######################
-    # parse task file
-    #######################
-    message, p = parseTaskFile(taskPath)
-    print(p)
-    if message != None:
-        context['form']  = ProfileUserForm()
-        context['message'] = message
-        return render(request, 'secuTool/index.html',context)
+    if cmd:
+        extract = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        _, err = extract.communicate()
+        if err:
+            return 'error occured when extracting file. \n%s'%err, None
 
-    #form request format from parse.py for each task
-    for param in p:
+    # user specified task through UI, not file, then save it to disk
+    if 'taskFile' not in request.FILES:
+        with open(taskFolder + "/task.txt", 'w') as dest:
+            for key in ['target_os', 'compiler', 'version', 'profile', 'username']:
+                dest.write(key + ":" + request.POST[key] + "\n")
+            if 'tag' in request.POST:
+                dest.write('tag:' + request.POST['tag'] + "\n")
+    else:
+        with open(taskFolder + '/task.txt', 'wb+') as dest:
+            for chunk in request.FILES['taskFile'].chunks():
+                dest.write(chunk)
+
+    return parseTaskFile(taskFolder + '/task.txt')
+
+
+@csrf_exempt
+def param_upload(request):
+    '''
+    get updated compilation parameters from user, write db with new subtasks, deliver compilation tasks to
+    platforms in asyn calls
+    '''
+    print(request.POST)
+    task_name = request.POST['taskid']
+    task_num = request.POST['taskCount']
+    task_params = []
+    #####################
+    ##retrieve source file path/ name, config source path, output path, etc,
+    #####################
+    filename = request.session['filename']
+    taskFolder = rootDir+task_name
+    codeFolder = taskFolder+"/"+"srcCodes"
+    srcPath = codeFolder+"/"+filename
+    #####################
+    ## parse params from requests
+    #####################
+    # ensure all compilation on single machine with same compiler will be packed together
+    single_vm_ref = {}
+    vm_num = 0
+    for i in range(int(task_num)):
+        obj = {}
+        task_id = 'tasks['+str(i)+']'
+        os = task_id+'[os]'
+        compiler = task_id+'[compiler]'
+        profile = task_id+'[profile]'
+        flag = task_id+'[flag]'
+        username = task_id+'[username]'
+        tag = task_id+'[tags]'
+        ref_key = request.POST[os].strip()+"|"+request.POST[compiler].strip()
+        # print(ref_key)
+        if ref_key in single_vm_ref.keys():
+            ## task already exists, pack extra flags
+            obj = task_params[single_vm_ref[ref_key]]
+            new_flags = request.POST[flag].split(",")
+            new_flags = "_".join([ele.strip() for ele in new_flags])
+            obj['flag'] = obj['flag']+","+new_flags
+        else:
+            ## no task with same destination, establish a new one
+            obj['target_os'] = request.POST[os]
+            compiler_full = request.POST[compiler].split(" ")
+            obj['compiler'] = compiler_full[0]
+            obj['version'] = compiler_full[1]
+            obj['profile'] = request.POST[profile]
+            obj['flag'] = request.POST[flag].split(",")
+            obj['flag'] = "_".join([ele.strip() for ele in obj['flag']])
+            obj['username'] = request.POST[username]
+            obj['tags'] = request.POST[tag]
+            single_vm_ref[ref_key] = vm_num
+            vm_num += 1
+            task_params.append(obj)
+    #####################
+    #form request format from obj for each task
+    #####################
+    print(task_params)
+    for param in task_params:
         task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
         version=param['version'])
         task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
-        # permute flags combination  from diff flags
-        jsonDec = json.decoder.JSONDecoder()
-        flag_from_profile = []
-        for profile_name in param['profile']:
-            # print(profile_name)
-            p_tmp = Profile_conf.objects.get(name=profile_name, target_os=param['target_os'],compiler=param['compiler'],
-                version=param['version'])
-            flag_from_profile.append(jsonDec.decode(p_tmp.flag))
-        compile_combination = [[]]
-        for x in flag_from_profile:
-            compile_combination = [i + [y] for y in x for i in compile_combination]
-        compile_combination = [" ".join(x) for x in compile_combination]
-        compile_combination = [x.replace(" ","_") for x in compile_combination]
+
         #############################
         # add entries into task database 
-        for ele in compile_combination:
-            new_task = Task(task_id=taskName,username=param['username'],
+        for ele in param['flag'].split(","):
+            new_task = Task(task_id=task_name,username=param['username'],
                 tag=None if not 'tag' in param else param['tag'],
                 src_file=filename,target_os=param['target_os'], 
                 compiler=param['compiler'],version=param['version'],flag=ele)
             new_task.save()
-        final_flags = ",".join(compile_combination) 
+
         #############################
         # calling compilation tasks
         #############################
         if task_http == self_ip:
             outputDir = taskFolder+"/"+"secu_compile"
             data = {
-            'task_id':taskName,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
-            'output':outputDir,'format':task_compiler.invoke_format,'flags':final_flags,
-            }
+            'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
+            'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag']}
+            import os
             pid = os.fork()
             if pid == 0:
-                compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
+                compile(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, param['flag'],on_complete)
                 #new thread
-                # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
                 print("finished compile")
                 os._exit(0)  
             else:
@@ -138,73 +218,15 @@ def rcvSrc(request):
                 print("asyn call encountered")
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
-            upload_to_platform(param,task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
+            upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
         
-    context['task_id'] = taskName
-    context['message'] = "file is compiling..."
-    context['form'] = ProfileUserForm()
-    context['progress'] = 'block'
-    context['linux_taskFolder'] = taskName
-    return render(request, 'secuTool/index.html', context)
-
-
-def preview(request):
-    timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    #create unique task forder for each task, inside which includes:
-    # srcCode, <profiles>, compiled file & log, 
-    # the archive for downloading will be delete 
-    taskName = timestr
-    taskFolder = taskdir + timestr
-    codeFolder = taskFolder + "/" + "srcFile"
-
-    os.mkdir(taskFolder)
-
-    context = {}
-    if 'srcFile' not in request.FILES:
-        context['message'] = "no source file selected"
-        return render(request, 'secuTool/test.html', context)
-
-    #save source files in taskfolder
-    srcFile = request.FILES['srcFile'].name
-    taskFile = request.FILES['task_file'].name
-
-    if request.FILES['srcFile'].content_type not in ['application/x-tar','application/gzip','application/zip']:
-        #indicating a single file
-        os.mkdir(codeFolder)
-        srcPath = codeFolder + "/" + srcFile
-        with open(srcPath, 'wb+') as dest:
-            for chunk in request.FILES['srcFile'].chunks():
-                dest.write(chunk)
-    else:
-        # if user upload tar ball, extract and save into srcCode folder
-        # also upload filename to be main filename
-        with open(taskFolder + '/' + srcFile, 'wb+') as dest:
-            for chunk in request.FILES['srcFile'].chunks():
-                dest.write(chunk)
-        os.system('tar xvzf ' + taskFolder + '/' + filename + " -C " + srcFile)
-        os.system('mv ' + taskFolder + '/' + filename.split('.')[0] + ' ' + codeFolder)
-        srcPath = codeFolder+"/"+filename
-        # update filename to be the main srcfile name if tast srcfile is a tarball
-    #######################
-    # write task specify file to taskFolder
-    #######################
-    taskPath = taskFolder + "/" + taskfile
-    with open(taskPath,'wb+') as dest:
-        for chunk in request.FILES['task_file'].chunks():
-            dest.write(chunk)
-
-
-    context['form'] = ProfileUserForm()
-    # context['status'] = statuses
-    print("preview")
-    for name in request.FILES:
-        print(name + "---" + request.FILES[name].name)
-
-    return render(request, 'secuTool/preview.html',context)
+    response = {}
+    response['taskid'] = task_name
+    return HttpResponse(json.dumps(response),content_type="application/json")
 
 
 
-def upload_to_platform(param,ip, compiler_invoke, flags, taskName, taskFolder, codeFolder,mainSrcName):
+def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFolder,mainSrcName):
     '''
     flags is compressed string used for make_compilation.py
     compiler_invoke is a string used for cmd line compilation
@@ -221,14 +243,14 @@ def upload_to_platform(param,ip, compiler_invoke, flags, taskName, taskFolder, c
     if '&&' in compiler_invoke:
         runEnv = compiler_invoke.split('&&')[0]
         compiler_invoke = compiler_invoke.split('&&')[1]
-    data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': flags,
+    data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': param['flag'],
     'env':runEnv,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version']}
     print(data)
     files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
     settings.TASKS[taskFolder] = 0
     pid = os.fork()
     if pid == 0:
-        response = requests.post(winurl, files=files,data=data) 
+        response = requests.post(ip, files=files,data=data) 
         os._exit(0)  
     else:
         return
@@ -242,7 +264,7 @@ def saveExe(request):
     taskFolder = request.POST['taskid']
     print('id in saveexe:'+taskFolder)
     filename = request.FILES['file'].name
-    basedir = taskdir+taskFolder+'/'
+    basedir = rootDir+taskFolder+'/'
     #create 'secu_compile' folder to be default folder containing all the tasks
     if not os.path.exists(basedir+'secu_compile'):
         os.system('mkdir '+basedir+'secu_compile')
@@ -269,11 +291,11 @@ def wrap_dir(request):
     print("taskFolder: "+taskFolder )
     #pack executables inside task folder, send back
     new_name = "archive_"+taskFolder+".tgz"
-    current_taskdir = taskdir+taskFolder+'/'
-    with tarfile.open(current_taskdir+new_name, "w:gz") as tar:
-        tar.add(current_taskdir+'secu_compile', arcname=os.path.basename(current_taskdir+'secu_compile'))
+    current_rootDir = rootDir+taskFolder+'/'
+    with tarfile.open(current_rootDir+new_name, "w:gz") as tar:
+        tar.add(current_rootDir+'secu_compile', arcname=os.path.basename(current_rootDir+'secu_compile'))
 
-    compressed_dir = open(current_taskdir+new_name,'rb')
+    compressed_dir = open(current_rootDir+new_name,'rb')
     response = HttpResponse(compressed_dir,content_type='application/tgz')
     response['Content-Disposition'] = 'attachment; filename='+new_name
     # os.system("rm "+taskFolder+'/'+new_name)
@@ -467,11 +489,18 @@ def trace(request):
 # test funciton
 def test(request):
     context = {}
-    context['message'] = 'shkadhlaskdjask'
     context['form'] = ProfileUserForm()
+    context['nav1'] = "active show"
     # context['status'] = statuses
     return render(request, 'secuTool/test.html',context)
 
+def redirect_trace(request):
+    print(request.GET['ongoing'])
+    context = {}
+    context['form'] = ProfileUserForm()
+    context['nav4'] = "active show"
+    # context['status'] = statuses
+    return render(request, 'secuTool/test.html',context)
 
 def tracetest(request):
     return render(request, 'secuTool/blank.html')
@@ -509,4 +538,129 @@ def printRcd(rcd):
     print("out: "+ str(rcd.out))
     
     return
+
+
+
+
+
+##########################################
+########## backup functions #############
+
+
+@transaction.atomic
+def rcvSrc(request):
+    timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    #create unique task forder for each task, inside which includes:
+    # srcCode, <profiles>, compiled file & log, 
+    # the archive for downloading will be delete 
+    taskName = timestr
+    taskFolder = rootDir+timestr
+    codeFolder = taskFolder+"/"+"srcCodes"
+    os.system("mkdir "+taskFolder)
+    context = {}
+    srcPath = ''
+    #######################
+    # handle bad submit request (attention, undergoing compilation info may be missing by rendering blank)
+    #######################
+    if 'srcCodes' not in request.FILES or 'task_file' not in request.FILES:
+        return redirect(home)
+    #######################
+    #save source files in taskfolder
+    #######################
+    filename = request.FILES['srcCodes'].name
+    taskfile = request.FILES['task_file'].name
+    print(request.FILES['srcCodes'].content_type)
+    if request.FILES['srcCodes'].content_type not in ['application/x-tar','application/gzip','application/zip']:
+        #indicating a single file
+        os.system("mkdir "+codeFolder)
+        srcPath = codeFolder+"/"+filename
+        with open(srcPath,'wb+') as dest:
+            for chunk in request.FILES['srcCodes'].chunks():
+                dest.write(chunk)
+    else:
+        #if user upload tar bar, extract and save into srcCode folder
+        #also upload filename to be main filename
+        with open(taskFolder+'/'+filename,'wb+') as dest:
+            for chunk in request.FILES['srcCodes'].chunks():
+                dest.write(chunk)
+        os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+srcCodes)
+        os.system('mv '+taskFolder+'/'+filename.split('.')[0]+' '+codeFolder)
+        srcPath = codeFolder+"/"+filename
+        # update filename to be the main srcfile name if tast srcfile is a tarball
+    #######################
+    # write task specify file to taskFolder
+    #######################
+    taskPath = taskFolder+"/"+taskfile
+    with open(taskPath,'wb+') as dest:
+        for chunk in request.FILES['task_file'].chunks():
+            dest.write(chunk)
+
+
+    #######################
+    # parse task file
+    #######################
+    p = parseTaskFile(taskPath)
+    print(p)
+    message = p.get("message", None)
+    if message != None:
+        context['form']  = ProfileUserForm()
+        context['message'] = message
+        return render(request, 'secuTool/index.html',context)
+
+    #form request format from parse.py for each task
+    for param in p:
+        task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
+        version=param['version'])
+        task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
+        # permute flags combination  from diff flags
+        jsonDec = json.decoder.JSONDecoder()
+        flag_from_profile = []
+        for profile_name in param['profile']:
+            # print(profile_name)
+            p_tmp = Profile_conf.objects.get(name=profile_name, target_os=param['target_os'],compiler=param['compiler'],
+                version=param['version'])
+            flag_from_profile.append(jsonDec.decode(p_tmp.flag))
+        compile_combination = [[]]
+        for x in flag_from_profile:
+            compile_combination = [i + [y] for y in x for i in compile_combination]
+        compile_combination = [" ".join(x) for x in compile_combination]
+        compile_combination = [x.replace(" ","_") for x in compile_combination]
+        #############################
+        # add entries into task database 
+        for ele in compile_combination:
+            new_task = Task(task_id=taskName,username=param['username'],
+                tag=None if not 'tag' in param else param['tag'],
+                src_file=filename,target_os=param['target_os'], 
+                compiler=param['compiler'],version=param['version'],flag=ele)
+            new_task.save()
+        final_flags = ",".join(compile_combination) 
+        #############################
+        # calling compilation tasks
+        #############################
+        if task_http == self_ip:
+            outputDir = taskFolder+"/"+"secu_compile"
+            data = {
+            'task_id':taskName,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
+            'output':outputDir,'format':task_compiler.invoke_format,'flags':final_flags,
+            }
+            pid = os.fork()
+            if pid == 0:
+                compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
+                #new thread
+                # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
+                print("finished compile")
+                os._exit(0)  
+            else:
+                #parent process, simply return to client
+                print("asyn call encountered")
+        # if not compiling on linux host, send params to another function, interacting with specific platform server
+        else:
+            upload_to_platform(param,task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
+        
+    context['task_id'] = taskName
+    context['message'] = "file is compiling..."
+    context['form'] = ProfileUserForm()
+    context['progress'] = 'block'
+    context['linux_taskFolder'] = taskName
+    return render(request, 'secuTool/index.html', context)
 

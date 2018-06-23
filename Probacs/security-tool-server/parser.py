@@ -71,8 +71,8 @@ def parseTaskFile(filename):
     ret = []
 
     task = {'profile': d['profile'], 'username': d['username']}
-    if 'tag' in d:
-        task['tag'] = d['tag']
+    
+    task['tag'] = d['tag'] if 'tag' in d else ''
 
     for i in range(len(d['target_os'])):
         task['target_os'] = d['target_os'][i]

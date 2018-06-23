@@ -85,23 +85,24 @@
       <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
     </header>
     <div class="nav nav-tabs tab1" id="nav-tab" role="tablist">
-      <a class="nav-item nav-link" id="nav-1-tab" data-toggle="tab" href="#nav-1" role="tab" aria-controls="nav-1" aria-selected="true">Submit jobs</a>
+      <a class="nav-item nav-link" id="nav-1-tab" data-toggle="tab" href="#nav-1" role="tab" aria-controls="nav-1" aria-selected="false">Submit jobs</a>
       <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Configuration</a>
       <a class="nav-item nav-link" id="nav-3-tab" data-toggle="tab" href="#nav-3" role="tab" aria-controls="nav-3" aria-selected="false">Search</a>
       <a class="nav-item nav-link" id="nav-4-tab" data-toggle="tab" href="#nav-4" role="tab" aria-controls="nav-4" aria-selected="false">Job Tracker</a>
     </div>
     <div class="tab-content" id="nav-tabContent">
-      <div class="tab-pane fade show active" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">
+      <div class="tab-pane fade {{nav1}}" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">
         <div class="nav nav-tabs tab2" id="nav-tab" role="tablist">
           <a class="nav-item nav-link" id="nav-11-tab" data-toggle="tab" href="#nav-11" role="tab" aria-controls="nav-11" aria-selected="true">Upload files</a>
           <a class="nav-item nav-link" id="nav-12-tab" data-toggle="tab" href="#nav-12" role="tab" aria-controls="nav-12" aria-selected="false">Select flags</a>
         </div>
         <div class="tab-content" id="nav-tabContent">
-          <div class="tab-pane fade show active" id="nav-11" role="tabpanel" aria-labelledby="nav-11-tab">
+          <div class="tab-pane fade active show" id="nav-11" role="tabpanel" aria-labelledby="nav-11-tab">
             <div class="container">
               <div class="row">
                 <div class="col-sm-6 debug">
                   <form action="/preview" method="post" enctype="multipart/form-data">
+<<<<<<< HEAD
                     <h3>Submit a job.</h3>
                     <br>
                     <h5> Please upload your source code. </h5>
@@ -114,6 +115,26 @@
                       <input type="file" value="Select" class="submit-edition" name="taskFile" required> {% csrf_token %}
                     <br>
                     <br>
+=======
+                  <h3>Submit a job.</h3>
+                  <br>
+                  <h5> Please upload your source code. </h5>
+                  <!-- <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'> -->
+                    <div class="" style="height: 10px;"></div>
+                    <input type="file" value="Select" class="submit-edition" name="srcFile"> 
+                  <!-- </form> -->
+                  <br>
+                  <br>
+                  <h5> Please upload your task file. </h5>
+                  <!-- <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'> -->
+                    <div class="" style="height: 10px;"></div>
+                    <input type="file" value="Select" class="submit-edition" name="taskFile"> 
+                    {% csrf_token %}
+                  <!-- </form> -->
+                  <br>
+                  <br>
+                  
+>>>>>>> c76e57a5deff34f756a5caf5dcb725df11589872
                     <input type="submit" value="Preview">
                   </form>
                 </div>
@@ -269,7 +290,7 @@
           </div>
         </div>
       </div>
-      <div class="tab-pane fade" id="nav-4" role="tabpanel" aria-labelledby="nav-4-tab">
+      <div class="tab-pane fade {{nav4}}" id="nav-4" role="tabpanel" aria-labelledby="nav-4-tab">
         <div class="container">
           <div class="row">
             <div class="col-sm-10 debug">
