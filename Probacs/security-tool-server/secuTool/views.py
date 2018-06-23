@@ -288,7 +288,8 @@ def param_upload(request):
             outputDir = taskFolder+"/"+"secu_compile"
             data = {
             'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
-            'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag']}
+            'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag'],
+            }
             pid = os.fork()
             if pid == 0:
                 compile(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, param['flag'],on_complete)
