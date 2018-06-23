@@ -176,7 +176,7 @@
                       var options = ["debugging", "link", "optimization", "preprocessing", "warning","max_speed","max_optimization"];
                       var catOptions = "";
                       for (profileId in options) {
-                        catOptions += "<input type='checkbox' name='profile'/>" + options[profileId] + "<br/>";
+                        catOptions += "<input type='checkbox' name='profile' value='"+ options[profileId]+"'/>" + options[profileId] + "<br/>";
                       }
                       document.getElementById("profiles").innerHTML = catOptions;
                     </script>
