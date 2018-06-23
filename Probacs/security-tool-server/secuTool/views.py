@@ -154,7 +154,7 @@ def preview(request):
     context = {}
     srcFile = request.FILES['srcFile'].name
     request.session['filename'] = srcFile
-    context['task_id'] = "123"
+    context['taskid'] = "123"
     # timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     # #create unique task forder for each task, inside which includes:
     # # srcCode, <profiles>, compiled file & log, 
@@ -215,7 +215,7 @@ def param_upload(request):
     get updated compilation parameters from user, write db with new subtasks, deliver compilation tasks to
     platforms in asyn calls
     '''
-    # print(request.POST)
+    print(request.POST)
     task_name = request.POST['taskid']
     task_num = request.POST['taskCount']
     task_params = []
@@ -242,7 +242,7 @@ def param_upload(request):
         username = task_id+'[username]'
         tag = task_id+'[tags]'
         ref_key = request.POST[os].strip()+"|"+request.POST[compiler].strip()
-        print(ref_key)
+        # print(ref_key)
         if ref_key in single_vm_ref.keys():
             ## task already exists, pack extra flags
             obj = task_params[single_vm_ref[ref_key]]
