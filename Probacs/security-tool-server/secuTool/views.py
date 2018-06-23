@@ -19,7 +19,8 @@ import zipfile,io,base64
 ################################
 # global variables
 # winurl = 'http://172.16.165.132:8000'
-self_ip = 'http://192.168.56.101:8000'
+# self_ip = 'http://192.168.56.101:8000'
+self_ip = 'http://localhost:7992'
 winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
 rootDir = 'Compilation_tasks/'
@@ -140,6 +141,7 @@ def process_files(request, taskName, compiler_divided):
 
 
 @csrf_exempt
+@transaction.atomic
 def param_upload(request):
     '''
     get updated compilation parameters from user, write db with new subtasks, deliver compilation tasks to
@@ -154,7 +156,7 @@ def param_upload(request):
     #####################
     filename = request.session['filename']
     taskFolder = rootDir+task_name
-    codeFolder = taskFolder+"/"+"srcCodes"
+    codeFolder = taskFolder+"/"+"src"
     srcPath = codeFolder+"/"+filename
     #####################
     ## parse params from requests
@@ -214,7 +216,8 @@ def param_upload(request):
         #############################
         # calling compilation tasks
         #############################
-        if task_http == self_ip:
+        if True:
+        # if task_http == self_ip:
             outputDir = taskFolder+"/"+"secu_compile"
             data = {
             'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
@@ -250,7 +253,7 @@ def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFold
     #################################
     tarPath = taskFolder+'/'+'src.tar'
     print("inside upload "+codeFolder)
-    os.system('cd '+taskFolder+' && tar cvf src.tar srcCodes/')
+    os.system('cd '+taskFolder+' && tar cvf src.tar src/')
     #send request to specific platform servers
     runEnv = None
     if '&&' in compiler_invoke:
@@ -271,11 +274,9 @@ def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFold
 
 
 #receive compiled task from win, need to save file at taskFolder
-@transaction.atomic
 @csrf_exempt
 def saveExe(request):
     taskFolder = request.POST['taskid']
-    print('id in saveexe:'+taskFolder)
     filename = request.FILES['file'].name
     basedir = rootDir+taskFolder+'/'
     #create 'secu_compile' folder to be default folder containing all the tasks
@@ -296,7 +297,6 @@ def saveExe(request):
 
 
 #need to pack task based on taskid, also return blank page if request is empty
-@transaction.atomic
 def wrap_dir(request):
     taskFolder = request.POST['taskid']
     if taskFolder == None or taskFolder == "":
@@ -387,7 +387,6 @@ def rcv_platform_result(request):
     return HttpResponse()
 
 
-@transaction.atomic
 def on_complete(task_info):
     '''
     called when each time compilation finished
@@ -395,7 +394,6 @@ def on_complete(task_info):
     response = requests.post(url=self_ip+"/rcv_compilation",data = task_info)  
     return
 
-@transaction.atomic
 def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, on_complete):
     """
     task_id: string, task id of this job
@@ -443,7 +441,9 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
 
     if not os.path.exists(dest_folder):
         os.mkdir(dest_folder)
-
+    ##
+    ## what if gcc with diff version ? -> overwritten log file
+    ##
     dest_folder += delimit
     log_filename = dest_folder + name + ".log"
     log_file = open(log_filename, "w")
@@ -510,7 +510,6 @@ def test(request):
 def redirect_trace(request):
     print(request.GET['ongoing'])
     context = {}
-    context['form'] = ProfileUserForm()
     context['nav4'] = "active show"
     # context['status'] = statuses
     return render(request, 'secuTool/test.html',context)
@@ -568,35 +567,35 @@ def rcvSrc(request):
     # the archive for downloading will be delete 
     taskName = timestr
     taskFolder = rootDir+timestr
-    codeFolder = taskFolder+"/"+"srcCodes"
+    codeFolder = taskFolder+"/"+"src"
     os.system("mkdir "+taskFolder)
     context = {}
     srcPath = ''
     #######################
     # handle bad submit request (attention, undergoing compilation info may be missing by rendering blank)
     #######################
-    if 'srcCodes' not in request.FILES or 'task_file' not in request.FILES:
+    if 'src' not in request.FILES or 'task_file' not in request.FILES:
         return redirect(home)
     #######################
     #save source files in taskfolder
     #######################
-    filename = request.FILES['srcCodes'].name
+    filename = request.FILES['src'].name
     taskfile = request.FILES['task_file'].name
-    print(request.FILES['srcCodes'].content_type)
-    if request.FILES['srcCodes'].content_type not in ['application/x-tar','application/gzip','application/zip']:
+    print(request.FILES['src'].content_type)
+    if request.FILES['src'].content_type not in ['application/x-tar','application/gzip','application/zip']:
         #indicating a single file
         os.system("mkdir "+codeFolder)
         srcPath = codeFolder+"/"+filename
         with open(srcPath,'wb+') as dest:
-            for chunk in request.FILES['srcCodes'].chunks():
+            for chunk in request.FILES['src'].chunks():
                 dest.write(chunk)
     else:
         #if user upload tar bar, extract and save into srcCode folder
         #also upload filename to be main filename
         with open(taskFolder+'/'+filename,'wb+') as dest:
-            for chunk in request.FILES['srcCodes'].chunks():
+            for chunk in request.FILES['src'].chunks():
                 dest.write(chunk)
-        os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+srcCodes)
+        os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+src)
         os.system('mv '+taskFolder+'/'+filename.split('.')[0]+' '+codeFolder)
         srcPath = codeFolder+"/"+filename
         # update filename to be the main srcfile name if tast srcfile is a tarball
