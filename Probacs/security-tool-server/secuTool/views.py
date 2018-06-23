@@ -185,6 +185,8 @@ def preview(request):
                             'flag':flag})
     context['rows'] = rows
 
+    print rows
+
     return render(request, 'secuTool/preview.html',context)
 
 """
@@ -337,7 +339,6 @@ def param_upload(request):
     response = {}
     response['id'] = task_name
     return HttpResponse(json.dumps(response),content_type="application/json")
->>>>>>> 14f9a14a233e0213e4e09c9cc588935bd0615321
 
 
 
