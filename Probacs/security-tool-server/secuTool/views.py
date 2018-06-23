@@ -36,7 +36,10 @@ def preview(request):
     print(request.POST)
     context = {}
     request.session['filename'] = request.FILES['srcFile'].name
-
+    compiler_full = request.POST['compiler'].split(" ")
+    request.POST['compiler'] = compiler_full[0]
+    request.POST['version'] = compiler_full[1]
+    
     taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     message, params = process_files(request, taskName)
 
