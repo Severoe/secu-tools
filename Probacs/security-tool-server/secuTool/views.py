@@ -23,7 +23,7 @@ import os
 self_ip = 'http://192.168.56.101:8000'
 winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
-taskdir = 'Compilation_tasks/'
+rootDir = 'Compilation_tasks/'
 # the datastructure  is stored in settings
 ################################
 
@@ -41,7 +41,7 @@ def rcvSrc(request):
     # srcCode, <profiles>, compiled file & log, 
     # the archive for downloading will be delete 
     taskName = timestr
-    taskFolder = taskdir+timestr
+    taskFolder = rootDir+timestr
     codeFolder = taskFolder+"/"+"srcCodes"
     os.system("mkdir "+taskFolder)
     context = {}
@@ -86,8 +86,9 @@ def rcvSrc(request):
     #######################
     # parse task file
     #######################
-    message, p = parseTaskFile(taskPath)
+    p = parseTaskFile(taskPath)
     print(p)
+    message = p.get("message", None)
     if message != None:
         context['form']  = ProfileUserForm()
         context['message'] = message
@@ -152,62 +153,87 @@ def rcvSrc(request):
 
 
 def preview(request):
-    context = {}
-    srcFile = request.FILES['srcFile'].name
-    request.session['filename'] = srcFile
-    context['taskid'] = "123"
-    # timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    # #create unique task forder for each task, inside which includes:
-    # # srcCode, <profiles>, compiled file & log, 
-    # # the archive for downloading will be delete 
-    # taskName = timestr
-    # taskFolder = taskdir + timestr
-    # codeFolder = taskFolder + "/" + "srcFile"
+    taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    message, params = process_files(request, taskName)
 
-    # os.mkdir(taskFolder)
+    if message:
+        return render(request, 'secuTool/test.html', {"message":message})
 
-    # context = {}
-    # if 'srcFile' not in request.FILES:
-    #     context['message'] = "no source file selected"
-    #     return render(request, 'secuTool/test.html', context)
+    rows = []
+    for param in params:
+        # permute flags combination  from diff flags
+        jsonDec = json.decoder.JSONDecoder()
+        flag_from_profile = []
+        for profile_name in param['profile']:
+            # print(profile_name)
+            p_tmp = Profile_conf.objects.get(name=profile_name, 
+                                                target_os=param['target_os'],
+                                                compiler=param['compiler'],
+                                                version=param['version'])
+            flag_from_profile.append(jsonDec.decode(p_tmp.flag))
+        compile_combination = [[]]
+        for x in flag_from_profile:
+            compile_combination = [i + [y] for y in x for i in compile_combination]
 
-    # #save source files in taskfolder
-    # srcFile = request.FILES['srcFile'].name
-    # taskFile = request.FILES['task_file'].name
-
-    # if request.FILES['srcFile'].content_type not in ['application/x-tar','application/gzip','application/zip']:
-    #     #indicating a single file
-    #     os.mkdir(codeFolder)
-    #     srcPath = codeFolder + "/" + srcFile
-    #     with open(srcPath, 'wb+') as dest:
-    #         for chunk in request.FILES['srcFile'].chunks():
-    #             dest.write(chunk)
-    # else:
-    #     # if user upload tar ball, extract and save into srcCode folder
-    #     # also upload filename to be main filename
-    #     with open(taskFolder + '/' + srcFile, 'wb+') as dest:
-    #         for chunk in request.FILES['srcFile'].chunks():
-    #             dest.write(chunk)
-    #     os.system('tar xvzf ' + taskFolder + '/' + filename + " -C " + srcFile)
-    #     os.system('mv ' + taskFolder + '/' + filename.split('.')[0] + ' ' + codeFolder)
-    #     srcPath = codeFolder+"/"+filename
-    #     # update filename to be the main srcfile name if tast srcfile is a tarball
-    # #######################
-    # # write task specify file to taskFolder
-    # #######################
-    # taskPath = taskFolder + "/" + taskfile
-    # with open(taskPath,'wb+') as dest:
-    #     for chunk in request.FILES['task_file'].chunks():
-    #         dest.write(chunk)
-
-
-    # context['form'] = ProfileUserForm()
-    # # context['status'] = statuses
-    # print("preview")
-    # for name in request.FILES:
-    #     print(name + "---" + request.FILES[name].name)
+        # each element in compile_combination is a comma-separated flag list
+        compile_combination = [",".join(x) for x in compile_combination]
+        for flag in compile_combination:
+            rows.append({'target_os':param['target_os'],
+                            'compiler':param['compiler'],
+                            'version':param['version'],
+                            'username':param['username'],
+                            'tag':param['tag'],
+                            'flag':flag})
+    context['rows'] = rows
 
     return render(request, 'secuTool/preview.html',context)
+
+"""
+save and extract source code, and parse task file (or task form)
+:type request: http request obbject
+:type taskName: str, name of this task
+:rtype: tuple
+    tuple[0] = message
+    tuple[1] = list of dictionary, each element is the information of a task
+"""
+def process_files(request, taskName):
+    taskFolder = rootDir + taskName
+    srcFolder = taskFolder + "/src"
+    os.mkdir(taskFolder)
+    os.mkdir(srcFolder)
+
+    srcPath = srcFolder + "/" + request.FILES['srcFile'].name
+    with open(srcPath, 'wb+') as dest:
+        for chunk in request.FILES['srcFile'].chunks():
+            dest.write(chunk)
+
+    cmd = None
+    if request.FILES['srcFile'].content_type == 'application/x-tar':
+        cmd = ['tar', 'xf', srcPath, '-C', srcFolder]
+    elif request.FILES['srcFile'].content_type == 'application/gzip':
+        cmd = ['tar', 'xzf', srcPath, '-C', srcFolder]
+    elif request.FILES['srcFile'].content_type == 'application/zip':
+        cmd = ['unzip', srcPath, '-d', srcFolder]
+
+    if cmd:
+        extract = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        _, err = extract.communicate()
+        if err:
+            return 'error occured when extracting file. \n%s'%err, None
+
+    # user specified task through UI, not file, then save it to disk
+    if 'taskFile' not in request.FILES:
+        with open(taskFolder + "/task.txt", 'w') as dest:
+            for key in ['target_os', 'compiler', 'version', 'profile', 'username']:
+                dest.write(key + ":" + request.POST[key] + "\n")
+            if 'tag' in request.POST:
+                dest.write('tag:' + request.POST['tag'] + "\n")
+    else:
+        with open(taskFolder + '/task.txt', 'wb+') as dest:
+            for chunk in request.FILES['taskFIle'].chunks():
+                dest.write(chunk)
+
+    return parseTaskFile(taskFolder + '/task.txt')
 
 
 @csrf_exempt
@@ -311,6 +337,7 @@ def param_upload(request):
     response = {}
     response['id'] = task_name
     return HttpResponse(json.dumps(response),content_type="application/json")
+>>>>>>> 14f9a14a233e0213e4e09c9cc588935bd0615321
 
 
 
@@ -352,7 +379,7 @@ def saveExe(request):
     taskFolder = request.POST['taskid']
     print('id in saveexe:'+taskFolder)
     filename = request.FILES['file'].name
-    basedir = taskdir+taskFolder+'/'
+    basedir = rootDir+taskFolder+'/'
     #create 'secu_compile' folder to be default folder containing all the tasks
     if not os.path.exists(basedir+'secu_compile'):
         os.system('mkdir '+basedir+'secu_compile')
@@ -379,11 +406,11 @@ def wrap_dir(request):
     print("taskFolder: "+taskFolder )
     #pack executables inside task folder, send back
     new_name = "archive_"+taskFolder+".tgz"
-    current_taskdir = taskdir+taskFolder+'/'
-    with tarfile.open(current_taskdir+new_name, "w:gz") as tar:
-        tar.add(current_taskdir+'secu_compile', arcname=os.path.basename(current_taskdir+'secu_compile'))
+    current_rootDir = rootDir+taskFolder+'/'
+    with tarfile.open(current_rootDir+new_name, "w:gz") as tar:
+        tar.add(current_rootDir+'secu_compile', arcname=os.path.basename(current_rootDir+'secu_compile'))
 
-    compressed_dir = open(current_taskdir+new_name,'rb')
+    compressed_dir = open(current_rootDir+new_name,'rb')
     response = HttpResponse(compressed_dir,content_type='application/tgz')
     response['Content-Disposition'] = 'attachment; filename='+new_name
     # os.system("rm "+taskFolder+'/'+new_name)
