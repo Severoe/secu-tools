@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
+    {% load staticfiles %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <style>
       header, footer {  
@@ -60,17 +62,23 @@
         font-size: 15px;
       }
 
-      #myProgress {
-        width: 100%;
-        background-color: #ddd;
+        .progressbar{
+  border: 1px solid grey;
+  width: 300px;
+}
+      #result-trace{
+        display: none;
       }
-
-      #myBar {
-        width: 1%;
+      #bar-growth{
+        width: 0%;
+        background: black;
         height: 20px;
-        background-color: #4CAF50;
-      }
+                  }
+
+      
     </style>
+
+    <script src="{% static 'secuTool/trace_job.js'%}"></script>
   </head>
 
   <body>
@@ -295,7 +303,7 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <th scope="row" onclick="showProgressCursor()">00010</th>
+                      <th scope="row" id="tsk1" onclick="assign_id($(this).text())">00010</th>
                       <td>GCC 4.8</td>
                       <td>-O1,-Wall</td>
                       <td>Jeffrey</td>
@@ -304,7 +312,7 @@
                       <td>07:05</td>
                     </tr>
                     <tr>
-                      <th scope="row" onclick="showProgressCursor()">00011</th>
+                      <th scope="row" id="tsk2" onclick="assign_id($(this).text())">00011</th>
                       <td>GCC 5.5</td>
                       <td>-O2,-Werror</td>
                       <td>David</td>
@@ -316,23 +324,12 @@
                   </tbody>
                 </table>
                 <script>
-                  function showProgressCursor() {
-                    var x = document.getElementById("progressbar");
-                    x.style.display = "block";
-                    var elem = document.getElementById("myBar");
-                    var width = 1;
-                    var id = setInterval(frame, 10);
-                    function frame() {
-                      if (width >= 100) {
-                        clearInterval(id);
-                      } else {
-                        width++;
-                        elem.style.width = width + '%';
-                      }
-                    }
-                  }
+                  function assign_id(b) {
+                    task_id=b
+                    window.alert(task_id)
+                   }
                 </script>
-                <div id="progressbar" style="display: none">
+                <!--<div id="progressbar" style="display: none">
                   <h6>Job Progress</h6>
                   <div id="myProgress">
                     <div id="myBar"></div>
@@ -344,7 +341,7 @@
                   <p>Compilation_tasks/2018-06-03-15-05-44/secu_compile/hello_3_-O1_-O0_-O3 -O1 -O0 -O3, b'', b''</p>
                   <p>Compilation_tasks/2018-06-03-15-05-44/secu_compile/hello_4_-O0_-O2_-O3 -O0 -O2 -O3, b'', b''</p>
                   <br>
-                </div>
+                </div> -->
               </form>
             </div>
           </div>
