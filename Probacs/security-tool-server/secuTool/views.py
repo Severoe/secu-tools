@@ -59,16 +59,21 @@ def preview(request):
         for x in flag_from_profile:
             compile_combination = [i + [y] for y in x for i in compile_combination]
 
-        # each element in compile_combination is a comma-separated flag list
-        compile_combination = [",".join(x) for x in compile_combination]
+        # each element in compile_combination is a space-separated flag list
+        compile_combination = [" ".join(x) for x in compile_combination]
+        profiles = ",".join(param['profile'])
         for flag in compile_combination:
             rows.append({'target_os':param['target_os'],
                             'compiler':param['compiler'],
                             'version':param['version'],
                             'username':param['username'],
+                            'profiles':profiles,
                             'tag':param['tag'],
                             'flag':flag})
+    context = {}
     context['rows'] = rows
+    # for row in rows:
+    #     print row
 
     return render(request, 'secuTool/preview.html',context)
 
@@ -115,7 +120,7 @@ def process_files(request, taskName):
                 dest.write('tag:' + request.POST['tag'] + "\n")
     else:
         with open(taskFolder + '/task.txt', 'wb+') as dest:
-            for chunk in request.FILES['taskFIle'].chunks():
+            for chunk in request.FILES['taskFile'].chunks():
                 dest.write(chunk)
 
     return parseTaskFile(taskFolder + '/task.txt')
