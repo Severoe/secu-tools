@@ -107,7 +107,13 @@ function delete_row(row) {
 	// document.getElementById("row" + no + "").outerHTML = "";
 }
 
-
+$("#myform").submit(function () {
+	var checked = $('#myform input[type="checkbox"]:checked').length > 0;
+	if (!checked) {
+		alert("Please check at least one checkbox");
+		return false;
+	}
+});
 
 $('#compile').submit(function(e){
 	$('.row-button').each(function () {

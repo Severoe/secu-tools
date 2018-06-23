@@ -126,14 +126,14 @@
                 <div class="col-sm-6 debug">
                   <h3>Submit a job.</h3>
                   <br>
-                  <form action="/preview" method="post" enctype="multipart/form-data">
+                  <form name="myform" id="myform" action="/preview" method="post" enctype="multipart/form-data">
                     <h5> Please upload your source code*. </h5>
                       <div class="" style="height: 10px;"></div>
                       <input type="file" value="Select" class="submit-edition" name="srcFile" required>
                     <br>
                     <br>
                     <h5> Please select your OS*. </h5>
-                    <select name="os" id="os" onChange="changecat(this.value);" required>
+                    <select name="target_os" id="target_os" onChange="changecat(this.value);" required>
                       <option value="" disabled selected>Select</option>
                     </select>
                     <script>
@@ -142,7 +142,7 @@
                       for (osId in options) {
                           catOptions += "<option>" + options[osId] + "</option>";
                       }
-                      document.getElementById("os").innerHTML = catOptions;
+                      document.getElementById("target_os").innerHTML = catOptions;
                     </script>
                     <br>
                     <br>
@@ -169,25 +169,25 @@
                     <br>
                     <br>
                     <h5> Please select your profiles*. </h5>
-                    <div class="scroll" name="profiles" id="profiles">
+                    <div class="scroll" id="profiles">
                     </div>
                     <script>
                       var options = ["debugging", "link", "optimization", "preprocessing", "warning","max_speed","max_optimization"];
                       var catOptions = "";
                       for (profileId in options) {
-                        catOptions += "<input type='checkbox' />" + options[profileId] + "<br/>";
+                        catOptions += "<input type='checkbox' name='profile'/>" + options[profileId] + "<br/>";
                       }
                       document.getElementById("profiles").innerHTML = catOptions;
                     </script>
                     <br>
                     <h5> Please type username*. </h5>
                     <div class="text">
-                      <input type="text" required/> <br/>
+                      <input type="text" name="username" required/> <br/>
                     </div>
                     <br>
                     <h5> Please enter a tag for your job. </h5>
                     <div class="text">
-                      <input type="text" />
+                      <input type="text" name="tag" />
                       <br/>
                     </div>
                     <br>
