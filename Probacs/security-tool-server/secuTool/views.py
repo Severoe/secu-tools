@@ -153,75 +153,85 @@ def rcvSrc(request):
 def preview(request):
     context = {}
     srcFile = request.FILES['srcFile'].name
-    timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    #create unique task forder for each task, inside which includes:
-    # srcCode, <profiles>, compiled file & log, 
-    # the archive for downloading will be delete 
-    taskName = timestr
-    taskFolder = taskdir + timestr
-    codeFolder = taskFolder + "/" + "srcFile"
+    request.session['filename'] = srcFile
+    context['task_id'] = "123"
+    # timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    # #create unique task forder for each task, inside which includes:
+    # # srcCode, <profiles>, compiled file & log, 
+    # # the archive for downloading will be delete 
+    # taskName = timestr
+    # taskFolder = taskdir + timestr
+    # codeFolder = taskFolder + "/" + "srcFile"
 
-    os.mkdir(taskFolder)
+    # os.mkdir(taskFolder)
 
-    context = {}
-    if 'srcFile' not in request.FILES:
-        context['message'] = "no source file selected"
-        return render(request, 'secuTool/test.html', context)
+    # context = {}
+    # if 'srcFile' not in request.FILES:
+    #     context['message'] = "no source file selected"
+    #     return render(request, 'secuTool/test.html', context)
 
-    #save source files in taskfolder
-    srcFile = request.FILES['srcFile'].name
-    taskFile = request.FILES['task_file'].name
+    # #save source files in taskfolder
+    # srcFile = request.FILES['srcFile'].name
+    # taskFile = request.FILES['task_file'].name
 
-    if request.FILES['srcFile'].content_type not in ['application/x-tar','application/gzip','application/zip']:
-        #indicating a single file
-        os.mkdir(codeFolder)
-        srcPath = codeFolder + "/" + srcFile
-        with open(srcPath, 'wb+') as dest:
-            for chunk in request.FILES['srcFile'].chunks():
-                dest.write(chunk)
-    else:
-        # if user upload tar ball, extract and save into srcCode folder
-        # also upload filename to be main filename
-        with open(taskFolder + '/' + srcFile, 'wb+') as dest:
-            for chunk in request.FILES['srcFile'].chunks():
-                dest.write(chunk)
-        os.system('tar xvzf ' + taskFolder + '/' + filename + " -C " + srcFile)
-        os.system('mv ' + taskFolder + '/' + filename.split('.')[0] + ' ' + codeFolder)
-        srcPath = codeFolder+"/"+filename
-        # update filename to be the main srcfile name if tast srcfile is a tarball
-    #######################
-    # write task specify file to taskFolder
-    #######################
-    taskPath = taskFolder + "/" + taskfile
-    with open(taskPath,'wb+') as dest:
-        for chunk in request.FILES['task_file'].chunks():
-            dest.write(chunk)
+    # if request.FILES['srcFile'].content_type not in ['application/x-tar','application/gzip','application/zip']:
+    #     #indicating a single file
+    #     os.mkdir(codeFolder)
+    #     srcPath = codeFolder + "/" + srcFile
+    #     with open(srcPath, 'wb+') as dest:
+    #         for chunk in request.FILES['srcFile'].chunks():
+    #             dest.write(chunk)
+    # else:
+    #     # if user upload tar ball, extract and save into srcCode folder
+    #     # also upload filename to be main filename
+    #     with open(taskFolder + '/' + srcFile, 'wb+') as dest:
+    #         for chunk in request.FILES['srcFile'].chunks():
+    #             dest.write(chunk)
+    #     os.system('tar xvzf ' + taskFolder + '/' + filename + " -C " + srcFile)
+    #     os.system('mv ' + taskFolder + '/' + filename.split('.')[0] + ' ' + codeFolder)
+    #     srcPath = codeFolder+"/"+filename
+    #     # update filename to be the main srcfile name if tast srcfile is a tarball
+    # #######################
+    # # write task specify file to taskFolder
+    # #######################
+    # taskPath = taskFolder + "/" + taskfile
+    # with open(taskPath,'wb+') as dest:
+    #     for chunk in request.FILES['task_file'].chunks():
+    #         dest.write(chunk)
 
 
-    context['form'] = ProfileUserForm()
-    # context['status'] = statuses
-    print("preview")
-    for name in request.FILES:
-        print(name + "---" + request.FILES[name].name)
+    # context['form'] = ProfileUserForm()
+    # # context['status'] = statuses
+    # print("preview")
+    # for name in request.FILES:
+    #     print(name + "---" + request.FILES[name].name)
 
     return render(request, 'secuTool/preview.html',context)
 
 
 @csrf_exempt
 def param_upload(request):
+    '''
+    get updated compilation parameters from user, write db with new subtasks, deliver compilation tasks to
+    platforms in asyn calls
+    '''
     # print(request.POST)
-    filename = request.session['filename']
-    srccode = request.session['file'] #json, need change to bytes
-    jsonDec = json.decoder.JSONDecoder()
-    srccode = jsonDec.decode(srccode)#.encode("utf-8")
-    print(type(srccode))
-    with open("test.zip",'w+') as dest:
-            dest.write(srccode)
-    print(filename)
-    # print(srccode)
-
+    task_name = request.POST['taskid']
     task_num = request.POST['taskCount']
     task_params = []
+    #####################
+    ##retrieve source file path/ name, config source path, output path, etc,
+    #####################
+    filename = request.session['filename']
+    taskFolder = taskdir+task_name
+    codeFolder = taskFolder+"/"+"srcCodes"
+    srcPath = codeFolder+"/"+filename
+    #####################
+    ## parse params from requests
+    #####################
+    # ensure all compilation on single machine with same compiler will be packed together
+    single_vm_ref = {}
+    vm_num = 0
     for i in range(int(task_num)):
         obj = {}
         task_id = 'tasks['+str(i)+']'
@@ -231,20 +241,79 @@ def param_upload(request):
         flag = task_id+'[flag]'
         username = task_id+'[username]'
         tag = task_id+'[tags]'
-        obj['os'] = request.POST[os]
-        obj['compiler'] = request.POST[compiler]
-        obj['profile'] = request.POST[profile]
-        obj['flag'] = request.POST[flag]
-        obj['username'] = request.POST[username]
-        obj['tags'] = request.POST[tag]
-        task_params.append(obj)
+        ref_key = request.POST[os].strip()+"|"+request.POST[compiler].strip()
+        print(ref_key)
+        if ref_key in single_vm_ref.keys():
+            ## task already exists, pack extra flags
+            obj = task_params[single_vm_ref[ref_key]]
+            new_flags = request.POST[flag].split(",")
+            new_flags = "_".join([ele.strip() for ele in new_flags])
+            obj['flag'] = obj['flag']+","+new_flags
+        else:
+            ## no task with same destination, establish a new one
+            obj['target_os'] = request.POST[os]
+            compiler_full = request.POST[compiler].split(" ")
+            obj['compiler'] = compiler_full[0]
+            obj['version'] = compiler_full[1]
+            obj['profile'] = request.POST[profile]
+            obj['flag'] = request.POST[flag].split(",")
+            obj['flag'] = "_".join([ele.strip() for ele in obj['flag']])
+            obj['username'] = request.POST[username]
+            obj['tags'] = request.POST[tag]
+            single_vm_ref[ref_key] = vm_num
+            vm_num += 1
+            task_params.append(obj)
+    #####################
+    #form request format from obj for each task
+    #####################
     print(task_params)
-    response = "hello"
+    for param in task_params:
+        task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
+        version=param['version'])
+        task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
+
+        #############################
+        # add entries into task database 
+        for ele in param['flag'].split(","):
+            new_task = Task(task_id=task_name,username=param['username'],
+                tag=None if not 'tag' in param else param['tag'],
+                src_file=filename,target_os=param['target_os'], 
+                compiler=param['compiler'],version=param['version'],flag=ele)
+            new_task.save()
+
+        #############################
+        # calling compilation tasks
+        #############################
+        if task_http == self_ip:
+            outputDir = taskFolder+"/"+"secu_compile"
+            data = {
+            'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
+            'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag']}
+            pid = os.fork()
+            if pid == 0:
+                compile(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, param['flag'],on_complete)
+                #new thread
+                # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
+                print("finished compile")
+                os._exit(0)  
+            else:
+                #parent process, simply return to client
+                print("asyn call encountered")
+        # if not compiling on linux host, send params to another function, interacting with specific platform server
+        else:
+            upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
+        
+    # context['task_id'] = taskName
+    # context['form'] = ProfileUserForm()
+    # context['progress'] = 'block'
+    # context['linux_taskFolder'] = taskName
+    response = {}
+    response['id'] = task_name
     return HttpResponse(json.dumps(response),content_type="application/json")
 
 
 
-def upload_to_platform(param,ip, compiler_invoke, flags, taskName, taskFolder, codeFolder,mainSrcName):
+def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFolder,mainSrcName):
     '''
     flags is compressed string used for make_compilation.py
     compiler_invoke is a string used for cmd line compilation
@@ -261,14 +330,14 @@ def upload_to_platform(param,ip, compiler_invoke, flags, taskName, taskFolder, c
     if '&&' in compiler_invoke:
         runEnv = compiler_invoke.split('&&')[0]
         compiler_invoke = compiler_invoke.split('&&')[1]
-    data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': flags,
+    data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': param['flag'],
     'env':runEnv,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version']}
     print(data)
     files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
     settings.TASKS[taskFolder] = 0
     pid = os.fork()
     if pid == 0:
-        response = requests.post(winurl, files=files,data=data) 
+        response = requests.post(ip, files=files,data=data) 
         os._exit(0)  
     else:
         return

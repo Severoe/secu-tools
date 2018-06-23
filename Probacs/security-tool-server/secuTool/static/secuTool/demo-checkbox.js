@@ -144,6 +144,7 @@ function compile() {
 		url: "/paramUpload",
         dataType : "json",
         data: {
+        	taskid: $('#taskid').text().trim(),
         	taskCount: cnt,
         	tasks: param,
         },

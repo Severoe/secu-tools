@@ -125,7 +125,7 @@
                     <button class="row-button" id="r1" onclick="addflag('r1')"></button></div>
                   </td>
                   <td class="os">Linux</td>
-                  <td class="compiler">GCC 4.8</td>
+                  <td class="compiler">gcc 4.8</td>
                   <td class="profile">optimization, warning</td>
                   <td class='flag'>-O1, -Wall</td>
                   <td class="username">Jeffery</td>
@@ -185,7 +185,8 @@
           <br>
           <button onclick="compile()">Compile</button>
           <form action="/redirect_trace" style="visibility: hidden">
-            <input id="redirect" type="submit" value="Go to Google" />
+            <div id="taskid" style="visibility: hidden">{{taskid}}</div>
+            <input id="redirect" type="submit" value="haha" />
           </form>
           <br>
         </div>
