@@ -15,7 +15,6 @@ from parser import *
 from django.core import serializers
 from io import BytesIO
 import zipfile,io,base64
-import os
 # Create your views here.
 ################################
 # global variables
@@ -37,43 +36,44 @@ def preview(request):
     context = {}
     request.session['filename'] = request.FILES['srcFile'].name
     context['taskid'] = "123"
-    taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    message, params = process_files(request, taskName)
 
-    if message:
-        return render(request, 'secuTool/test.html', {"message":message})
+    # taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    # message, params = process_files(request, taskName)
 
-    rows = []
-    for param in params:
-        # permute flags combination  from diff flags
-        jsonDec = json.decoder.JSONDecoder()
-        flag_from_profile = []
-        for profile_name in param['profile']:
-            # print(profile_name)
-            p_tmp = Profile_conf.objects.get(name=profile_name, 
-                                                target_os=param['target_os'],
-                                                compiler=param['compiler'],
-                                                version=param['version'])
-            flag_from_profile.append(jsonDec.decode(p_tmp.flag))
-        compile_combination = [[]]
-        for x in flag_from_profile:
-            compile_combination = [i + [y] for y in x for i in compile_combination]
+    # if message:
+    #     return render(request, 'secuTool/test.html', {"message":message})
 
-        # each element in compile_combination is a space-separated flag list
-        compile_combination = [" ".join(x) for x in compile_combination]
-        profiles = ",".join(param['profile'])
-        for flag in compile_combination:
-            rows.append({'target_os':param['target_os'],
-                            'compiler':param['compiler'],
-                            'version':param['version'],
-                            'username':param['username'],
-                            'profiles':profiles,
-                            'tag':param['tag'],
-                            'flag':flag})
-    context = {}
-    context['rows'] = rows
-    # for row in rows:
-    #     print row
+    # rows = []
+    # for param in params:
+    #     # permute flags combination  from diff flags
+    #     jsonDec = json.decoder.JSONDecoder()
+    #     flag_from_profile = []
+    #     for profile_name in param['profile']:
+    #         # print(profile_name)
+    #         p_tmp = Profile_conf.objects.get(name=profile_name, 
+    #                                             target_os=param['target_os'],
+    #                                             compiler=param['compiler'],
+    #                                             version=param['version'])
+    #         flag_from_profile.append(jsonDec.decode(p_tmp.flag))
+    #     compile_combination = [[]]
+    #     for x in flag_from_profile:
+    #         compile_combination = [i + [y] for y in x for i in compile_combination]
+
+    #     # each element in compile_combination is a space-separated flag list
+    #     compile_combination = [" ".join(x) for x in compile_combination]
+    #     profiles = ",".join(param['profile'])
+    #     for flag in compile_combination:
+    #         rows.append({'target_os':param['target_os'],
+    #                         'compiler':param['compiler'],
+    #                         'version':param['version'],
+    #                         'username':param['username'],
+    #                         'profiles':profiles,
+    #                         'tag':param['tag'],
+    #                         'flag':flag})
+    # context = {}
+    # context['rows'] = rows
+    # # for row in rows:
+    # #     print row
 
     return render(request, 'secuTool/preview.html',context)
 
@@ -211,7 +211,6 @@ def param_upload(request):
             if pid == 0:
                 compile(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, param['flag'],on_complete)
                 #new thread
-                # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
                 print("finished compile")
                 os._exit(0)  
             else:
@@ -222,7 +221,7 @@ def param_upload(request):
             upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
         
     response = {}
-    response['id'] = task_name
+    response['taskid'] = task_name
     return HttpResponse(json.dumps(response),content_type="application/json")
 
 
@@ -496,6 +495,7 @@ def test(request):
     return render(request, 'secuTool/test.html',context)
 
 def redirect_trace(request):
+    print(request.GET['ongoing'])
     context = {}
     context['form'] = ProfileUserForm()
     context['nav4'] = "active show"

@@ -149,7 +149,7 @@ function compile() {
         	tasks: param,
         },
       	success:  function(response) {
-      		// console.log("bnack")
+      		console.log(response.taskid)
       		$('#redirect').click()
       	}  
 	});
