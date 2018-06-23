@@ -9,11 +9,13 @@ function addflag(flag) {
 		$(id).addClass("chosen")
 	}
 }
+
 function selectall(){
 	$('.row-button').each(function () {
 		$(this).addClass('chosen')
 	})
 }
+
 function deselectall(){
 	$('.row-button').each(function () {
 		$(this).removeClass('chosen')
@@ -97,17 +99,13 @@ function add_row() {
 	$('#group-handin').empty()
 }
 
-
-
-
-
 function delete_row(row) {
 	var id = '#'+row
 	$(id).closest('tr').remove()
-	// document.getElementById("row" + no + "").outerHTML = "";
 }
 
 $("#myform").submit(function () {
+	alert("AAAAA")
 	var checked = $('#myform input[type="checkbox"]:checked').length > 0;
 	if (!checked) {
 		alert("Please check at least one checkbox");
@@ -123,8 +121,6 @@ $('#compile').submit(function(e){
 	})
 	$("#compile input:submit").click();
 })
-
-
 
 function compile() {
 	var param = []
@@ -161,5 +157,3 @@ function compile() {
 	});
 
 }
-
-
