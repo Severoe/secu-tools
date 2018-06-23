@@ -153,7 +153,7 @@
                     </select>
                     <script>
                       var flagsByOS = {
-                        Linux: ["None", "GCC 4.8", "GCC 5.5", "GCC 6.4", "GCC 7.3", "GCC 8.1"],
+                        Linux: ["None", "gcc 4.8", "gcc 5.5", "gcc 6.4", "gcc 7.3", "gcc 8.1"],
                         Windows: ["None", "MSVC++ 14.11", "MSVC++ 14.12", "MSVC++ 14.13", "MSVC++ 14.14"],
                       }
                       function changecat(value) {
@@ -173,7 +173,7 @@
                     <div class="scroll" id="profiles">
                     </div>
                     <script>
-                      var options = ["debugging", "link", "optimization", "preprocessing", "warning","max_speed","max_optimization"];
+                      var options = ["debugging", "link", "preprocessing", "warning","max_speed","max_optimization"];
                       var catOptions = "";
                       for (profileId in options) {
                         catOptions += "<input type='checkbox' name='profile' value='"+ options[profileId]+"'/>" + options[profileId] + "<br/>";

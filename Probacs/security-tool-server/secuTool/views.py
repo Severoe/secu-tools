@@ -36,12 +36,14 @@ def preview(request):
     print(request.POST)
     context = {}
     request.session['filename'] = request.FILES['srcFile'].name
-    compiler_full = request.POST['compiler'].split(" ")
-    request.POST['compiler'] = compiler_full[0]
-    request.POST['version'] = compiler_full[1]
-    
+    compiler_divided = {}
+    if "compiler" in request.POST:
+        compiler_full = request.POST['compiler'].split(" ")
+        compiler_divided['compiler']=compiler_full[0]
+        compiler_divided['version']=compiler_full[1]
+
     taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    message, params = process_files(request, taskName)
+    message, params = process_files(request, taskName,  compiler_divided)
 
     if message:
         return render(request, 'secuTool/test.html', {"message":message})
@@ -84,7 +86,7 @@ def preview(request):
     return render(request, 'secuTool/preview.html',context)
 
 
-def process_files(request, taskName):
+def process_files(request, taskName, compiler_divided):
     """
     save and extract source code, and parse task file (or task form)
     :type request: http request obbject
@@ -120,8 +122,13 @@ def process_files(request, taskName):
     # user specified task through UI, not file, then save it to disk
     if 'taskFile' not in request.FILES:
         with open(taskFolder + "/task.txt", 'w') as dest:
-            for key in ['target_os', 'compiler', 'version', 'profile', 'username']:
+            for key in ['compiler', 'version']:
+                dest.write(key + ":" + compiler_divided[key] + "\n")
+            for key in ['target_os', 'username']:
                 dest.write(key + ":" + request.POST[key] + "\n")
+            for key in ['profile']:
+                # print(dict(request.POST))
+                dest.write(key + ":" + ",".join(dict(request.POST)[key]) + "\n")
             if 'tag' in request.POST:
                 dest.write('tag:' + request.POST['tag'] + "\n")
     else:
