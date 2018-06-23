@@ -119,6 +119,7 @@
                   <th></th>
                 </tr>
               </thead>
+              {% if rows %}
               <tbody id="preview-list">
                 <tr>
                   <td>
@@ -147,6 +148,22 @@
                     <button class="btn btn-light btn-sm" onclick="delete_row('r2')">delete</button>
                   </td>
                 </tr>
+                {% for ele in rows %}
+                <tr>
+                  <td>
+                    <button class="row-button" id="r{{ele.seq}}" onclick="addflag('r{{ele.seq}}')"></button></div>
+                  </td>
+                  <td class="os">{{ele.target_os}}</td>
+                  <td class="compiler">{{ele.compiler}}</td>
+                  <td class="profile">{{ele.profiles}}</td>
+                  <td class='flag'>{{ele.flag}}</td>
+                  <td class="username">{{ele.username}}</td>
+                  <td class="tags">{{ele.tag}}</td>
+                  <td>
+                    <button class="btn btn-light btn-sm" onclick="delete_row('r{{ele.seq}}')">delete</button>
+                  </td>
+                </tr>
+                {% endfor %}
               </tbody>
             </table>
             <br>

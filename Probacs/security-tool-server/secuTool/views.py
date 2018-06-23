@@ -37,43 +37,45 @@ def preview(request):
     request.session['filename'] = request.FILES['srcFile'].name
     context['taskid'] = "123"
 
-    # taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    # message, params = process_files(request, taskName)
+    taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    message, params = process_files(request, taskName)
 
-    # if message:
-    #     return render(request, 'secuTool/test.html', {"message":message})
+    if message:
+        return render(request, 'secuTool/test.html', {"message":message})
 
-    # rows = []
-    # for param in params:
-    #     # permute flags combination  from diff flags
-    #     jsonDec = json.decoder.JSONDecoder()
-    #     flag_from_profile = []
-    #     for profile_name in param['profile']:
-    #         # print(profile_name)
-    #         p_tmp = Profile_conf.objects.get(name=profile_name, 
-    #                                             target_os=param['target_os'],
-    #                                             compiler=param['compiler'],
-    #                                             version=param['version'])
-    #         flag_from_profile.append(jsonDec.decode(p_tmp.flag))
-    #     compile_combination = [[]]
-    #     for x in flag_from_profile:
-    #         compile_combination = [i + [y] for y in x for i in compile_combination]
+    rows = []
+    for param in params:
+        # permute flags combination  from diff flags
+        jsonDec = json.decoder.JSONDecoder()
+        flag_from_profile = []
+        for profile_name in param['profile']:
+            # print(profile_name)
+            p_tmp = Profile_conf.objects.get(name=profile_name, 
+                                                target_os=param['target_os'],
+                                                compiler=param['compiler'],
+                                                version=param['version'])
+            flag_from_profile.append(jsonDec.decode(p_tmp.flag))
+        compile_combination = [[]]
+        for x in flag_from_profile:
+            compile_combination = [i + [y] for y in x for i in compile_combination]
 
-    #     # each element in compile_combination is a space-separated flag list
-    #     compile_combination = [" ".join(x) for x in compile_combination]
-    #     profiles = ",".join(param['profile'])
-    #     for flag in compile_combination:
-    #         rows.append({'target_os':param['target_os'],
-    #                         'compiler':param['compiler'],
-    #                         'version':param['version'],
-    #                         'username':param['username'],
-    #                         'profiles':profiles,
-    #                         'tag':param['tag'],
-    #                         'flag':flag})
-    # context = {}
-    # context['rows'] = rows
-    # # for row in rows:
-    # #     print row
+        # each element in compile_combination is a space-separated flag list
+        compile_combination = [" ".join(x) for x in compile_combination]
+        profiles = ",".join(param['profile'])
+        seq = 3
+        for flag in compile_combination:
+            rows.append({'target_os':param['target_os'],
+                            'compiler':param['compiler']+" "+param['version'],
+                            'username':param['username'],
+                            'profiles':profiles,
+                            'tag':param['tag'],
+                            'flag':flag,
+                            'seq':seq})
+            seq += 1
+    context = {}
+    context['rows'] = rows
+    # for row in rows:
+    #     print row
 
     return render(request, 'secuTool/preview.html',context)
 

@@ -116,3 +116,11 @@ def rcvSrc(request):
     context['progress'] = 'block'
     context['linux_taskFolder'] = taskName
     return render(request, 'secuTool/index.html', context)
+
+
+
+
+
+
+                        <input type="checkbox" /> max_speed<br/>
+                    <input type="checkbox" /> max_optimization<br/>

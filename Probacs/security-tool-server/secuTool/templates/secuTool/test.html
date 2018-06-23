@@ -136,7 +136,7 @@
                   <h5> Please upload your source code*. </h5>
                   <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
                     <div class="" style="height: 10px;"></div>
-                    <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
+                    <input type="file" value="Select" name="srcFile" class="submit-edition"> 
                   </form>
                   <br>
                   <br>
