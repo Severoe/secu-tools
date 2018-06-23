@@ -23,10 +23,12 @@ compiler_data = [
 	{'target_os':'Windows','compiler':'MSVC++','version':'14.11','ip':'http://192.67.56.102','port':'8000','http_path':'','invoke_format':r'"C:\Program_Files_(x86)\Microsoft_Visual_Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"&&cl_flags_source_/Feexename'},	
 ]
 profile_data = [
-	{'uploader':'jeffery','upload_time':'2006-10-25 14:30:59','name':'max_speed','target_os':'linux','compiler':'gcc','version':'4.8','flag':['-O1 -O0','-O0 -O2']},
-	{'uploader':'jeffery','upload_time':'2006-10-25 14:30:59','name':'max_optimization','target_os':'linux','compiler':'gcc','version':'4.8','flag':['-Wall','-O3']},
-	{'uploader':'Dave','upload_time':'2006-10-25 14:30:59','name':'max_speed','target_os':'win','compiler':'vs','version':'6.7','flag':['/Wall','/O3']},
-	{'uploader':'Dave','upload_time':'2006-10-25 14:30:59','name':'max_optimization','target_os':'win','compiler':'vs','version':'6.7','flag':['/WX /O1','/WX /Od','/O1 /O2']},
+	{'uploader':'jeffery','upload_time':'2006-10-25 14:30:59','name':'max_speed','target_os':'Linux','compiler':'gcc','version':'4.8','flag':['-O1 -O0','-O0 -O2']},
+	{'uploader':'jeffery','upload_time':'2006-10-25 14:30:59','name':'max_optimization','target_os':'Linux','compiler':'gcc','version':'4.8','flag':['-Wall','-O3']},
+	{'uploader':'jeffery','upload_time':'2006-10-25 14:30:59','name':'max_speed','target_os':'Linux','compiler':'gcc','version':'6.7','flag':['-O1 -O0','-O0 -O2']},
+	{'uploader':'jeffery','upload_time':'2006-10-25 14:30:59','name':'max_optimization','target_os':'Linux','compiler':'gcc','version':'6.7','flag':['-Wall','-O3']},
+	{'uploader':'Dave','upload_time':'2006-10-25 14:30:59','name':'max_speed','target_os':'Windows','compiler':'MSVC++','version':'14.11','flag':['/Wall','/O3']},
+	{'uploader':'Dave','upload_time':'2006-10-25 14:30:59','name':'max_optimization','target_os':'Windows','compiler':'MSVC++','version':'14.11','flag':['/WX /O1','/WX /Od','/O1 /O2']},
 
 ]
 
