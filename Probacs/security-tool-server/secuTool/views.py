@@ -12,7 +12,9 @@ from django.db import transaction
 import requests
 from django.conf import settings
 from parser import *
-
+from django.core import serializers
+from io import BytesIO
+import zipfile,io,base64
 # Create your views here.
 ################################
 # global variables
@@ -149,6 +151,8 @@ def rcvSrc(request):
 
 
 def preview(request):
+    context = {}
+    srcFile = request.FILES['srcFile'].name
     timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     #create unique task forder for each task, inside which includes:
     # srcCode, <profiles>, compiled file & log, 
@@ -196,11 +200,47 @@ def preview(request):
 
     context['form'] = ProfileUserForm()
     # context['status'] = statuses
-    print "preview"
+    print("preview")
     for name in request.FILES:
-        print name + "---" + request.FILES[name].name
+        print(name + "---" + request.FILES[name].name)
 
     return render(request, 'secuTool/preview.html',context)
+
+
+@csrf_exempt
+def param_upload(request):
+    # print(request.POST)
+    filename = request.session['filename']
+    srccode = request.session['file'] #json, need change to bytes
+    jsonDec = json.decoder.JSONDecoder()
+    srccode = jsonDec.decode(srccode)#.encode("utf-8")
+    print(type(srccode))
+    with open("test.zip",'w+') as dest:
+            dest.write(srccode)
+    print(filename)
+    # print(srccode)
+
+    task_num = request.POST['taskCount']
+    task_params = []
+    for i in range(int(task_num)):
+        obj = {}
+        task_id = 'tasks['+str(i)+']'
+        os = task_id+'[os]'
+        compiler = task_id+'[compiler]'
+        profile = task_id+'[profile]'
+        flag = task_id+'[flag]'
+        username = task_id+'[username]'
+        tag = task_id+'[tags]'
+        obj['os'] = request.POST[os]
+        obj['compiler'] = request.POST[compiler]
+        obj['profile'] = request.POST[profile]
+        obj['flag'] = request.POST[flag]
+        obj['username'] = request.POST[username]
+        obj['tags'] = request.POST[tag]
+        task_params.append(obj)
+    print(task_params)
+    response = "hello"
+    return HttpResponse(json.dumps(response),content_type="application/json")
 
 
 
@@ -467,11 +507,17 @@ def trace(request):
 # test funciton
 def test(request):
     context = {}
-    context['message'] = 'shkadhlaskdjask'
     context['form'] = ProfileUserForm()
+    context['nav1'] = "active show"
     # context['status'] = statuses
     return render(request, 'secuTool/test.html',context)
 
+def redirect_trace(request):
+    context = {}
+    context['form'] = ProfileUserForm()
+    context['nav4'] = "active show"
+    # context['status'] = statuses
+    return render(request, 'secuTool/test.html',context)
 
 def tracetest(request):
     return render(request, 'secuTool/blank.html')
