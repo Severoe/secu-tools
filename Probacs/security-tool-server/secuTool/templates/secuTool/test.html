@@ -54,7 +54,7 @@
         border-left: 1px blue;
       }
 
-      .tab2{
+      .tab2 {
         margin-left: 200px;
         margin-right: 200px;
         margin-top: 5px;
@@ -62,22 +62,21 @@
         font-size: 15px;
       }
 
-        .progressbar{
-  border: 1px solid grey;
-  width: 300px;
-}
-      #result-trace{
+      .progressbar {
+        border: 1px solid grey;
+        width: 300px;
+      }
+
+      #result-trace {
         display: none;
       }
-      #bar-growth{
+
+      #bar-growth {
         width: 0%;
         background: black;
         height: 20px;
-                  }
-
-      
+      }
     </style>
-
     <script src="{% static 'secuTool/trace_job.js'%}"></script>
   </head>
 
@@ -103,23 +102,18 @@
               <div class="row">
                 <div class="col-sm-6 debug">
                   <form action="/preview" method="post" enctype="multipart/form-data">
-                  <h3>Submit a job.</h3>
-                  <br>
-                  <h5> Please upload your source code. </h5>
-                  <!-- <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'> -->
-                    <div class="" style="height: 10px;"></div>
-                    <input type="file" value="Select" class="submit-edition" name="srcFile"> {% csrf_token %}
-                  <!-- </form> -->
-                  <br>
-                  <br>
-                  <h5> Please upload your task file. </h5>
-                  <!-- <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'> -->
-                    <div class="" style="height: 10px;"></div>
-                    <input type="file" value="Select" class="submit-edition" name="taskFile"> {% csrf_token %}
-                  <!-- </form> -->
-                  <br>
-                  <br>
-                  
+                    <h3>Submit a job.</h3>
+                    <br>
+                    <h5> Please upload your source code. </h5>
+                      <div class="" style="height: 10px;"></div>
+                      <input type="file" value="Select" class="submit-edition" name="srcFile" required> {% csrf_token %}
+                    <br>
+                    <br>
+                    <h5> Please upload your task file. </h5>
+                      <div class="" style="height: 10px;"></div>
+                      <input type="file" value="Select" class="submit-edition" name="taskFile" required> {% csrf_token %}
+                    <br>
+                    <br>
                     <input type="submit" value="Preview">
                   </form>
                 </div>
@@ -132,67 +126,74 @@
                 <div class="col-sm-6 debug">
                   <h3>Submit a job.</h3>
                   <br>
-                  <h5> Please upload your source code*. </h5>
-                  <form enctype="multipart/form-data" action="{% url 'uploadSrc' %}" method='post'>
-                    <div class="" style="height: 10px;"></div>
-                    <input type="file" value="Select" class="submit-edition"> {% csrf_token %}
-                  </form>
-                  <br>
-                  <br>
-                  <h5> Please select your OS*. </h5>
-                  <select name="meal" id="meal" onChange="changecat(this.value);">
-                    <option value="" disabled selected>Select</option>
-                    <option value="Linux">Linux</option>
-                    <option value="Windows">Windows</option>
-                  </select>
-                  <br>
-                  <br>
-                  <h5> Please select your compiler*. </h5>
-                  <select name="compiler" id="compiler">
-                    <option value="" disabled selected>Select</option>
-                  </select>
-                  <script>
-                    var flagsByOS = {
-                      Linux: ["None", "GCC 4.8", "GCC 5.5", "GCC 6.4", "GCC 7.3", "GCC 8.1"],
-                      Windows: ["None", "MSVC++ 14.11", "MSVC++ 14.12", "MSVC++ 14.13", "MSVC++ 14.14"],
-                    }
-                    function changecat(value) {
-                      if (value.length == 0) document.getElementById("compiler").innerHTML = "<option></option>";
-                      else {
-                        var catOptions = "";
-                        for (compilerId in flagsByOS[value]) {
-                          catOptions += "<option>" + flagsByOS[value][compilerId] + "</option>";
-                        }
-                        document.getElementById("compiler").innerHTML = catOptions;
+                  <form action="/" method="post" enctype="multipart/form-data">
+                    <h5> Please upload your source code*. </h5>
+                      <div class="" style="height: 10px;"></div>
+                      <input type="file" value="Select" class="submit-edition" required>
+                    <br>
+                    <br>
+                    <h5> Please select your OS*. </h5>
+                    <select name="os" id="os" onChange="changecat(this.value);" required>
+                      <option value="" disabled selected>Select</option>
+                    </select>
+                    <script>
+                      var options = ["Linux", "Windows"];
+                      var catOptions = "<option value='' disabled selected>Select</option>";
+                      for (osId in options) {
+                          catOptions += "<option>" + options[osId] + "</option>";
                       }
-                    }
-                  </script>
-                  <br>
-                  <br>
-                  <h5> Please select your profiles*. </h5>
-                  <div class="scroll">
-                    <input type="checkbox" /> debugging<br/>
-                    <input type="checkbox" /> link<br/>
-                    <input type="checkbox" /> optimization<br/>
-                    <input type="checkbox" /> preprocessing<br/>
-                    <input type="checkbox" /> warning<br/>
-                  </div>
-                  <br>
-                  <h5> Please type username*. </h5>
-                  <div class="text">
-                    <input type="text" />
-                    <br/>
-                  </div>
-                  <br>
-                  <h5> Please enter a tag for your job. </h5>
-                  <div class="text">
-                    <input type="text" />
-                    <br/>
-                  </div>
-                  <br>
-                  <br>
-                  <form action="/preview">
-                    <input type="submit" value="Preview">
+                      document.getElementById("os").innerHTML = catOptions;
+                    </script>
+                    <br>
+                    <br>
+                    <h5> Please select your compiler*. </h5>
+                    <select name="compiler" id="compiler" required>
+                      <option value="" disabled selected>Select</option>
+                    </select>
+                    <script>
+                      var flagsByOS = {
+                        Linux: ["None", "GCC 4.8", "GCC 5.5", "GCC 6.4", "GCC 7.3", "GCC 8.1"],
+                        Windows: ["None", "MSVC++ 14.11", "MSVC++ 14.12", "MSVC++ 14.13", "MSVC++ 14.14"],
+                      }
+                      function changecat(value) {
+                        if (value.length == 0) document.getElementById("compiler").innerHTML = "<option></option>";
+                        else {
+                          var catOptions = "";
+                          for (compilerId in flagsByOS[value]) {
+                            catOptions += "<option>" + flagsByOS[value][compilerId] + "</option>";
+                          }
+                          document.getElementById("compiler").innerHTML = catOptions;
+                        }
+                      }
+                    </script>
+                    <br>
+                    <br>
+                    <h5> Please select your profiles*. </h5>
+                    <div class="scroll" name="profiles" id="profiles">
+                    </div>
+                    <script>
+                      var options = ["debugging", "link", "optimization", "preprocessing", "warning"];
+                      var catOptions = "";
+                      for (profileId in options) {
+                        catOptions += "<input type='checkbox' />" + options[profileId] + "<br/>";
+                      }
+                      document.getElementById("profiles").innerHTML = catOptions;
+                    </script>
+                    <br>
+                    <h5> Please type username*. </h5>
+                    <div class="text">
+                      <input type="text" required/> <br/>
+                    </div>
+                    <br>
+                    <h5> Please enter a tag for your job. </h5>
+                    <div class="text">
+                      <input type="text" />
+                      <br/>
+                    </div>
+                    <br>
+                    <br>
+                    <input type="submit" value="Preview" />
+                     {% csrf_token %}
                   </form>
                 </div>
               </div>
@@ -206,20 +207,22 @@
             <div class="col-sm-6 debug">
               <h3>Configuration Options.</h3>
               <br>
-              <div class="photo-upload">Add a profile.</div>
-              <div class="" style="height: 10px;"></div>
-              <input type="file" value="Add a profile" class="submit-edition" /> {% csrf_token %}
-              <br>
-              <br>
-              <div class="photo-upload">Manage profiles.</div>
-              <div class="" style="height: 10px;"></div>
-              <input type="submit" value="Manage profiles" class="submit-edition" /> {% csrf_token %}
-              <br>
-              <br>
-              <div class="photo-upload">Add a compiler.</div>
-              <div class="" style="height: 10px;"></div>
-              <input type="file" value="Add a profile" class="submit-edition" /> {% csrf_token %}
-              <br>
+              <form action="/preview" method="post" enctype="multipart/form-data">
+                <div class="photo-upload">Add a profile.</div>
+                <div class="" style="height: 10px;"></div>
+                <input type="file" value="Add a profile" class="submit-edition" /> {% csrf_token %}
+                <br>
+                <br>
+                <div class="photo-upload">Manage profiles.</div>
+                <div class="" style="height: 10px;"></div>
+                <input type="submit" value="Manage profiles" class="submit-edition" /> {% csrf_token %}
+                <br>
+                <br>
+                <div class="photo-upload">Add a compiler.</div>
+                <div class="" style="height: 10px;"></div>
+                <input type="file" value="Add a profile" class="submit-edition" /> {% csrf_token %}
+                <br>
+              </form>
             </div>
           </div>
         </div>
@@ -244,27 +247,13 @@
                     <th>Date before</th>
                   </tr>
                   <tr>
-                    <td>
-                      <input style="width:100px;" type="text" name='task_id'>
-                    </td>
-                    <td>
-                      <input style="width:100px;" type="text" name='compilers'>
-                    </td>
-                    <td>
-                      <input style="width:100px;" type="text" name='flags'>
-                    </td>
-                    <td>
-                      <input style="width:100px;" type="text" name='username'>
-                    </td>
-                    <td>
-                      <input style="width:100px;" type="text" name='tags'>
-                    </td>
-                    <td>
-                      <input style="width:100px;" type="text" name='date after'>
-                    </td>
-                    <td>
-                      <input style="width:100px;" type="text" name='date before'>
-                    </td>
+                    <td><input style="width:100px;" type="text" name='task_id'></td>
+                    <td><input style="width:100px;" type="text" name='compilers'></td>
+                    <td><input style="width:100px;" type="text" name='flags'></td>
+                    <td><input style="width:100px;" type="text" name='username'></td>
+                    <td><input style="width:100px;" type="text" name='tags'></td>
+                    <td><input style="width:100px;" type="text" name='date after'></td>
+                    <td><input style="width:100px;" type="text" name='date before'></td>
                   </tr>
                 </table>
                 <br>
@@ -300,7 +289,7 @@
                       <th scope="col">Time Submitted</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody id="tbody">
                     <tr>
                       <th scope="row" id="tsk1" onclick="assign_id($(this).text())">00010</th>
                       <td>GCC 4.8</td>
@@ -327,6 +316,9 @@
                     task_id=b
                     window.alert(task_id)
                    }
+                </script>
+                <script>
+
                 </script>
                 <!--<div id="progressbar" style="display: none">
                   <h6>Job Progress</h6>
