@@ -50,6 +50,7 @@ def preview(request):
         return render(request, 'secuTool/test.html', {"message":message})
 
     rows = []
+    seq = 0
     for param in params:
         # permute flags combination  from diff flags
         print(param)
@@ -69,7 +70,7 @@ def preview(request):
         # each element in compile_combination is a space-separated flag list
         compile_combination = [" ".join(x) for x in compile_combination]
         profiles = ",".join(param['profile'])
-        seq = 3
+        
         for flag in compile_combination:
             rows.append({'target_os':param['target_os'],
                             'compiler':param['compiler']+" "+param['version'],
@@ -82,7 +83,7 @@ def preview(request):
     context = {}
     context['rows'] = rows
     # for row in rows:
-    #     print row
+    print(rows)
     context['taskid'] = taskName
     return render(request, 'secuTool/preview.html',context)
 
