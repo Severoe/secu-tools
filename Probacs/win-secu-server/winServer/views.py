@@ -30,7 +30,7 @@ def execute(request):
 	host_ip = request.META['REMOTE_ADDR']
 	host_port = request.META['SERVER_PORT']
 	hostserver = "http://"+host_ip+":"+host_port+"/"
-	src_dir = 'srcCodes'
+	src_dir = 'src'
 
 	with open(taskFolder+'\\'+filename,'wb+') as dest:
 		for chunk in request.FILES['file'].chunks():
