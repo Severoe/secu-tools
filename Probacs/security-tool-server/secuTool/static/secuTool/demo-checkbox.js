@@ -65,8 +65,13 @@ function delflag(flag) {
 	}
 }
 
-function add_row() {
+function clear() {
+	$('#groups').empty()
+	$('#group').empty()
+	$('#group-handin').empty()
+}
 
+function add_row() {
 	flags = $('#group').text().trim().split(" ")
 	// console.log(flags) 
 	flags = flags.join(",")
@@ -155,5 +160,4 @@ function compile() {
       		$('#redirect').click()
       	}  
 	});
-
 }
