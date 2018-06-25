@@ -72,7 +72,9 @@ function clear() {
 }
 
 function add_row() {
+	if($('#group').text().trim() === "") return
 	flags = $('#group').text().trim().split(" ")
+	console.log(flags)
 	// console.log(flags) 
 	flags = flags.join(",")
 	new_row = ""

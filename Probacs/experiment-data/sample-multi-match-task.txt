@@ -1,6 +1,6 @@
-target_os:linux,win
-compiler:gcc,vs
-version:6.7,6.7
+target_os:Linux,Windows
+compiler:gcc,MSVC++
+version:6.7,14.11
 username: jeff       
 tag:my first compilation. 
 profile:max_speed,max_optimization

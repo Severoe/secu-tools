@@ -20,7 +20,7 @@ profile_all.delete()
 compiler_data = [
 	{'target_os':'Linux','compiler':'gcc','version':'6.7','ip':'http://192.168.56.101','port':'8000','http_path':'','invoke_format':'gcc_flags_source_-o_exename'},
 	{'target_os':'Linux','compiler':'gcc','version':'4.8','ip':'http://192.168.56.101','port':'8000','http_path':'','invoke_format':'gcc_flags_source_-o_exename'},
-	{'target_os':'Windows','compiler':'MSVC++','version':'14.11','ip':'http://192.67.56.102','port':'8000','http_path':'','invoke_format':r'"C:\Program_Files_(x86)\Microsoft_Visual_Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"&&cl_flags_source_/Feexename'},	
+	{'target_os':'Windows','compiler':'MSVC++','version':'14.11','ip':'http://192.168.56.102','port':'8000','http_path':'','invoke_format':r'"C:\Program_Files_(x86)\Microsoft_Visual_Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"&&cl_flags_source_/Feexename'},	
 ]
 profile_data = [
 	{'uploader':'jeffery','upload_time':'2006-10-25 14:30:59','name':'max_speed','target_os':'Linux','compiler':'gcc','version':'4.8','flag':['-O1 -O0','-O0 -O2']},
