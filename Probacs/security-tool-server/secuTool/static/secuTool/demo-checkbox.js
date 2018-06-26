@@ -65,7 +65,7 @@ function delflag(flag) {
 	}
 }
 
-function clear() {
+function clearall() {
 	$('#groups').empty()
 	$('#group').empty()
 	$('#group-handin').empty()
