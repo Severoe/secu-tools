@@ -688,3 +688,28 @@ def rcvSrc(request):
     context['linux_taskFolder'] = taskName
     return render(request, 'secuTool/index.html', context)
 
+def peek_profile(request):
+    target_os = request.GET['target_os']
+    compiler, version = request.GET['compiler'].split(' ')
+    name = request.GET['name']
+    
+    profile = Profile_conf.objects.filter(name=name, 
+                                        target_os=target_os,
+                                        compiler=compiler,
+                                        version=version)
+
+    num = profile.count()
+    if num > 1:
+        res = {"message":"Multiple profiles found with given information"}
+    elif num < 1:
+        res = {"message":"No profile matching given information"}
+    else:
+        res = {"target_os": profile[0].target_os,
+                "compiler": profile[0].compiler,
+                "version": profile[0].version,
+                "name": profile[0].name,
+                "uploader": profile[0].uploader,
+                "upload_time": profile[0].upload_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                "flag": profile[0].flag}
+
+    return HttpResponse(json.dumps(res), content_type="application/json")

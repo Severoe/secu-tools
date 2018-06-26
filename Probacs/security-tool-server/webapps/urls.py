@@ -33,6 +33,8 @@ urlpatterns = [
     
     url(r'^preview$', views.preview, name='preview'),
     url(r'^rcv_compilation', views.rcv_platform_result, name='rcv_platform_result'),
+
+    url(r'^peek_profile$', views.peek_profile, name='peek_profile'),
     
     url(r'^trace$', views.trace, name='trace'),
     url(r'^tracetest$', views.tracetest, name='tracetest'),
