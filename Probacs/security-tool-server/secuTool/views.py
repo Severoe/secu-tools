@@ -504,6 +504,17 @@ def test(request):
     context = {}
     context['form'] = ProfileUserForm()
     context['nav1'] = "active show"
+    profiles = Profile_conf.objects.values()
+    profile_dict = {}
+    for profile in profiles:
+        target_os, compiler, name = profile["target_os"], profile["compiler"] + " " + profile["version"], profile["name"]
+        if target_os not in profile_dict:
+            profile_dict[target_os] = {}
+        if compiler not in profile_dict[target_os]:
+            profile_dict[target_os][compiler] = []
+        profile_dict[target_os][compiler].append(name)
+
+    context['profiles'] = json.dumps(profile_dict) 
     # context['status'] = statuses
     return render(request, 'secuTool/test.html',context)
 
