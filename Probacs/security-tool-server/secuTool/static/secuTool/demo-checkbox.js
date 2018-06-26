@@ -1,5 +1,6 @@
 var groupNumber = 0
 var button_id = 100
+var text
 
 function addflag(flag) {
 	var id = "#" + flag
@@ -74,8 +75,6 @@ function clearall() {
 function add_row() {
 	if($('#group').text().trim() === "") return
 	flags = $('#group').text().trim().split(" ")
-	console.log(flags)
-	// console.log(flags) 
 	flags = flags.join(",")
 	new_row = ""
 	var selected = 0
@@ -140,7 +139,6 @@ function compile() {
 			obj['flag'] = $(this).closest('tr').find('td.flag').text()
 			obj['username'] = $(this).closest('tr').find('td.username').text()
 			obj['tags'] = $(this).closest('tr').find('td.tags').text()
-			// console.log(obj)
 			param.push(obj)
 			cnt++
 		}
@@ -163,19 +161,35 @@ function compile() {
 	});
 }
 
-function show() {
-	var text = '{"os": {"linux":"gcc 4.8", "windows":"msvc++ 14.11"}}';
-	var obj = JSON.parse(text);
-	//alert(obj)
-	//for (os in obj) {
-		//catOptions += "<option>" + os + "</option>";
-	//}
-	var options = ["Linux", "Windows"];
-	for (osId in options) {
-		catOptions += "<option>" + options[osId] + "</option>";
+function getOS() {
+	var json_profiles = $('#json_profiles').text()
+	text = JSON.parse(json_profiles)
+	var os_options = "";
+	for (os in text) {
+		os_options += "<option>" + os + "</option>"	
 	}
-	$('#target_os').append(catOptions);
-	
+	$('#target_os').append(os_options)
 }
 
-window.onload = show;
+function getCompiler(os) {
+	$('#compiler').empty()
+	$('#os_selected').text(os) 
+	var compiler_options = ""
+	for (compiler in text[os]) {
+		compiler_options += "<option>" + compiler + "</option>"
+	}
+	$('#compiler').append(compiler_options)
+}
+
+function getProfiles(compiler) {
+	$('#profiles').empty()
+	var os = $('#os_selected').text()
+	var plist = text[os][compiler]
+	var profiles_options = ""
+	for (p in plist) {
+		profiles_options += "<input type='checkbox' name='profile' value='" + plist[p] + "'/>" + plist[p] + "<br/>";
+	}
+	$('#profiles').append(profiles_options)
+}
+
+window.onload = getOS;

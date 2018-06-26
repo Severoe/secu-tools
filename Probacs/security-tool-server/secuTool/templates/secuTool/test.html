@@ -4,12 +4,9 @@
     <meta charset="utf-8">
     {% load staticfiles %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-          crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-          crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
-          crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
     <style>
       header, footer {  
         color: white;
@@ -75,9 +72,7 @@
       <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
     </header>
     {{message}}
-    
     <div style="display:none" id='json_profiles'>{{json_profiles}}</div>
-
     <div class="nav nav-tabs tab1" id="nav-tab" role="tablist">
       <a class="nav-item nav-link" id="nav-1-tab" data-toggle="tab" href="#nav-1" role="tab" aria-controls="nav-1" aria-selected="false">Submit jobs</a>
       <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Configuration</a>
@@ -127,45 +122,21 @@
                     <br>
                     <br>
                     <h5> Please select your OS*. </h5>
-                    <select name="target_os" id="target_os" onChange="changecat(this.value);" required>
+                    <select name="target_os" id="target_os" onChange="getCompiler(this.value);" required>
                       <option value="" disabled selected>Select</option>
                     </select>
-                    
+                    <div style="display:none" id='os_selected'></div>
                     <br>
                     <br>
                     <h5> Please select your compiler*. </h5>
-                    <select name="compiler" id="compiler" required>
+                    <select name="compiler" id="compiler" onchange="getProfiles(this.value);" required>
                       <option value="" disabled selected>Select</option>
                     </select>
-                    <script>
-                      var flagsByOS = {
-                        Linux: ["None", "gcc 4.8", "gcc 5.5", "gcc 6.4", "gcc 7.3", "gcc 8.1"],
-                        Windows: ["None", "MSVC++ 14.11", "MSVC++ 14.12", "MSVC++ 14.13", "MSVC++ 14.14"],
-                      }
-                      function changecat(value) {
-                        if (value.length == 0) document.getElementById("compiler").innerHTML = "<option></option>";
-                        else {
-                          var catOptions = "";
-                          for (compilerId in flagsByOS[value]) {
-                            catOptions += "<option>" + flagsByOS[value][compilerId] + "</option>";
-                          }
-                          document.getElementById("compiler").innerHTML = catOptions;
-                        }
-                      }
-                    </script>
                     <br>
                     <br>
                     <h5> Please select your profiles*. </h5>
                     <div class="scroll" id="profiles">
                     </div>
-                    <script>
-                      var options = ["debugging", "link", "preprocessing", "warning", "max_speed", "max_optimization"];
-                      var catOptions = "";
-                      for (profileId in options) {
-                        catOptions += "<input type='checkbox' name='profile' value='"+ options[profileId]+"'/>" + options[profileId] + "<br/>";
-                      }
-                      document.getElementById("profiles").innerHTML = catOptions;
-                    </script>
                     <br>
                     <h5> Please type username*. </h5>
                     <div class="text">
