@@ -256,67 +256,65 @@
       <div class="tab-pane fade {{nav4}}" id="nav-4" role="tabpanel" aria-labelledby="nav-4-tab">
         <div class="container">
           <div class="row">
-            <div class="col-sm-10 debug">
+            <div id='thisone' class="col-sm-10 debug">
               <h3>Track job status.</h3>
               <br>
               <h4>Currently running jobs.</h4>
+              <br>
               <form action="{% url 'check_status' %}" method='post'>
-                <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th scope="col">Task ID</th>
-                      <th scope="col">Compilers</th>
-                      <th scope="col">Flags</th>
-                      <th scope="col">Username</th>
-                      <th scope="col">Tags</th>
-                      <th scope="col">Date Submitted</th>
-                      <th scope="col">Time Submitted</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbody">
-                    <tr>
-                      <th scope="row" id="tsk1" onclick="assign_id($(this).text())">00010</th>
-                      <td>GCC 4.8</td>
-                      <td>-O1,-Wall</td>
-                      <td>Jeffrey</td>
-                      <td>#test</td>
-                      <td>6/13/2018</td>
-                      <td>07:05</td>
-                    </tr>
-                    <tr>
-                      <th scope="row" id="tsk2" onclick="assign_id($(this).text())">00011</th>
-                      <td>GCC 5.5</td>
-                      <td>-O2,-Werror</td>
-                      <td>David</td>
-                      <td>#task1</td>
-                      <td>6/13/2018</td>
-                      <td>09:05</td>
-                    </tr>
-                    </tr>
-                  </tbody>
-                </table>
+                <script>
+
+                  var tab=[{task_id:"00010",compiler:"GCC 4.8",flag:"-O1,-Wall",username:"Jeffrey",tag:"#test",date:"6/13/2018",time:"07:05"},{task_id:"00011",compiler:"GCC 5.5",flag:"-O2,-Werror",username:"David",tag:"#task1",date:"6/13/2018",time:"09:14"}]
+
+                  var heads = ["Task ID","Compiler","Flags","Username","Tags","Date Submitted","Time Submitted"] 
+
+
+                  function tableCreate(myArray,myheads)
+                  {
+              var body = document.getElementById('thisone');
+                tbl  = document.createElement('table');
+              tbl.style.width  = '100px';
+              tbl.style.border = '2px solid black';
+              //tbl.style.float = 'middle';
+
+              var header = tbl.createTHead();
+              var row = header.insertRow();
+              for (var l=0;l<myheads.length;l++)
+              {
+                var cell = row.insertCell();
+                cell.innerHTML=myheads[l]
+                cell.style.border='2px solid black'
+              }
+              
+
+              for(var i = 0; i<myArray.length; i++)
+              {
+                  var tr = tbl.insertRow();
+                  for(var key in myArray[i])
+                  {
+                        var td = tr.insertCell();
+                        var numb=myArray[i]['task_id']
+                        //window.alert(numb)
+                        td.onclick=(function(numb){return function() {assign_id(numb) }})(numb);
+                        td.appendChild(document.createTextNode(myArray[i][key]));
+                        td.style.border = '1px solid black';
+                
+                  }
+              }
+              body.appendChild(tbl);
+              return 
+          }
+          g=tableCreate(tab,heads);
+
+
+                  </script>
+          
                 <script>
                   function assign_id(b) {
                     task_id=b
                     window.alert(task_id)
                    }
                 </script>
-                <script>
-
-                </script>
-                <!--<div id="progressbar" style="display: none">
-                  <h6>Job Progress</h6>
-                  <div id="myProgress">
-                    <div id="myBar"></div>
-                  </div>
-                  <br>
-                  <h6>Task Log</h6>
-                  <p>Compilation_tasks/2018-06-03-15-05-44/secu_compile/hello_1_-O1_-O0_-Wall -O1 -O0 -Wall, b'', b''</p>
-                  <p>Compilation_tasks/2018-06-03-15-05-44/secu_compile/hello_2_-O0_-O2_-Wall -O0 -O2 -Wall, b'', b''</p>
-                  <p>Compilation_tasks/2018-06-03-15-05-44/secu_compile/hello_3_-O1_-O0_-O3 -O1 -O0 -O3, b'', b''</p>
-                  <p>Compilation_tasks/2018-06-03-15-05-44/secu_compile/hello_4_-O0_-O2_-O3 -O0 -O2 -O3, b'', b''</p>
-                  <br>
-                </div> -->
               </form>
             </div>
           </div>
