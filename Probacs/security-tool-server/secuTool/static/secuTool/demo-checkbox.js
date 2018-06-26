@@ -112,7 +112,6 @@ function delete_row(row) {
 }
 
 $("#myform").submit(function () {
-	alert("AAAAA")
 	var checked = $('#myform input[type="checkbox"]:checked').length > 0;
 	if (!checked) {
 		alert("Please check at least one checkbox");
@@ -163,3 +162,20 @@ function compile() {
       	}  
 	});
 }
+
+function show() {
+	var text = '{"os": {"linux":"gcc 4.8", "windows":"msvc++ 14.11"}}';
+	var obj = JSON.parse(text);
+	//alert(obj)
+	//for (os in obj) {
+		//catOptions += "<option>" + os + "</option>";
+	//}
+	var options = ["Linux", "Windows"];
+	for (osId in options) {
+		catOptions += "<option>" + options[osId] + "</option>";
+	}
+	$('#target_os').append(catOptions);
+	
+}
+
+window.onload = show;
