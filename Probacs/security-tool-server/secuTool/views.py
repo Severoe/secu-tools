@@ -515,7 +515,7 @@ def test(request):
             profile_dict[target_os][compiler] = []
         profile_dict[target_os][compiler].append(name)
 
-    context['profiles'] = json.dumps(profile_dict) 
+    context['json_profiles'] = json.dumps(profile_dict) 
     # context['status'] = statuses
     return render(request, 'secuTool/test.html',context)
 
