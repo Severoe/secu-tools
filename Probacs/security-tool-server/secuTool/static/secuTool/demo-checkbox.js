@@ -110,14 +110,6 @@ function delete_row(row) {
 	$(id).closest('tr').remove()
 }
 
-$("#myform").submit(function () {
-	var checked = $('#myform input[type="checkbox"]:checked').length > 0;
-	if (!checked) {
-		alert("Please check at least one checkbox");
-		return false;
-	}
-});
-
 $('#compile').submit(function(e){
 	$('.row-button').each(function () {
 		if ($(this).hasClass("chosen")) {
@@ -174,7 +166,7 @@ function getOS() {
 function getCompiler(os) {
 	$('#compiler').empty()
 	$('#os_selected').text(os) 
-	var compiler_options = ""
+	var compiler_options = "<option value='' disabled selected>Select</option>"
 	for (compiler in text[os]) {
 		compiler_options += "<option>" + compiler + "</option>"
 	}
