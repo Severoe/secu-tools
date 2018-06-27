@@ -37,5 +37,6 @@ urlpatterns = [
     url(r'^trace$', views.trace, name='trace'),
     url(r'^tracetest$', views.tracetest, name='tracetest'),
     url(r'^trace_test$', views.trace_test, name='trace_test'),
+    url(r'^trace_task$', views.trace_task_by_id, name='trace_task')
 # download_fil
 ]

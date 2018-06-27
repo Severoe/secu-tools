@@ -19,8 +19,8 @@ import zipfile,io,base64
 ################################
 # global variables
 # winurl = 'http://172.16.165.132:8000'
-self_ip = 'http://192.168.56.101:8000'
-# self_ip = 'http://localhost:7992'
+# self_ip = 'http://192.168.56.101:8000'
+self_ip = 'http://localhost:7992'
 winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
 rootDir = 'Compilation_tasks/'
@@ -36,19 +36,27 @@ def home(request):
 def preview(request):
     print(request.POST)
     context = {}
-    request.session['filename'] = request.FILES['srcFile'].name
+    src_filename = request.FILES['srcFile'].name  # llok into tar bar
     compiler_divided = {}
     if "compiler" in request.POST:
-        compiler_full = request.POST['compiler'].split(" ")
-        compiler_divided['compiler']=compiler_full[0]
-        compiler_divided['version']=compiler_full[1]
+        compiler_divided['compiler'], compiler_divided['version'] = request.POST['compiler'].split(" ")        
 
     taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     message, params = process_files(request, taskName,  compiler_divided)
+    print(params)
+    #######################################
+    ## register task metadata table
+    #######################################
+    target_os_list = [param['target_os'] for param in params]
+    compiler_full_list = [param['compiler']+" "+param['version'] for param in params]
+
+    new_taskMeta = TaskMeta(task_id=taskName,username=params[0]['username'],tag=params[0]['tag'],
+        src_filename=src_filename,target_os=", ".join(target_os_list),
+        compiler_full=", ".join(compiler_full_list),profiles = ", ".join(params[0]['profile']))
+    new_taskMeta.save()
 
     if message:
         return render(request, 'secuTool/test.html', {"message":message})
-
     rows = []
     seq = 0
     for param in params:
@@ -155,7 +163,8 @@ def param_upload(request):
     #####################
     ##retrieve source file path/ name, config source path, output path, etc,
     #####################
-    filename = request.session['filename']
+    cur_taskMeta = TaskMeta.objects.get(task_id=task_name)
+    filename = cur_taskMeta.src_filename
     taskFolder = rootDir+task_name
     codeFolder = taskFolder+"/"+"src"
     srcPath = codeFolder+"/"+filename
@@ -200,6 +209,7 @@ def param_upload(request):
     #form request format from obj for each task
     #####################
     print(task_params)
+    task_num = 0
     for param in task_params:
         task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
         version=param['version'])
@@ -213,12 +223,13 @@ def param_upload(request):
                 src_file=filename,target_os=param['target_os'], 
                 compiler=param['compiler'],version=param['version'],flag=ele)
             new_task.save()
+            task_num += 1
 
         #############################
         # calling compilation tasks
         #############################
-        # if True:
-        if task_http == self_ip:
+        if True:
+        # if task_http == self_ip:
             outputDir = taskFolder+"/"+"secu_compile"
             data = {
             'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
@@ -236,7 +247,9 @@ def param_upload(request):
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
             upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
-        
+    
+    cur_taskMeta.compilation_num = task_num
+    cur_taskMeta.save()
     response = {}
     response['taskid'] = task_name
     return HttpResponse(json.dumps(response),content_type="application/json")
@@ -381,6 +394,7 @@ def rcv_platform_result(request):
     task.exename = request.POST['exename'] 
     task.out = request.POST['out']
     task.err = request.POST['err']
+    print(request.POST['out'], request.POST['err'])
     print('update from platform finished')
     task.save()
     # task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
@@ -494,11 +508,6 @@ def trace(request):
     response['task_id'] = task_id
     return HttpResponse(json.dumps(response),content_type="application/json")
 
-###########################################################################
-###########################################################################
-#########           BELOW ARE SOME HELPER/TEST FUNCTIONS       ############
-###########################################################################
-###########################################################################
 
 # test funciton
 def test(request):
@@ -520,11 +529,94 @@ def test(request):
     return render(request, 'secuTool/test.html',context)
 
 def redirect_trace(request):
-    print(request.GET['ongoing'])
+    '''
+    refresh ajax page, return first several tasks
+    invoked whenever the tab has been clicked
+    '''
     context = {}
+    task_number = 5
+    current_id = None
+    if 'ongoing' in request.GET:
+        current_id = request.GET['ongoing']
+        context['ongoing_display'] = 'block';
+    else:
+        context['ongoing_display'] = 'none';
+    ## now retrieve top five in database
+    ## form a dictionary adn return
+    tasks_report = []
+    if current_id == None: #simply retrieve 5
+        obj = TaskMeta.objects.all().order_by('-id')[:task_number]
+        print(obj.count())
+        for ele in obj:
+            tasks_report.append(parse_taskMeta(ele, False))
+    else:
+        tasks_report.append(parse_taskMeta(TaskMeta.objects.get(task_id=current_id),True))
+        obj = TaskMeta.objects.all().order_by('-id')
+        task_number -= 1
+        for ele in TaskMeta.objects.all().order_by('-id'):
+            if ele.task_id == current_id:
+                continue
+            else:
+                task_number -= 1
+                tasks_report.append(parse_taskMeta(ele,False))
+                if task_number == 0:
+                    break
+    print(tasks_report)
     context['nav4'] = "active show"
+    context['tracing_tasks'] = tasks_report
+    context['ongoing_tasks'] = current_id
     # context['status'] = statuses
     return render(request, 'secuTool/test.html',context)
+
+
+def trace_task_by_id(request):
+    '''
+    trace task used for new ui, return
+    '''
+    task_id = request.GET['task_id']
+    obj = Task.objects.filter(task_id=task_id)
+    response = {}
+    response['total'] = obj.count()
+    finished = 0
+    log_report = []
+    for ele in obj:
+        # printRcd(ele)
+        # print(ele.exename == None)
+        if ele.exename != None:
+            finished+= 1
+            new_log = {}
+            new_log['exename'] = ele.exename.split("/")[-1]
+            new_log['out'] = "-" if ele.out == "" else ele.out
+            new_log['err'] = "-" if ele.err == "" else ele.err
+            log_report.append(new_log)
+
+    response['finished'] = finished
+    response['task_id'] = task_id
+    response['log_report'] = log_report
+    return HttpResponse(json.dumps(response),content_type="application/json")
+
+
+
+###########################################################################
+###########################################################################
+#########           BELOW ARE SOME HELPER/TEST FUNCTIONS       ############
+###########################################################################
+###########################################################################
+def parse_taskMeta(ele, iscur):
+    '''
+    parse taskMeta object to be valid object in django template
+    '''
+    tmp = {}
+    tmp['taskname'] = ele.task_id
+    tmp['target_os'] = ele.target_os
+    tmp['compiler'] = ele.compiler_full
+    tmp['profiles'] = ele.profiles
+    tmp['username'] = ele.username
+    tmp['tag'] = ele.tag
+    tmp['submittime'] = ".".join(ele.task_id.split("-")[:3])+" "+":".join(ele.task_id.split("-")[3:])
+    if iscur:
+        tmp['current_task']="background: yellow;"
+    return tmp
 
 def tracetest(request):
     return render(request, 'secuTool/blank.html')

@@ -1,5 +1,7 @@
 var groupNumber = 0
 var button_id = 100
+var interval = 1000;
+var finished_status = false
 
 function addflag(flag) {
 	var id = "#" + flag
@@ -163,6 +165,70 @@ function compile() {
 	});
 }
 
+function setCurrentJob(job_id){
+	// event_id = setInterval(trace_job, interval);
+	$('#ongoing-task').text(job_id)
+	finished_status = false
+}
+
+
+// invoked when job tracking request has been called
+function trace_job() {
+	var job_id = $('#ongoing-task').text().trim()
+    var finished,total;
+	console.log("job: "+job_id)
+	if(job_id === "" || job_id === 'None' || finished_status) {
+		return
+	}
+    $.ajax({
+        url: "/trace_task",
+        dataType : "json",
+        data: {
+        	task_id: job_id,
+        },
+        success:  function(response) {
+        	console.log(response)
+            finished = response.finished
+            total = response.total
+            if(finished === total) {
+            	finished_status = true
+                // clearInterval(event_id)
+            }
+        	percent = finished*100/total
+        	report = finished.toString()+" / "+total.toString()+" compilation finished for job id: "+response.task_id
+        	$('#result-trace').css('display','block')
+            $('#result-report').text(report)
+        	$('#bar-growth').width(percent.toString()+'%')
+        	//adjost log output
+        	$('#log-report').empty()
+        	for(var i in response.log_report) {
+        		// var d = new Date();
+        		var log = response.log_report[i]
+        		var out_theme = ""
+        		var err_theme = ""
+        		// console.log(d.year)
+        		if(log.err !== "-") {
+        			out_theme = "text-align:left;"
+        		}
+        		if(log.err !== "-") {
+        			err_theme = "text-align:left;"
+        		}
+        		var log_row = "<tr>"+
+                    "<td class='report-row' style='column-width: auto;'>"+log.exename.trim()+"</td>"+
+                    "<td class='report-row' style='column-width: auto;"+out_theme+"'>"+log.out+"</td>"+
+
+                    "<td class='report-row' style='column-width: auto;"+err_theme+"'>"+log.err+"</td>"+
+                    // "<td>"+d.year+d.month+d.day+d.hours+d.minutes+d.seconds+"</td>"
+                    "</tr>"
+                $("#log-report").append(log_row)
+        	}
+        	$('#trace-wrapper').css("display","block");
+        }
+    });
+    return
+}
+
+
 function show() {
 	var text = '{"os": {"linux":"gcc 4.8", "windows":"msvc++ 14.11"}}';
 	var obj = JSON.parse(text);
@@ -177,5 +243,13 @@ function show() {
 	$('#target_os').append(catOptions);
 	
 }
+function onload_wrapper() {
+	show();
+	trace_job();
+}
+window.onload = onload_wrapper;
+var event_id = window.setInterval(trace_job, interval);
 
-window.onload = show;
+
+
+

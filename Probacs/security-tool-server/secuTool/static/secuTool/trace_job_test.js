@@ -20,3 +20,18 @@ function tracejob() {
 
 window.onload = tracejob;
 window.setInterval(tracejob, interval);
+
+
+function peek_profile(profile){
+    $.ajax({
+        url: "/", // url need ot config
+        dataType : "json",
+        data: {
+            p_nmae: profile,
+        },
+        success:  function(response) {
+            
+        }
+    });
+    return
+}

@@ -39,6 +39,17 @@ class Task(models.Model):
 	out = models.TextField(null=True,blank=True)
 	err = models.TextField(null=True,blank=True)
 
+class TaskMeta(models.Model):
+	task_id = models.CharField(max_length=200)
+	username = models.CharField(max_length=200)
+	tag = models.TextField(null=True,blank=True)
+	src_filename = models.CharField(max_length=200)
+	profiles = models.TextField()
+	target_os = models.TextField()
+	compiler_full = models.TextField()
+	compilation_num = models.IntegerField(null=True,blank=True)
+
+
 
 class ProfileUser(models.Model):
     # user = models.ForeignKey(User)

@@ -4,8 +4,7 @@
     <meta charset="utf-8">
     {% load staticfiles %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-          crossorigin="anonymous"></script>
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
           crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
@@ -65,6 +64,23 @@
         background: black;
         height: 20px;
       }
+      .progressbar{
+        border: 1px solid grey;
+        width: 100%;
+      }
+      #result-trace{
+        display: none;
+      }
+      #bar-growth{
+        width: 0%;
+        background: black;
+        height: 20px;
+      }
+      .report-row{
+        font-size: 14px;
+        /*border: none;*/
+      }
+
     </style>
     <script src="{% static 'secuTool/trace_job.js'%}"></script>
     <script src="{% static 'secuTool/demo-checkbox.js'%}"></script>
@@ -82,7 +98,7 @@
       <a class="nav-item nav-link" id="nav-1-tab" data-toggle="tab" href="#nav-1" role="tab" aria-controls="nav-1" aria-selected="false">Submit jobs</a>
       <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Configuration</a>
       <a class="nav-item nav-link" id="nav-3-tab" data-toggle="tab" href="#nav-3" role="tab" aria-controls="nav-3" aria-selected="false">Search</a>
-      <a class="nav-item nav-link" id="nav-4-tab" data-toggle="tab" href="#nav-4" role="tab" aria-controls="nav-4" aria-selected="false">Job Tracker</a>
+      <a class="nav-item nav-link" id="nav-4-tab" href="{% url 'redirect_trace' %}">Job Tracker</a>
     </div>
     <div class="tab-content" id="nav-tabContent">
       <div class="tab-pane fade {{nav1}}" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">
@@ -264,6 +280,60 @@
               <br>
               <h4>Currently running jobs.</h4>
               <br>
+              <div style="display: none;" id="ongoing-task">{{ongoing_tasks}}</div>
+              {% if tracing_tasks %}
+              <table >
+              <thead>
+                <tr>
+                  <th>Task ID</th>
+                  <th>Target OS</th>
+                  <th>Compilers</th>
+                  <th>Profiles</th>
+                  <th>Username</th>
+                  <th>Tags</th>
+                  <th>Time Submitted</th>
+                </tr>
+              </thead>
+              <tbody id="report">
+              {% for ele in tracing_tasks %}
+              <tr style = "{{ele.current_task}}">
+                  <td> 
+                    <button class="task_tracing" id="task_{{ele.taskname}}" onclick="setCurrentJob('{{ele.taskname}}')" style="{{ele.current_task}}">{{ele.taskname}}</button>
+                  </td>
+                  <td class="task_os">{{ele.target_os}}</td>
+                  <td class="task_compiler">{{ele.compiler}}</td>
+                  <td class="task_profile">{{ele.profiles}}</td>
+                  <td class="task_username">{{ele.username}}</td>
+                  <td class="task_tags">{{ele.tag}}</td>
+                  <td class="task_submittime">{{ele.submittime}}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+              </table>
+              {% endif %}
+              <br><br>
+              <div id="trace-wrapper" style="display: {{ongoing_display}}">
+                <div id="result-trace" >
+                  <p id="result-report"></p>
+                    <div class="progressbar">
+                      <div id="bar-growth"> </div>
+                    </div>
+                </div>
+                <table class="report-theme mt-5" style="margin: auto;width: 100%; column-width: auto;"> 
+                  <thead>
+                    <tr>
+                      <th style='column-width: auto;'>Executable Name</th>
+                      <th style='column-width: auto;'>Compiler Output</th>
+                      <th style='column-width: auto;'>Compiler Error</th>
+                    </tr>
+                  </thead>
+                  <tbody id="log-report">
+
+                  </tbody>
+                </table>
+              </div>
+              <br><br>
+              <!-- 
               <form action="{% url 'check_status' %}" method='post'>
                 <script>
 
@@ -319,7 +389,7 @@
                     window.alert(task_id)
                    }
                 </script>
-              </form>
+              </form> -->
             </div>
           </div>
         </div>
