@@ -221,6 +221,7 @@ function trace_job() {
 
 function getOS() {
 	var json_profiles = $('#json_profiles').text()
+	if(json_profiles === "" || json_profiles === null) return
 	text = JSON.parse(json_profiles)
 	var os_list = []
 	for (os in text) {
@@ -308,10 +309,12 @@ function peek(profile) {
 	}
 	$('#profile_content').append(message)
 }
+
 function onload_wrapper() {
-	getOS();
-	trace_job();
+	getOS()
+	trace_job()
 }
+
 window.onload = onload_wrapper;
 var event_id = window.setInterval(trace_job, interval);
 
