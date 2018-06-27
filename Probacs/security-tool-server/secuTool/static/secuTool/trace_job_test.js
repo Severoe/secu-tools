@@ -7,7 +7,7 @@ function tracejob() {
         url: "/trace_test",
         dataType : "json",
         data: {
-        	// task_id: job_id,
+        	// task_id": ,
         },
         success:  function(response) {
         	console.log(response)

@@ -5,10 +5,10 @@
     {% load staticfiles %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-          crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
-          crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+      crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
+      crossorigin="anonymous"></script>
     <style>
       header, footer {  
         color: white;
@@ -48,6 +48,13 @@
         margin-top: 5px;
         border-left: 1px blue;
         font-size: 15px;
+      }
+
+      .peek{
+        margin-top: 350px;
+        margin-bottom: 100px;
+        margin-left: -200px;
+        margin-right: 50px;
       }
 
       .progressbar {
@@ -90,10 +97,8 @@
     <header>
       <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
     </header>
-    {{message}}
-    
+    <h3 style="color:red;" class="ml-5">{{message}}</h3>
     <div style="display:none" id='json_profiles'>{{json_profiles}}</div>
-
     <div class="nav nav-tabs tab1" id="nav-tab" role="tablist">
       <a class="nav-item nav-link" id="nav-1-tab" data-toggle="tab" href="#nav-1" role="tab" aria-controls="nav-1" aria-selected="false">Submit jobs</a>
       <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Configuration</a>
@@ -110,7 +115,7 @@
           <div class="tab-pane fade active show" id="nav-11" role="tabpanel" aria-labelledby="nav-11-tab">
             <div class="container">
               <div class="row">
-                <div class="col-sm-6 debug">
+                <div class="col-sm-6">
                   <form action="/preview" method="post" enctype="multipart/form-data">
                     <h3>Submit a job.</h3>
                     <br>
@@ -133,55 +138,31 @@
           <div class="tab-pane fade" id="nav-12" role="tabpanel" aria-labelledby="nav-12-tab">
             <div class="container">
               <div class="row">
-                <div class="col-sm-6 debug">
+                <div class="col-sm-6">
                   <h3>Submit a job.</h3>
                   <br>
-                  <form name="myform" id="myform" action="/preview" method="post" enctype="multipart/form-data">
+                  <form action="/preview" method="post" enctype="multipart/form-data">
                     <h5> Please upload your source code*. </h5>
                       <div class="" style="height: 10px;"></div>
                       <input type="file" value="Select" class="submit-edition" name="srcFile" required>
                     <br>
                     <br>
                     <h5> Please select your OS*. </h5>
-                    <select name="target_os" id="target_os" onChange="changecat(this.value);" required>
+                    <select name="target_os" id="target_os" onChange="getCompiler(this.value);" required>
                       <option value="" disabled selected>Select</option>
                     </select>
-                    
+                    <div style="display:none" id='os_selected'></div>
                     <br>
                     <br>
                     <h5> Please select your compiler*. </h5>
-                    <select name="compiler" id="compiler" required>
+                    <select name="compiler" id="compiler" onchange="getProfiles(this.value);" required>
                       <option value="" disabled selected>Select</option>
                     </select>
-                    <script>
-                      var flagsByOS = {
-                        Linux: ["None", "gcc 4.8", "gcc 5.5", "gcc 6.4", "gcc 7.3", "gcc 8.1"],
-                        Windows: ["None", "MSVC++ 14.11", "MSVC++ 14.12", "MSVC++ 14.13", "MSVC++ 14.14"],
-                      }
-                      function changecat(value) {
-                        if (value.length == 0) document.getElementById("compiler").innerHTML = "<option></option>";
-                        else {
-                          var catOptions = "";
-                          for (compilerId in flagsByOS[value]) {
-                            catOptions += "<option>" + flagsByOS[value][compilerId] + "</option>";
-                          }
-                          document.getElementById("compiler").innerHTML = catOptions;
-                        }
-                      }
-                    </script>
+                    <div style="display:none" id='compiler_selected'></div>
                     <br>
                     <br>
                     <h5> Please select your profiles*. </h5>
-                    <div class="scroll" id="profiles">
-                    </div>
-                    <script>
-                      var options = ["debugging", "link", "preprocessing", "warning", "max_speed", "max_optimization"];
-                      var catOptions = "";
-                      for (profileId in options) {
-                        catOptions += "<input type='checkbox' name='profile' value='"+ options[profileId]+"'/>" + options[profileId] + "<br/>";
-                      }
-                      document.getElementById("profiles").innerHTML = catOptions;
-                    </script>
+                    <div class="scroll" id="profiles"></div>
                     <br>
                     <h5> Please type username*. </h5>
                     <div class="text">
@@ -199,33 +180,41 @@
                      {% csrf_token %}
                   </form>
                 </div>
+                <div class="col-sm-6 peek" id="profile_content">
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="tab-pane fade" id="nav-2" role="tabpanel" aria-labelledby="nav-2-tab">
+      <div class="tab-pane fade {{nav2}}" id="nav-2" role="tabpanel" aria-labelledby="nav-2-tab">
         <div class="container">
           <div class="row">
-            <div class="col-sm-6 debug">
+            <div class="col-sm-6">
               <h3>Configuration Options.</h3>
               <br>
-              <form action="/preview" method="post" enctype="multipart/form-data">
+              <form action="/addProfile" method="post" enctype="multipart/form-data">
                 <div class="photo-upload">Add a profile.</div>
                 <div class="" style="height: 10px;"></div>
-                <input type="file" value="Add a profile" class="submit-edition" /> {% csrf_token %}
+                <input type="file" value="Add a profile" class="submit-edition" name="profile_file"/> {% csrf_token %}
+                <input type="submit" value="Submit"/>
+              </form>
                 <br>
                 <br>
+              <form>  
                 <div class="photo-upload">Manage profiles.</div>
                 <div class="" style="height: 10px;"></div>
                 <input type="submit" value="Manage profiles" class="submit-edition" /> {% csrf_token %}
+              </form>
                 <br>
                 <br>
+              <form action="/addCompiler" method="post" enctype="multipart/form-data">
                 <div class="photo-upload">Add a compiler.</div>
                 <div class="" style="height: 10px;"></div>
-                <input type="file" value="Add a profile" class="submit-edition" /> {% csrf_token %}
+                <input type="file" value="Add a compiler" class="submit-edition" name="compiler_file" /> {% csrf_token %}
+                <input type="submit" value="Submit"/>
+                </form>
                 <br>
-              </form>
             </div>
           </div>
         </div>
@@ -233,7 +222,7 @@
       <div class="tab-pane fade" id="nav-3" role="tabpanel" aria-labelledby="nav-3-tab">
         <div class="container">
           <div class="row">
-            <div class="col-sm-10 debug">
+            <div class="col-sm-10">
               <h3>Search your tasks.</h3>
               <br>
               <p>* Leaving field blank means no search requirement for this field.</p>

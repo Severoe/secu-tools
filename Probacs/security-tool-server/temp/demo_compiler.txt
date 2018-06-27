@@ -1,0 +1,7 @@
+target_os:Linux
+compiler:gcc
+version:test
+ip:127.0.0.1
+port:80
+http_path:/compile
+invoke_format:gcc_srcname_exename_flag

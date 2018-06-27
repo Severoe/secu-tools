@@ -11,6 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 import requests
 from django.conf import settings
+from django.utils import timezone
 from parser import *
 from django.core import serializers
 from io import BytesIO
@@ -24,6 +25,7 @@ self_ip = 'http://localhost:7992'
 winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
 rootDir = 'Compilation_tasks/'
+tempDir = 'temp/'
 # the datastructure  is stored in settings
 ################################
 
@@ -779,4 +781,91 @@ def rcvSrc(request):
     context['progress'] = 'block'
     context['linux_taskFolder'] = taskName
     return render(request, 'secuTool/index.html', context)
+
+@csrf_exempt
+def peek_profile(request):
+    target_os = request.POST['target_os']
+    compiler, version = request.POST['compiler'].split(' ')
+    name = request.POST['name']
+    
+    profile = Profile_conf.objects.filter(name=name, 
+                                        target_os=target_os,
+                                        compiler=compiler,
+                                        version=version)
+
+    num = profile.count()
+    if num > 1:
+        res = {"message":"Multiple profiles found with given information"}
+    elif num < 1:
+        res = {"message":"No profile matching given information"}
+    else:
+        res = {"target_os": profile[0].target_os,
+                "compiler": profile[0].compiler,
+                "version": profile[0].version,
+                "name": profile[0].name,
+                "uploader": profile[0].uploader,
+                "upload_time": profile[0].upload_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                "flag": profile[0].flag}
+
+    return HttpResponse(json.dumps(res), content_type="application/json")
+
+@csrf_exempt
+def addCompiler(request):
+    if 'compiler_file' not in request.FILES:
+        context = {'nav2':'active show', 'message':'No compiler file uploaded'}
+        return render(request, "secuTool/test.html", context)
+
+    compiler_conf_path = tempDir + request.FILES['compiler_file'].name
+    with open(compiler_conf_path, 'wb+') as dest:
+        for chunk in request.FILES['compiler_file'].chunks():
+            dest.write(chunk)
+
+    message, compiler = parseCompilerFile(compiler_conf_path)
+    if message:
+        return render(request, 'secuTool/test.html', {"message":message, "nav2":"active show"})
+
+
+    new_compiler = Compiler_conf(target_os=compiler['target_os'],
+                                    compiler=compiler['compiler'],
+                                    version=compiler['version'],
+                                    ip=compiler['ip'],
+                                    port=compiler['port'],
+                                    http_path=compiler['http_path'],
+                                    invoke_format=compiler['invoke_format'])
+    new_compiler.save()
+
+    context = {"message":"New compiler added successfully",
+                "nav2":"active show"}
+    return render(request, "secuTool/test.html", context)
+
+@csrf_exempt
+def addProfile(request):
+    if 'profile_file' not in request.FILES:
+        context = {'nav2':'active show', 'message':'No profile file uploaded'}
+        return render(request, "secuTool/test.html", context)
+
+    profile_conf_path = tempDir + request.FILES['profile_file'].name
+    with open(profile_conf_path, 'wb+') as dest:
+        for chunk in request.FILES['profile_file'].chunks():
+            dest.write(chunk)
+
+    message, profile = parseProfileFile(profile_conf_path)
+    if message:
+        return render(request, 'secuTool/test.html', {"message":message, "nav2":"active show"})
+
+    new_profile = Profile_conf(uploader=profile['uploader'],
+                                upload_time=timezone.now(),
+                                name=profile['name'],
+                                target_os=profile['target_os'],
+                                compiler=profile['compiler'],
+                                version=profile['version'],
+                                flag=json.dumps(profile['flag']))
+    new_profile.save()
+
+    context = {"message":"New profile added successfully",
+                "nav2":"active show"}
+
+    return render(request, "secuTool/test.html", context)
+
+
 
