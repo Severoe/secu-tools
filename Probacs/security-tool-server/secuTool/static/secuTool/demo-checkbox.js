@@ -1,6 +1,8 @@
 var groupNumber = 0
 var button_id = 100
-var text
+var text = ""
+var profile_list = []
+var profile_content = []
 
 function addflag(flag) {
 	var id = "#" + flag
@@ -189,29 +191,56 @@ function getProfiles(compiler) {
 	var plist = text[os][compiler].sort()
 	var options = ""
 	for (p in plist) {
-		options += "<input type='checkbox' onchange='peek();' name='profile' value='" + plist[p] + "'/>" + plist[p] + "<br/>";
+		options += "<input type='checkbox' onchange='peek(this.id);' name='profile' id='" + plist[p] +
+					"' value='" + plist[p] + "'/>" + plist[p] + "<br/>";
 	}
 	$('#profiles').append(options)
 }
 
-function peek() {
-	var plist = []
-	$("input:checkbox[name=profile]:checked").each(function () {
-		plist.push($(this).val());
-	});
-	$.ajax({
-		type: 'POST',
-		url: "/peek_profile",
-		dataType: "json",
-		data: {
-			target_os: $('#os_selected').text(),
-			compiler: $('#compiler_selected').text(),
-			name: plist.join(","),
-		},
-		success: function (response) {
-			console.log(response)
+function peek(profile) {
+	$('#profile_content').empty()
+	if (document.getElementById(profile).checked === true) {
+		$.ajaxSetup({ async: false });
+		$.ajax({
+			type: 'POST',
+			url: "/peek_profile",
+			dataType: "json",
+			data: {
+				target_os: $('#os_selected').text(),
+				compiler: $('#compiler_selected').text(),
+				name: profile,
+			},
+			success: function (response) {
+				if ('message' in response) {
+					message += response['message']
+				} else {
+					profile_list.push(profile)
+					profile_content.push(response)
+				}
+			}
+		});
+		$.ajaxSetup({ async: true });
+	} else {
+		var index = profile_list.indexOf(profile);
+		if (index > -1) {
+			profile_list.splice(index, 1);
+			profile_content.splice(index, 1);
 		}
-	});
+	}
+	var message = ""
+	for (i in profile_content) {
+		var content = profile_content[i]
+		message += "<div> name: &nbsp &nbsp &nbsp &nbsp" + content['name'] + "<br>"
+		message += "target_os: &nbsp" + content['target_os'] + "<br>"
+		message += "compiler: &nbsp &nbsp" + content['compiler'] + "<br>"
+		message += "version: &nbsp &nbsp &nbsp" + content['version'] +  "<br>"
+		message += "flag: &nbsp &nbsp &nbsp" + content['flag'] + "<br>"
+		message += "uploader: &nbsp &nbsp" + content['uploader'] + "<br>"
+		message += "upload_time: &nbsp" + content['upload_time'] + "<br></div>"
+		if (i != profile_content.length - 1)
+			message += "---------------"
+	}
+	$('#profile_content').append(message)
 }
 
 window.onload = getOS;
