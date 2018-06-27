@@ -199,7 +199,6 @@ function peek() {
 	$("input:checkbox[name=profile]:checked").each(function () {
 		plist.push($(this).val());
 	});
-	console.log(plist)
 	$.ajax({
 		type: 'POST',
 		url: "/peek_profile",
@@ -207,7 +206,7 @@ function peek() {
 		data: {
 			target_os: $('#os_selected').text(),
 			compiler: $('#compiler_selected').text(),
-			name: plist,
+			name: plist.join(","),
 		},
 		success: function (response) {
 			console.log(response)
