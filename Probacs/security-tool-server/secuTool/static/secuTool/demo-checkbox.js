@@ -11,13 +11,13 @@ function addflag(flag) {
 	}
 }
 
-function selectall(){
+function selectall() {
 	$('.row-button').each(function () {
 		$(this).addClass('chosen')
 	})
 }
 
-function deselectall(){
+function deselectall() {
 	$('.row-button').each(function () {
 		$(this).removeClass('chosen')
 	})
@@ -33,7 +33,7 @@ function confirmgroup() {
 	$('.button-check-box').each(function () {
 		if ($(this).hasClass("chosen")) {
 			buttons += '<button class="btn btn-light btn-sm" id="' + $(this).attr("id").trim() + "z" + '" >'
-			// '" onclick="delflag(\'' +$(this).attr("id").trim() + '\')">' 
+				// '" onclick="delflag(\'' +$(this).attr("id").trim() + '\')">' 
 				+ $(this).parent().text().trim() + '</button>'
 			flags += $(this).parent().text().trim() + " "
 			$(this).removeClass("chosen")
@@ -41,7 +41,6 @@ function confirmgroup() {
 		}
 	})
 	if (flag_number === 0) return
-	// groupNumber += 1
 	var form_item = '<div style="visibility: hidden" id="' + 'group">' + flags + '</div>'
 	var group_item = '<div id="flag-group' + '"> <p style="display: inline-block">group: </p>' + buttons +
 		'<p hidden class = "cnter">' + flag_number + '</p>' + '</div>'
@@ -73,9 +72,9 @@ function clearall() {
 }
 
 function add_row() {
-	if($('#group').text().trim() === "") return
+	if ($('#group').text().trim() === "") return
 	flags = $('#group').text().trim().split(" ")
-	flags = flags.join(",")
+	flags = flags.join(", ")
 	new_row = ""
 	var selected = 0
 	$('.row-button').each(function () {
@@ -83,22 +82,22 @@ function add_row() {
 			//append a new row
 			var os = $(this).closest('tr').find('td.os').text()
 			console.log(os)
-			new_row += '<tr>'+
-			'<td><button class="row-button" id="r'+button_id+'" onclick="addflag(\'r'+button_id+'\')"></button></div></td>'+
-			'<td class="os">'+$(this).closest('tr').find('td.os').text()+'</td>'+
-			'<td class="compiler">'+$(this).closest('tr').find('td.compiler').text()+'</td>'+
-			'<td class="profile">'+$(this).closest('tr').find('td.profile').text()+'</td>'+
-			'<td class="flag">'+$(this).closest('tr').find('td.flag').text()+","+flags+'</td>'+
-			'<td class="username">'+$(this).closest('tr').find('td.username').text()+'</td>'+
-			'<td class="tags">'+$(this).closest('tr').find('td.tags').text()+'</td>'+
-			'<td><button class="btn btn-light btn-sm" onclick="delete_row(\'r'+button_id+'\')">delete</button></td>'
-			+'</tr>'
+			new_row += '<tr>' +
+				'<td><button class="row-button" id="r' + button_id + '" onclick="addflag(\'r' + button_id + '\')"></button></div></td>' +
+				'<td class="os">' + $(this).closest('tr').find('td.os').text() + '</td>' +
+				'<td class="compiler">' + $(this).closest('tr').find('td.compiler').text() + '</td>' +
+				'<td class="profile">' + $(this).closest('tr').find('td.profile').text() + '</td>' +
+				'<td class="flag">' + $(this).closest('tr').find('td.flag').text() + "," + flags + '</td>' +
+				'<td class="username">' + $(this).closest('tr').find('td.username').text() + '</td>' +
+				'<td class="tags">' + $(this).closest('tr').find('td.tags').text() + '</td>' +
+				'<td><button class="btn btn-light btn-sm" onclick="delete_row(\'r' + button_id + '\')">delete</button></td>'
+				+ '</tr>'
 			button_id++;
 			$(this).removeClass("chosen")
 			selected++
 		}
 	})
-	if(selected === 0) return
+	if (selected === 0) return
 	$('#preview-list').append(new_row)
 	$('#groups').empty()
 	$('#group').empty()
@@ -106,11 +105,11 @@ function add_row() {
 }
 
 function delete_row(row) {
-	var id = '#'+row
+	var id = '#' + row
 	$(id).closest('tr').remove()
 }
 
-$('#compile').submit(function(e){
+$('#compile').submit(function (e) {
 	$('.row-button').each(function () {
 		if ($(this).hasClass("chosen")) {
 
@@ -135,53 +134,85 @@ function compile() {
 			cnt++
 		}
 	})
-	if(cnt === 0) return
-	console.log(param)
+	if (cnt === 0) return
 	$.ajax({
 		type: 'POST',
 		url: "/paramUpload",
-        dataType : "json",
-        data: {
-        	taskid: $('#taskid').text().trim(),
-        	taskCount: cnt,
-        	tasks: param,
-        },
-      	success:  function(response) {
-      		console.log(response.taskid)
-      		$('#redirect').click()
-      	}  
+		dataType: "json",
+		data: {
+			taskid: $('#taskid').text().trim(),
+			taskCount: cnt,
+			tasks: param,
+		},
+		success: function (response) {
+			console.log(response.taskid)
+			$('#redirect').click()
+		}
 	});
 }
 
 function getOS() {
 	var json_profiles = $('#json_profiles').text()
 	text = JSON.parse(json_profiles)
-	var os_options = "";
+	var os_list = []
 	for (os in text) {
-		os_options += "<option>" + os + "</option>"	
+		os_list.push(os)
 	}
-	$('#target_os').append(os_options)
+	os_list.sort()
+	var options = ""
+	for (os in os_list) {
+		options += "<option>" + os_list[os] + "</option>"
+	}
+	$('#target_os').append(options)
+
 }
 
 function getCompiler(os) {
 	$('#compiler').empty()
-	$('#os_selected').text(os) 
-	var compiler_options = "<option value='' disabled selected>Select</option>"
+	$('#os_selected').text(os)
+	var compiler_list = []
 	for (compiler in text[os]) {
-		compiler_options += "<option>" + compiler + "</option>"
+		compiler_list.push(compiler)
 	}
-	$('#compiler').append(compiler_options)
+	compiler_list.sort()
+	var options = "<option value='' disabled selected>Select</option>"
+	for (compiler in compiler_list) {
+		options += "<option>" + compiler_list[compiler] + "</option>"
+	}
+	$('#compiler').append(options)
 }
 
 function getProfiles(compiler) {
 	$('#profiles').empty()
+	$('#compiler_selected').text(compiler)
 	var os = $('#os_selected').text()
-	var plist = text[os][compiler]
-	var profiles_options = ""
+	var plist = text[os][compiler].sort()
+	var options = ""
 	for (p in plist) {
-		profiles_options += "<input type='checkbox' name='profile' value='" + plist[p] + "'/>" + plist[p] + "<br/>";
+		options += "<input type='checkbox' onchange='peek();' name='profile' value='" + plist[p] + "'/>" + plist[p] + "<br/>";
 	}
-	$('#profiles').append(profiles_options)
+	$('#profiles').append(options)
+}
+
+function peek() {
+	var plist = []
+	$("input:checkbox[name=profile]:checked").each(function () {
+		plist.push($(this).val());
+	});
+	console.log(plist)
+	$.ajax({
+		type: 'POST',
+		url: "/peek",
+		dataType: "json",
+		data: {
+			target_os: $('#os_selected').text(),
+			compiler: $('#compiler_selected').text(),
+			name: plist,
+		},
+		success: function (response) {
+			console.log(response)
+		}
+	});
 }
 
 window.onload = getOS;
