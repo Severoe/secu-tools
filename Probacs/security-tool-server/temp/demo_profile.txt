@@ -1,0 +1,9 @@
+target_os:Linux
+name:test_profile
+compiler:gcc
+version:6.6
+uploader:probacs team
+flag:
+-Werror
+-test
+-O2
