@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     {% load staticfiles %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
     <style>
@@ -48,6 +48,13 @@
         font-size: 15px;
       }
 
+      .peek{
+        margin-top: 350px;
+        margin-bottom: 100px;
+        margin-left: -200px;
+        margin-right: 50px;
+      }
+
       .progressbar {
         border: 1px solid grey;
         width: 300px;
@@ -89,7 +96,7 @@
           <div class="tab-pane fade active show" id="nav-11" role="tabpanel" aria-labelledby="nav-11-tab">
             <div class="container">
               <div class="row">
-                <div class="col-sm-6 debug">
+                <div class="col-sm-6">
                   <form action="/preview" method="post" enctype="multipart/form-data">
                     <h3>Submit a job.</h3>
                     <br>
@@ -112,10 +119,10 @@
           <div class="tab-pane fade" id="nav-12" role="tabpanel" aria-labelledby="nav-12-tab">
             <div class="container">
               <div class="row">
-                <div class="col-sm-6 debug">
+                <div class="col-sm-6">
                   <h3>Submit a job.</h3>
                   <br>
-                  <form name="myform" id="myform" action="/preview" method="post" enctype="multipart/form-data">
+                  <form action="/preview" method="post" enctype="multipart/form-data">
                     <h5> Please upload your source code*. </h5>
                       <div class="" style="height: 10px;"></div>
                       <input type="file" value="Select" class="submit-edition" name="srcFile" required>
@@ -136,8 +143,7 @@
                     <br>
                     <br>
                     <h5> Please select your profiles*. </h5>
-                    <div class="scroll" id="profiles">
-                    </div>
+                    <div class="scroll" id="profiles"></div>
                     <br>
                     <h5> Please type username*. </h5>
                     <div class="text">
@@ -155,6 +161,8 @@
                      {% csrf_token %}
                   </form>
                 </div>
+                <div class="col-sm-6 peek" id="profile_content">
+                </div>
               </div>
             </div>
           </div>
@@ -163,7 +171,7 @@
       <div class="tab-pane fade {{nav2}}" id="nav-2" role="tabpanel" aria-labelledby="nav-2-tab">
         <div class="container">
           <div class="row">
-            <div class="col-sm-6 debug">
+            <div class="col-sm-6">
               <h3>Configuration Options.</h3>
               <br>
               <form action="/addProfile" method="post" enctype="multipart/form-data">
@@ -195,7 +203,7 @@
       <div class="tab-pane fade" id="nav-3" role="tabpanel" aria-labelledby="nav-3-tab">
         <div class="container">
           <div class="row">
-            <div class="col-sm-10 debug">
+            <div class="col-sm-10">
               <h3>Search your tasks.</h3>
               <br>
               <p>* Leaving field blank means no search requirement for this field.</p>
