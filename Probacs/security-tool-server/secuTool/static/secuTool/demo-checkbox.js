@@ -202,7 +202,7 @@ function peek() {
 	console.log(plist)
 	$.ajax({
 		type: 'POST',
-		url: "/peek",
+		url: "/peek_profile",
 		dataType: "json",
 		data: {
 			target_os: $('#os_selected').text(),

@@ -688,10 +688,11 @@ def rcvSrc(request):
     context['linux_taskFolder'] = taskName
     return render(request, 'secuTool/index.html', context)
 
+@csrf_exempt
 def peek_profile(request):
-    target_os = request.GET['target_os']
-    compiler, version = request.GET['compiler'].split(' ')
-    name = request.GET['name']
+    target_os = request.POST['target_os']
+    compiler, version = request.POST['compiler'].split(' ')
+    name = request.POST['name']
     
     profile = Profile_conf.objects.filter(name=name, 
                                         target_os=target_os,
