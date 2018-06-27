@@ -74,7 +74,7 @@ function clearall() {
 function add_row() {
 	if ($('#group').text().trim() === "") return
 	flags = $('#group').text().trim().split(" ")
-	flags = flags.join(",")
+	flags = flags.join(", ")
 	new_row = ""
 	var selected = 0
 	$('.row-button').each(function () {
@@ -135,7 +135,6 @@ function compile() {
 		}
 	})
 	if (cnt === 0) return
-	console.log(param)
 	$.ajax({
 		type: 'POST',
 		url: "/paramUpload",
@@ -195,19 +194,19 @@ function getProfiles(compiler) {
 	$('#profiles').append(options)
 }
 
-function peek(profile) {
-	var os = $('#os_selected').text()
-	var compiler = $('#compiler_selected').text()
+function peek() {
 	var plist = []
 	$("input:checkbox[name=profile]:checked").each(function () {
 		plist.push($(this).val());
 	});
+	console.log(plist)
 	$.ajax({
+		type: 'POST',
 		url: "/peek",
 		dataType: "json",
 		data: {
-			target_os: os,
-			compiler: compiler,
+			target_os: $('#os_selected').text(),
+			compiler: $('#compiler_selected').text(),
 			name: plist,
 		},
 		success: function (response) {
