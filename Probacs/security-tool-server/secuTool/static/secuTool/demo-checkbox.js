@@ -84,12 +84,12 @@ function add_row() {
 			//append a new row
 			var os = $(this).closest('tr').find('td.os').text()
 			console.log(os)
-			new_row += '<tr>' +
+			new_row += '<tr bgcolor="#F0F8FF">' +
 				'<td><button class="row-button" id="r' + button_id + '" onclick="addflag(\'r' + button_id + '\')"></button></div></td>' +
 				'<td class="os">' + $(this).closest('tr').find('td.os').text() + '</td>' +
 				'<td class="compiler">' + $(this).closest('tr').find('td.compiler').text() + '</td>' +
 				'<td class="profile">' + $(this).closest('tr').find('td.profile').text() + '</td>' +
-				'<td class="flag">' + $(this).closest('tr').find('td.flag').text() + "," + flags + '</td>' +
+				'<td class="flag">' + $(this).closest('tr').find('td.flag').text() + ", " + flags + '</td>' +
 				'<td class="username">' + $(this).closest('tr').find('td.username').text() + '</td>' +
 				'<td class="tags">' + $(this).closest('tr').find('td.tags').text() + '</td>' +
 				'<td><button class="btn btn-light btn-sm" onclick="delete_row(\'r' + button_id + '\')">delete</button></td>'

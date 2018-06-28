@@ -328,19 +328,14 @@
             <br>
               <!--<form action="{% url 'check_status' %}" method='post'>
                 <script>
-
                   var tab = [{ task_id: "00010", compiler: "GCC 4.8", flag: "-O1,-Wall", username: "Jeffrey", tag: "#test", date: "6/13/2018", time: "07:05" }, { task_id: "00011", compiler: "GCC 5.5", flag: "-O2,-Werror", username: "David", tag: "#task1", date: "6/13/2018", time: "09:14" }]
-
                   var heads = ["Task ID", "Compiler", "Flags", "Username", "Tags", "Date Submitted", "Time Submitted"]
-
-
                   function tableCreate(myArray, myheads) {
                     var body = document.getElementById('thisone');
                     tbl = document.createElement('table');
                     tbl.style.width = '700px';
                     tbl.style.border = '2px solid black';
                     //tbl.style.float = 'middle';
-
                     var header = tbl.createTHead();
                     var row = header.insertRow();
                     for (var l = 0; l < myheads.length; l++) {
@@ -349,8 +344,6 @@
                       cell.style.border = '2px solid black'
                       cell.style = "font-weight:bold"
                     }
-
-
                     for (var i = 0; i < myArray.length; i++) {
                       var tr = tbl.insertRow();
                       for (var key in myArray[i]) {
@@ -367,10 +360,7 @@
                     return
                   }
                   g = tableCreate(tab, heads);
-
-
                 </script>
-              
                 <script>
                   function assign_id(b) {
                     task_id = b
