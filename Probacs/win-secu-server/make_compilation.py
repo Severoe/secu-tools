@@ -66,7 +66,8 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
         cnt += 1
         time.sleep(2)
         exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
-        exename = exename.replace("/","-")
+        if os.name == 'nt':
+            exename = exename.replace("/","-")
         logline = "%s\t%s"%(exename, flag)
 
         command = invoke_format.replace("flags", flag).replace("source", src_path).replace("exename", exename).split(" ")
@@ -106,6 +107,7 @@ if __name__ == "__main__":
 
         exit(-1)
     hostserver = sys.argv[9]
+    print(hostserver)
     compile(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4],sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
 
     # do_compilation(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
