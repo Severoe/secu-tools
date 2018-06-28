@@ -21,10 +21,9 @@
       }
       
       .scroll {
-        margin-left: 10px;
         border: 2px solid #ccc;
-        width: 200px;
-        height: 100px;
+        width: 250px;
+        height: 120px;
         overflow-y: scroll;
       }
 
@@ -125,15 +124,7 @@
           <div class="container js-demo">
             <div class="row ">
               <div class="col-md-4 js-col">
-                <div class="js-debug">
-                  <button class="button-check-box" id="flag1" onclick="addflag('flag1')"></button> -Os</div>
-                <div class="js-debug">
-                  <button class="button-check-box" id="flag2" onclick="addflag('flag2')"></button> -Werror</div>
-                <div class="js-debug">
-                  <button class="button-check-box" id="flag3" onclick="addflag('flag3')"></button> /Oi</div>
-                <div class="js-debug">
-                  <button class="button-check-box" id="flag4" onclick="addflag('flag4')"></button> /WX</div>
-                <br>
+                <div class='scroll' id="display_flags"></div>
                 <br>
                 <div class="js-debug">
                   <button class="btn btn-light" id="flag-confirm" onclick="confirmgroup()">>></button>

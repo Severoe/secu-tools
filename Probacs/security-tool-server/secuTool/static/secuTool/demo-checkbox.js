@@ -217,7 +217,7 @@ function trace_job() {
 
 function getOS() {
 	var json_profiles = $('#json_profiles').text()
-	if(json_profiles === "" || json_profiles === null) return
+	if (json_profiles === "" || json_profiles === null) return
 	text = JSON.parse(json_profiles)
 	var os_list = []
 	for (os in text) {
@@ -298,8 +298,20 @@ function peek(profile) {
 	}
 }
 
+function display_flags() {
+	var message = ''
+	var plist = ['/O1', '-O1']
+	for (p in plist) {
+		console.log(p)
+		message += '<div class="js-debug">'
+		message += '<button class="button-check-box" id=flag' + p + ' onclick="addflag(this.id)"></button> ' + plist[p] + '</div>'
+	}
+	$('#display_flags').append(message)
+}
+
 function onload_wrapper() {
 	getOS()
+	display_flags()
 	trace_job()
 }
 
