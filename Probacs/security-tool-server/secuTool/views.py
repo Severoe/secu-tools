@@ -21,6 +21,7 @@ import zipfile,io,base64
 # global variables
 # winurl = 'http://172.16.165.132:8000'
 # self_ip = 
+host_ip_gateway = settins.GATEWAY
 enable_test = settings.ENABLE_LOCALTEST
 print(enable_test)
 local_ip = settings.LOCAL_IP
@@ -250,7 +251,7 @@ def param_upload(request):
                 print("asyn call encountered")
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
-            param['host_ip'] = self_ip
+            param['host_ip'] = host_ip_gateway
             print(param['host_ip'])
             upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
     

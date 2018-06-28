@@ -129,5 +129,6 @@ config.read(os.path.join(BASE_DIR, 'config.ini'))
 
 ENABLE_LOCALTEST =True if config.get("Localtest","Allow_localtest") == "true" else False
 LOCAL_IP = config.get("Localtest", "Local_ip")
+GATEWAY = config.get("Localtest","Gateway")
 
 
