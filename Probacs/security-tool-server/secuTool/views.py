@@ -22,8 +22,9 @@ import zipfile,io,base64
 # winurl = 'http://172.16.165.132:8000'
 # self_ip = 
 enable_test = settings.ENABLE_LOCALTEST
+print(enable_test)
 local_ip = settings.LOCAL_IP
-self_ip = local_ip if enable_test else 'http://192.168.56.101:8000'
+self_ip = local_ip 
 winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
 rootDir = 'Compilation_tasks/'
@@ -38,7 +39,7 @@ def home(request):
 
 
 def preview(request):
-    print(request.POST)
+    # print(request.POST)
     context = {}
     src_filename = request.FILES['srcFile'].name  # llok into tar bar
     compiler_divided = {}
@@ -65,7 +66,7 @@ def preview(request):
     seq = 0
     for param in params:
         # permute flags combination  from diff flags
-        print(param)
+        # print(param)
         jsonDec = json.decoder.JSONDecoder()
         flag_from_profile = []
         for profile_name in param['profile']:
@@ -97,11 +98,6 @@ def preview(request):
     # for row in rows:
     print(rows)
     context['taskid'] = taskName
-
-    # TODO
-    # get available piggyback flag from the database
-    context['flag_list'] = json.dumps(['-Werror', '-O1', '/Os'])
-
     return render(request, 'secuTool/preview.html',context)
 
 
@@ -217,7 +213,7 @@ def param_upload(request):
     #####################
     #form request format from obj for each task
     #####################
-    print(task_params)
+    # print(task_params)
     task_num = 0
     for param in task_params:
         task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
@@ -237,7 +233,7 @@ def param_upload(request):
         #############################
         # calling compilation tasks
         #############################
-        if enable_test or task_http == self_ip:
+        if enable_test:
             outputDir = taskFolder+"/"+"secu_compile"
             data = {
             'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
@@ -254,6 +250,8 @@ def param_upload(request):
                 print("asyn call encountered")
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
+            param['host_ip'] = self_ip
+            print(param['host_ip'])
             upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
     
     cur_taskMeta.compilation_num = task_num
@@ -282,10 +280,9 @@ def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFold
         runEnv = compiler_invoke.split('&&')[0]
         compiler_invoke = compiler_invoke.split('&&')[1]
     data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': param['flag'],
-    'env':runEnv,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version']}
+    'env':runEnv,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'host_ip':param['host_ip']}
     print(data)
     files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
-    settings.TASKS[taskFolder] = 0
     pid = os.fork()
     if pid == 0:
         response = requests.post(ip, files=files,data=data) 

@@ -300,6 +300,7 @@ function peek(profile) {
 
 function display_flags() {
 	var json_profiles = $('#json_profiles').text()
+	if (json_profiles === "" || json_profiles === null) return
 	var plist = JSON.parse(json_profiles)
 	var message = ''
 	for (p in plist) {

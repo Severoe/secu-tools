@@ -14,7 +14,13 @@ from subprocess import Popen, PIPE
 
 # hostserver = "http://192.168.27.131:8000/" #ip/port of the host server
 # hostserver = "http://172.16.165.125:8000/" #ip/port of the host server
+rootDir = 'Compilation_tasks'
 hostserver = "" #ip/port of the host server on virtualbox
+os_name = os.name
+if os_name == 'nt':
+    delimit = "\\"
+else:
+    delimit = "/"
 
 
 @csrf_exempt
@@ -23,28 +29,35 @@ def execute(request):
 	taskFolder = request.POST['taskid']
 	print("id: "+taskFolder)
 	#timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-	os.system("mkdir "+taskFolder)
+	os.system("mkdir "+rootDir+delimit+taskFolder)
 	print('order received')
 	#save file in task folder
 	filename = request.FILES['file'].name
 	host_ip = request.META['REMOTE_ADDR']
 	host_port = request.META['SERVER_PORT']
-	hostserver = "http://"+host_ip+":"+host_port+"/"
+	print(host_ip+" "+host_port)
+	hostserver = request.POST['host_ip']+"/"
 	src_dir = 'src'
+	if not os.path.exists(src_dir):
+		os.mkdir(src_dir)
 
-	with open(taskFolder+'\\'+filename,'wb+') as dest:
+	with open(rootDir+delimit+taskFolder+delimit+filename,'wb+') as dest:
 		for chunk in request.FILES['file'].chunks():
 			dest.write(chunk)
-	tar = r'"C:\Program Files (x86)\GnuWin32\bin\tar.exe"'
-	os.system(tar+" "+"xvf "+ taskFolder+'\\'+filename)
+	if os_name == 'nt':
+		tar = r'"C:\Program Files (x86)\GnuWin32\bin\tar.exe"'
+	else:
+		tar = "tar"
+	os.system(tar+" "+"xvf "+ rootDir+delimit+taskFolder+delimit+filename)
+
 	print(request.FILES['file'])
 
 	############################################
 	# compilation work
-	srcpath = src_dir+'\\'+request.POST['Srcname']
+	srcpath = src_dir+delimit+request.POST['Srcname']
 	print(srcpath)
-	compileDir = taskFolder+'\\'+'secu_compile_platform'
-	os.system("mkdir "+compileDir)
+	compileDir = rootDir+delimit+taskFolder+delimit+'secu_compile_platform'
+	os.mkdir(compileDir)
 	# compilation start here, store executables and logs
 	# into compileDir
 	cl = None
@@ -57,28 +70,29 @@ def execute(request):
 	# p.start()
 	# print("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
 	# cl = r'"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
-	os.system(cl+"&& python make_compilation.py "+taskFolder+" "+
-		request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
-		srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
-
-	
-	# def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags):
-
+	if cl == None:
+		os.system("python make_compilation.py "+taskFolder+" "+
+			request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
+			srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
+	else:
+		os.system(cl+"&& python make_compilation.py "+taskFolder+" "+
+			request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
+			srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
 
 	############################################
 	# send back exe archive to host by http request
 	responseFromHost,tmpzip = sendBackExe(taskFolder, hostserver) # test purpose, replace hellomake later
-	os.system("del /-f "+src_dir +" /Q") #delete tmp zip file
+	##clear environment
+	if os_name == 'nt':
+		os.system("del /f "+src_dir +" /Q") 
+		os.system("del /f *.tgz")
+	else:
+		os.system("rm -rf "+src_dir)
+		os.system("rm *.obj")
+		os.system("rm *.tgz")
 	response = HttpResponse()
 	print("send back request")
 	return response
-
-# def sub_process(info, taskFolder, srcpath, compileDir,cl,src_dir):
-# 	compile(taskFolder, info['target_os'], info['compiler'], info['version'],
-# 		srcpath, compileDir, info['command'], info['flags'],cl)
-# 	print("finished compile")
-
-# 	return
 
 
 
@@ -89,8 +103,8 @@ def sendBackExe(folder,hostserver):
 	#create a zip file first
 	print("send back exe")
 	timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-	new_name = "winexe_"+timestr+".tgz"
-	exe_folderPath = folder+'\\'+'secu_compile_platform'
+	new_name = "exe_"+timestr+".tgz"
+	exe_folderPath = rootDir+delimit+folder+delimit+'secu_compile_platform'
 	with tarfile.open(new_name, "w:gz") as tar:
 		tar.add(exe_folderPath, arcname=os.path.basename(exe_folderPath))
 	compressed_dir = open(new_name,'rb')
