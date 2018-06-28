@@ -3,8 +3,6 @@ var button_id = 100
 var interval = 1000;
 var finished_status = false
 var text = ""
-var profile_list = []
-var profile_content = []
 
 function addflag(flag) {
 	var id = "#" + flag
@@ -37,7 +35,7 @@ function confirmgroup() {
 	$('.button-check-box').each(function () {
 		if ($(this).hasClass("chosen")) {
 			buttons += '<button class="btn btn-light btn-sm" id="' + $(this).attr("id").trim() + "z" + '" >'
-				// '" onclick="delflag(\'' +$(this).attr("id").trim() + '\')">' 
+			// '" onclick="delflag(\'' + $(this).attr("id").trim() + '\')">' 
 				+ $(this).parent().text().trim() + '</button>'
 			flags += $(this).parent().text().trim() + " "
 			$(this).removeClass("chosen")
@@ -86,12 +84,12 @@ function add_row() {
 			//append a new row
 			var os = $(this).closest('tr').find('td.os').text()
 			console.log(os)
-			new_row += '<tr>' +
+			new_row += '<tr bgcolor="#F0F8FF">' +
 				'<td><button class="row-button" id="r' + button_id + '" onclick="addflag(\'r' + button_id + '\')"></button></div></td>' +
 				'<td class="os">' + $(this).closest('tr').find('td.os').text() + '</td>' +
 				'<td class="compiler">' + $(this).closest('tr').find('td.compiler').text() + '</td>' +
 				'<td class="profile">' + $(this).closest('tr').find('td.profile').text() + '</td>' +
-				'<td class="flag">' + $(this).closest('tr').find('td.flag').text() + "," + flags + '</td>' +
+				'<td class="flag">' + $(this).closest('tr').find('td.flag').text() + ", " + flags + '</td>' +
 				'<td class="username">' + $(this).closest('tr').find('td.username').text() + '</td>' +
 				'<td class="tags">' + $(this).closest('tr').find('td.tags').text() + '</td>' +
 				'<td><button class="btn btn-light btn-sm" onclick="delete_row(\'r' + button_id + '\')">delete</button></td>'
@@ -189,7 +187,7 @@ function trace_job() {
         	$('#result-trace').css('display','block')
             $('#result-report').text(report)
         	$('#bar-growth').width(percent.toString()+'%')
-        	//adjost log output
+        	// adjost log output
         	$('#log-report').empty()
         	for(var i in response.log_report) {
         		// var d = new Date();
@@ -207,7 +205,7 @@ function trace_job() {
                     "<td class='report-row' style='column-width: auto;'>"+log.exename.trim()+"</td>"+
                     "<td class='report-row' style='column-width: auto;"+out_theme+"'>"+log.out+"</td>"+
                     "<td class='report-row' style='column-width: auto;"+err_theme+"'>"+log.err+"</td>"+
-                    // "<td>"+d.year+d.month+d.day+d.hours+d.minutes+d.seconds+"</td>"
+					// "<td>" + d.year + d.month + d.day + d.hours + d.minutes + d.seconds + "</td>"
                     "</tr>"
                 $("#log-report").append(log_row)
         	}
@@ -217,11 +215,9 @@ function trace_job() {
     return
 }
 
-
-
 function getOS() {
 	var json_profiles = $('#json_profiles').text()
-	if(json_profiles === "" || json_profiles === null) return
+	if (json_profiles === "" || json_profiles === null) return
 	text = JSON.parse(json_profiles)
 	var os_list = []
 	for (os in text) {
@@ -257,17 +253,18 @@ function getProfiles(compiler) {
 	var os = $('#os_selected').text()
 	var plist = text[os][compiler].sort()
 	var options = ""
+	var boxes = ""
 	for (p in plist) {
 		options += "<input type='checkbox' onchange='peek(this.id);' name='profile' id='" + plist[p] +
-					"' value='" + plist[p] + "'/>" + plist[p] + "<br/>";
+					"' value='" + plist[p] + "'/>" + plist[p] + "<br/>"
+		boxes += "<div id='" + plist[p] + "_box'></div>"
 	}
+	$('#profile_content').append(boxes)
 	$('#profiles').append(options)
 }
 
 function peek(profile) {
-	$('#profile_content').empty()
 	if (document.getElementById(profile).checked === true) {
-		$.ajaxSetup({ async: false });
 		$.ajax({
 			type: 'POST',
 			url: "/peek_profile",
@@ -280,38 +277,41 @@ function peek(profile) {
 			success: function (response) {
 				if ('message' in response) {
 					message += response['message']
+					alert(message)
 				} else {
-					profile_list.push(profile)
-					profile_content.push(response)
+					var id = '#' + profile + '_box'
+					var message = ""
+					message += "<div class='peek_text'> name: &nbsp &nbsp &nbsp &nbsp" + response['name'] + "<br>"
+					message += "target_os: &nbsp" + response['target_os'] + "<br>"
+					message += "compiler: &nbsp &nbsp" + response['compiler'] + "<br>"
+					message += "version: &nbsp &nbsp &nbsp" + response['version'] +  "<br>"
+					message += "flag: &nbsp &nbsp &nbsp" + response['flag'] + "<br>"
+					message += "uploader: &nbsp &nbsp" + response['uploader'] + "<br>"
+					message += "upload_time: &nbsp" + response['upload_time'] + "<br><br></div>"
+					$(id).append(message)
 				}
 			}
 		});
-		$.ajaxSetup({ async: true });
 	} else {
-		var index = profile_list.indexOf(profile);
-		if (index > -1) {
-			profile_list.splice(index, 1);
-			profile_content.splice(index, 1);
-		}
+		var id = '#' + profile + '_box'
+		$(id).empty()
 	}
-	var message = ""
-	for (i in profile_content) {
-		var content = profile_content[i]
-		message += "<div> name: &nbsp &nbsp &nbsp &nbsp" + content['name'] + "<br>"
-		message += "target_os: &nbsp" + content['target_os'] + "<br>"
-		message += "compiler: &nbsp &nbsp" + content['compiler'] + "<br>"
-		message += "version: &nbsp &nbsp &nbsp" + content['version'] +  "<br>"
-		message += "flag: &nbsp &nbsp &nbsp" + content['flag'] + "<br>"
-		message += "uploader: &nbsp &nbsp" + content['uploader'] + "<br>"
-		message += "upload_time: &nbsp" + content['upload_time'] + "<br></div>"
-		if (i != profile_content.length - 1)
-			message += "---------------"
+}
+
+function display_flags() {
+	var message = ''
+	var plist = ['/O1', '-O1']
+	for (p in plist) {
+		console.log(p)
+		message += '<div class="js-debug">'
+		message += '<button class="button-check-box" id=flag' + p + ' onclick="addflag(this.id)"></button> ' + plist[p] + '</div>'
 	}
-	$('#profile_content').append(message)
+	$('#display_flags').append(message)
 }
 
 function onload_wrapper() {
 	getOS()
+	display_flags()
 	trace_job()
 }
 

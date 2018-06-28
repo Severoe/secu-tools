@@ -97,6 +97,11 @@ def preview(request):
     # for row in rows:
     print(rows)
     context['taskid'] = taskName
+
+    # TODO
+    # get available piggyback flag from the database
+    context['flag_list'] = json.dumps(['-Werror', '-O1', '/Os'])
+
     return render(request, 'secuTool/preview.html',context)
 
 
