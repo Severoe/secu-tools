@@ -299,10 +299,10 @@ function peek(profile) {
 }
 
 function display_flags() {
+	var json_profiles = $('#json_profiles').text()
+	var plist = JSON.parse(json_profiles)
 	var message = ''
-	var plist = ['/O1', '-O1']
 	for (p in plist) {
-		console.log(p)
 		message += '<div class="js-debug">'
 		message += '<button class="button-check-box" id=flag' + p + ' onclick="addflag(this.id)"></button> ' + plist[p] + '</div>'
 	}
