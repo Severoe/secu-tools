@@ -104,8 +104,8 @@ function add_row() {
 	if (selected === 0) return
 	$('#preview-list').append(new_row)
 
-	addedgroup=$("#group").text()
-	logtext='<br>You added '+ addedgroup + ' to ' + message
+	addedgroup = $("#group").text()
+	logtext = '<br>You added ' + addedgroup + ' to ' + message
 	addLog(logtext)
 
 	$('#groups').empty()
@@ -121,13 +121,10 @@ function delete_row(row) {
     addLog(st);
 }
 
-function addLog(logentry)
-{
-x=document.getElementById("rolling-log") 
-x.innerHTML=x.innerHTML+logentry    // Change the content 
-window.alert("BOO")
+function addLog(logentry) {
+	x = document.getElementById("rolling-log")
+	x.innerHTML = x.innerHTML + logentry
 }
-
 
 $('#compile').submit(function (e) {
 	$('.row-button').each(function () {
