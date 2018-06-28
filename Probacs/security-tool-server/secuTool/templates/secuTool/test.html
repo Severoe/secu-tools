@@ -1,277 +1,281 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    {% load staticfiles %}
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-      crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
-      crossorigin="anonymous"></script>
-    <style>
-      header, footer {  
-        color: white;
-        background-color: orange;
-        clear: left;
-        text-align: center;
-      }
 
-      .container {
-        margin-left: 200px;
-        margin-top: 20px;
-      }
+<head>
+  <meta charset="utf-8"> {% load staticfiles %}
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+    crossorigin="anonymous">
+  <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
+    crossorigin="anonymous"></script>
+  <style>
+    header, footer {
+      color: white;
+      background-color: orange;
+      clear: left;
+      text-align: center;
+    }
 
-      .scroll {
-        border: 2px solid #ccc;
-        width: 300px;
-        height: 100px;
-        overflow-y: scroll;
-      }
+    .container {
+      margin-left: 200px;
+      margin-top: 20px;
+    }
 
-      table, th, td {
-        column-width: 100px;
-        border: 1px solid black;
-        text-align: center;
-      }
+    .scroll {
+      border: 2px solid #ccc;
+      width: 300px;
+      height: 100px;
+      overflow-y: scroll;
+    }
 
-      .tab1 {
-        margin-left: 170px;
-        margin-right: 170px;
-        margin-top: 50px;
-        border-left: 1px blue;
-      }
+    table, th, td {
+      column-width: 100px;
+      border: 1px solid black;
+      text-align: center;
+    }
 
-      .tab2 {
-        margin-left: 200px;
-        margin-right: 200px;
-        margin-top: 5px;
-        border-left: 1px blue;
-        font-size: 15px;
-      }
+    .tab1 {
+      margin-left: 170px;
+      margin-right: 170px;
+      margin-top: 50px;
+      border-left: 1px blue;
+    }
 
-      .peek{
-        margin-top: 350px;
-        margin-bottom: 100px;
-        margin-left: -200px;
-        margin-right: 50px;
-      }
+    .tab2 {
+      margin-left: 200px;
+      margin-right: 200px;
+      margin-top: 5px;
+      border-left: 1px blue;
+      font-size: 15px;
+    }
 
-      .progressbar {
-        border: 1px solid grey;
-        width: 300px;
-      }
+    .peek {
+      margin-top: 250px;
+      margin-bottom: 100px;
+      margin-left: -200px;
+      margin-right: 150px;
+    }
 
-      #result-trace {
-        display: none;
-      }
+    .peek_text {
+      font-family: 'Times New Roman', Times, serif;
+      height: 180px;
+    }
 
-      #bar-growth {
-        width: 0%;
-        background: black;
-        height: 20px;
-      }
-      .progressbar{
-        border: 1px solid grey;
-        width: 100%;
-      }
-      #result-trace{
-        display: none;
-      }
-      #bar-growth{
-        width: 0%;
-        background: black;
-        height: 20px;
-      }
-      .report-row{
-        font-size: 14px;
-        /*border: none;*/
-      }
+    .progressbar {
+      border: 1px solid grey;
+      width: 100%;
+    }
 
-    </style>
-    <script src="{% static 'secuTool/trace_job.js'%}"></script>
-    <script src="{% static 'secuTool/demo-checkbox.js'%}"></script>
-  </head>
+    #result-trace {
+      display: none;
+    }
 
-  <body>
-    <header>
-      <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
-    </header>
-    <h3 style="color:red;" class="ml-5">{{message}}</h3>
-    <div style="display:none" id='json_profiles'>{{json_profiles}}</div>
-    <div class="nav nav-tabs tab1" id="nav-tab" role="tablist">
-      <a class="nav-item nav-link" id="nav-1-tab" href="{% url 'test' %}" >Submit jobs</a>
-      <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Configuration</a>
-      <a class="nav-item nav-link" id="nav-3-tab" data-toggle="tab" href="#nav-3" role="tab" aria-controls="nav-3" aria-selected="false">Search</a>
-      <a class="nav-item nav-link" id="nav-4-tab" href="{% url 'redirect_trace' %}">Job Tracker</a>
-    </div>
-    <div class="tab-content" id="nav-tabContent">
-      <div class="tab-pane fade {{nav1}}" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">
-        <div class="nav nav-tabs tab2" id="nav-tab" role="tablist">
-          <a class="nav-item nav-link" id="nav-11-tab" data-toggle="tab" href="#nav-11" role="tab" aria-controls="nav-11" aria-selected="true">Upload files</a>
-          <a class="nav-item nav-link" id="nav-12-tab" data-toggle="tab" href="#nav-12" role="tab" aria-controls="nav-12" aria-selected="false">Select flags</a>
-        </div>
-        <div class="tab-content" id="nav-tabContent">
-          <div class="tab-pane fade active show" id="nav-11" role="tabpanel" aria-labelledby="nav-11-tab">
-            <div class="container">
-              <div class="row">
-                <div class="col-sm-6">
-                  <form action="/preview" method="post" enctype="multipart/form-data">
-                    <h3>Submit a job.</h3>
-                    <br>
-                    <h5> Please upload your source code. </h5>
-                      <div class="" style="height: 10px;"></div>
-                      <input type="file" value="Select" class="submit-edition" name="srcFile" required> {% csrf_token %}
-                    <br>
-                    <br>
-                    <h5> Please upload your task file. </h5>
-                      <div class="" style="height: 10px;"></div>
-                      <input type="file" value="Select" class="submit-edition" name="taskFile" required> {% csrf_token %}
-                    <br>
-                    <br>
-                    <input type="submit" value="Preview">
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="tab-pane fade" id="nav-12" role="tabpanel" aria-labelledby="nav-12-tab">
-            <div class="container">
-              <div class="row">
-                <div class="col-sm-6">
+    #bar-growth {
+      width: 0%;
+      background: black;
+      height: 20px;
+    }
+  </style>
+  <script src="{% static 'secuTool/trace_job.js'%}"></script>
+  <script src="{% static 'secuTool/demo-checkbox.js'%}"></script>
+</head>
+
+<body>
+  <header>
+    <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
+  </header>
+  <h3 style="color:red;" class="ml-5">{{message}}</h3>
+  <div style="display:none" id='json_profiles'>{{json_profiles}}</div>
+  <div class="nav nav-tabs tab1" id="nav-tab" role="tablist">
+    <a class="nav-item nav-link" id="nav-1-tab" href="{% url 'test' %}">Submit jobs</a>
+    <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Configuration</a>
+    <a class="nav-item nav-link" id="nav-3-tab" data-toggle="tab" href="#nav-3" role="tab" aria-controls="nav-3" aria-selected="false">Search</a>
+    <a class="nav-item nav-link" id="nav-4-tab" href="{% url 'redirect_trace' %}">Job Tracker</a>
+  </div>
+  <div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade {{nav1}}" id="nav-1" role="tabpanel" aria-labelledby="nav-1-tab">
+      <div class="nav nav-tabs tab2" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link" id="nav-11-tab" data-toggle="tab" href="#nav-11" role="tab" aria-controls="nav-11" aria-selected="true">Upload files</a>
+        <a class="nav-item nav-link" id="nav-12-tab" data-toggle="tab" href="#nav-12" role="tab" aria-controls="nav-12" aria-selected="false">Select flags</a>
+      </div>
+      <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade active show" id="nav-11" role="tabpanel" aria-labelledby="nav-11-tab">
+          <div class="container">
+            <div class="row">
+              <div class="col-sm-6">
+                <form action="/preview" method="post" enctype="multipart/form-data">
                   <h3>Submit a job.</h3>
                   <br>
-                  <form action="/preview" method="post" enctype="multipart/form-data">
-                    <h5> Please upload your source code*. </h5>
-                      <div class="" style="height: 10px;"></div>
-                      <input type="file" value="Select" class="submit-edition" name="srcFile" required>
-                    <br>
-                    <br>
-                    <h5> Please select your OS*. </h5>
-                    <select name="target_os" id="target_os" onChange="getCompiler(this.value);" required>
-                      <option value="" disabled selected>Select</option>
-                    </select>
-                    <div style="display:none" id='os_selected'></div>
-                    <br>
-                    <br>
-                    <h5> Please select your compiler*. </h5>
-                    <select name="compiler" id="compiler" onchange="getProfiles(this.value);" required>
-                      <option value="" disabled selected>Select</option>
-                    </select>
-                    <div style="display:none" id='compiler_selected'></div>
-                    <br>
-                    <br>
-                    <h5> Please select your profiles*. </h5>
-                    <div class="scroll" id="profiles"></div>
-                    <br>
-                    <h5> Please type username*. </h5>
-                    <div class="text">
-                      <input type="text" name="username" required/> <br/>
-                    </div>
-                    <br>
-                    <h5> Please enter a tag for your job. </h5>
-                    <div class="text">
-                      <input type="text" name="tag" />
-                      <br/>
-                    </div>
-                    <br>
-                    <br>
-                    <input type="submit" value="Preview" />
-                     {% csrf_token %}
-                  </form>
-                </div>
-                <div class="col-sm-6 peek" id="profile_content">
-                </div>
+                  <h5> Please upload your source code. </h5>
+                  <div class="" style="height: 10px;"></div>
+                  <input type="file" value="Select" class="submit-edition" name="srcFile" required> {% csrf_token %}
+                  <br>
+                  <br>
+                  <h5> Please upload your task file. </h5>
+                  <div class="" style="height: 10px;"></div>
+                  <input type="file" value="Select" class="submit-edition" name="taskFile" required> {% csrf_token %}
+                  <br>
+                  <br>
+                  <input type="submit" value="Preview">
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="nav-12" role="tabpanel" aria-labelledby="nav-12-tab">
+          <div class="container">
+            <div class="row">
+              <div class="col-sm-6">
+                <h3>Submit a job.</h3>
+                <br>
+                <form action="/preview" method="post" enctype="multipart/form-data">
+                  <h5> Please upload your source code*. </h5>
+                  <div class="" style="height: 10px;"></div>
+                  <input type="file" value="Select" class="submit-edition" name="srcFile" required>
+                  <br>
+                  <br>
+                  <h5> Please select your OS*. </h5>
+                  <select name="target_os" id="target_os" onChange="getCompiler(this.value);" required>
+                    <option value="" disabled selected>Select</option>
+                  </select>
+                  <div style="display:none" id='os_selected'></div>
+                  <br>
+                  <br>
+                  <h5> Please select your compiler*. </h5>
+                  <select name="compiler" id="compiler" onchange="getProfiles(this.value);" required>
+                    <option value="" disabled selected>Select</option>
+                  </select>
+                  <div style="display:none" id='compiler_selected'></div>
+                  <br>
+                  <br>
+                  <h5> Please select your profiles*. </h5>
+                  <div class="scroll" id="profiles"></div>
+                  <br>
+                  <h5> Please type username*. </h5>
+                  <div class="text">
+                    <input type="text" name="username" required/>
+                    <br/>
+                  </div>
+                  <br>
+                  <h5> Please enter a tag for your job. </h5>
+                  <div class="text">
+                    <input type="text" name="tag" />
+                    <br/>
+                  </div>
+                  <br>
+                  <br>
+                  <input type="submit" value="Preview" /> {% csrf_token %}
+                </form>
+              </div>
+              <div class="col-sm-6 peek" id="profile_content">
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="tab-pane fade {{nav2}}" id="nav-2" role="tabpanel" aria-labelledby="nav-2-tab">
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-6">
-              <h3>Configuration Options.</h3>
-              <br>
-              <form action="/addProfile" method="post" enctype="multipart/form-data">
-                <div class="photo-upload">Add a profile.</div>
-                <div class="" style="height: 10px;"></div>
-                <input type="file" value="Add a profile" class="submit-edition" name="profile_file"/> {% csrf_token %}
-                <input type="submit" value="Submit"/>
-              </form>
-                <br>
-                <br>
-              <form>  
-                <div class="photo-upload">Manage profiles.</div>
-                <div class="" style="height: 10px;"></div>
-                <input type="submit" value="Manage profiles" class="submit-edition" /> {% csrf_token %}
-              </form>
-                <br>
-                <br>
-              <form action="/addCompiler" method="post" enctype="multipart/form-data">
-                <div class="photo-upload">Add a compiler.</div>
-                <div class="" style="height: 10px;"></div>
-                <input type="file" value="Add a compiler" class="submit-edition" name="compiler_file" /> {% csrf_token %}
-                <input type="submit" value="Submit"/>
-                </form>
-                <br>
-            </div>
+    </div>
+    <div class="tab-pane fade {{nav2}}" id="nav-2" role="tabpanel" aria-labelledby="nav-2-tab">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-6">
+            <h3>Configuration Options.</h3>
+            <br>
+            <form action="/addProfile" method="post" enctype="multipart/form-data">
+              <div class="photo-upload">Add a profile.</div>
+              <div class="" style="height: 10px;"></div>
+              <input type="file" value="Add a profile" class="submit-edition" name="profile_file" /> {% csrf_token %}
+              <input type="submit" value="Submit" />
+            </form>
+            <br>
+            <br>
+            <form>
+              <div class="photo-upload">Manage profiles.</div>
+              <div class="" style="height: 10px;"></div>
+              <input type="submit" value="Manage profiles" class="submit-edition" /> {% csrf_token %}
+            </form>
+            <br>
+            <br>
+            <form action="/addCompiler" method="post" enctype="multipart/form-data">
+              <div class="photo-upload">Add a compiler.</div>
+              <div class="" style="height: 10px;"></div>
+              <input type="file" value="Add a compiler" class="submit-edition" name="compiler_file" /> {% csrf_token %}
+              <input type="submit" value="Submit" />
+            </form>
+            <br>
           </div>
         </div>
       </div>
-      <div class="tab-pane fade" id="nav-3" role="tabpanel" aria-labelledby="nav-3-tab">
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-10">
-              <h3>Search your tasks.</h3>
+    </div>
+    <div class="tab-pane fade" id="nav-3" role="tabpanel" aria-labelledby="nav-3-tab">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-10">
+            <h3>Search your tasks.</h3>
+            <br>
+            <p>* Leaving field blank means no search requirement for this field.</p>
+            <p>* Separate data inside each field by comma.</p>
+            <form action="{% url 'check_status' %}" method='post'>
+              <table>
+                <tr>
+                  <th>Task id</th>
+                  <th>Compilers</th>
+                  <th>Flags</th>
+                  <th>Username</th>
+                  <th>Tags</th>
+                  <th>Date after</th>
+                  <th>Date before</th>
+                </tr>
+                <tr>
+                  <td>
+                    <input style="width:100px;" type="text" name='task_id'>
+                  </td>
+                  <td>
+                    <input style="width:100px;" type="text" name='compilers'>
+                  </td>
+                  <td>
+                    <input style="width:100px;" type="text" name='flags'>
+                  </td>
+                  <td>
+                    <input style="width:100px;" type="text" name='username'>
+                  </td>
+                  <td>
+                    <input style="width:100px;" type="text" name='tags'>
+                  </td>
+                  <td>
+                    <input style="width:100px;" type="text" name='date after'>
+                  </td>
+                  <td>
+                    <input style="width:100px;" type="text" name='date before'>
+                  </td>
+                </tr>
+              </table>
               <br>
-              <p>* Leaving field blank means no search requirement for this field.</p>
-              <p>* Separate data inside each field by comma.</p>
-              <form action="{% url 'check_status' %}" method='post'>
-                <table>
-                  <tr>
-                    <th>Task id</th>
-                    <th>Compilers</th>
-                    <th>Flags</th>
-                    <th>Username</th>
-                    <th>Tags</th>
-                    <th>Date after</th>
-                    <th>Date before</th>
-                  </tr>
-                  <tr>
-                    <td><input style="width:100px;" type="text" name='task_id'></td>
-                    <td><input style="width:100px;" type="text" name='compilers'></td>
-                    <td><input style="width:100px;" type="text" name='flags'></td>
-                    <td><input style="width:100px;" type="text" name='username'></td>
-                    <td><input style="width:100px;" type="text" name='tags'></td>
-                    <td><input style="width:100px;" type="text" name='date after'></td>
-                    <td><input style="width:100px;" type="text" name='date before'></td>
-                  </tr>
-                </table>
-                <br>
-                <input type="submit" value="submit" class="submit-edition"> {% csrf_token %}
-                <br>
-                <br>
-                <form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
-                  <input type="hidden" name="taskid" value={ {linux_taskFolder}}>
-                  <input type="submit" value="Download Directory" class="submit-edition"> {% csrf_token %}
-                </form>
+              <input type="submit" value="submit" class="submit-edition"> {% csrf_token %}
+              <br>
+              <br>
+              <form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
+                <input type="hidden" name="taskid" value={ {linux_taskFolder}}>
+                <input type="submit" value="Download Directory" class="submit-edition"> {% csrf_token %}
               </form>
-            </div>
+            </form>
           </div>
         </div>
       </div>
-      <div class="tab-pane fade {{nav4}}" id="nav-4" role="tabpanel" aria-labelledby="nav-4-tab">
-        <div class="container">
-          <div class="row">
-            <div id='thisone' class="col-sm-10 debug">
-              <h3>Track job status.</h3>
-              <br>
-              <h4>Currently running jobs.</h4>
-              <br>
-              <div style="display: none;" id="ongoing-task">{{ongoing_tasks}}</div>
-              {% if tracing_tasks %}
-              <table >
+    </div>
+    <div class="tab-pane fade {{nav4}}" id="nav-4" role="tabpanel" aria-labelledby="nav-4-tab">
+      <div class="container">
+        <div class="row">
+          <div id='thisone' class="col-sm-10 debug">
+            <h3>Track job status.</h3>
+            <br>
+            <h4>Currently running jobs.</h4>
+            <br>
+            <div style="display: none;" id="ongoing-task">{{ongoing_tasks}}</div>
+            {% if tracing_tasks %}
+            <table>
               <thead>
                 <tr>
                   <th>Task ID</th>
@@ -284,9 +288,9 @@
                 </tr>
               </thead>
               <tbody id="report">
-              {% for ele in tracing_tasks %}
-              <tr style = "{{ele.current_task}}">
-                  <td> 
+                {% for ele in tracing_tasks %}
+                <tr style="{{ele.current_task}}">
+                  <td>
                     <button class="task_tracing" id="task_{{ele.taskname}}" onclick="setCurrentJob('{{ele.taskname}}')" style="{{ele.current_task}}">{{ele.taskname}}</button>
                   </td>
                   <td class="task_os">{{ele.target_os}}</td>
@@ -296,93 +300,90 @@
                   <td class="task_tags">{{ele.tag}}</td>
                   <td class="task_submittime">{{ele.submittime}}</td>
                 </tr>
-              {% endfor %}
+                {% endfor %}
               </tbody>
-              </table>
-              {% endif %}
-              <br><br>
-              <div id="trace-wrapper" style="display: {{ongoing_display}}">
-                <div id="result-trace" >
-                  <p id="result-report"></p>
-                    <div class="progressbar">
-                      <div id="bar-growth"> </div>
-                    </div>
+            </table>
+            {% endif %}
+            <br>
+            <br>
+            <div id="trace-wrapper" style="display: {{ongoing_display}}">
+              <div id="result-trace">
+                <p id="result-report"></p>
+                <div class="progressbar">
+                  <div id="bar-growth"> </div>
                 </div>
-                <table class="report-theme mt-5" style="margin: auto;width: 100%; column-width: auto;"> 
-                  <thead>
-                    <tr>
-                      <th style='column-width: auto;'>Executable Name</th>
-                      <th style='column-width: auto;'>Compiler Output</th>
-                      <th style='column-width: auto;'>Compiler Error</th>
-                    </tr>
-                  </thead>
-                  <tbody id="log-report">
-
-                  </tbody>
-                </table>
               </div>
-              <br><br>
-              <!-- 
-              <form action="{% url 'check_status' %}" method='post'>
+              <table class="report-theme mt-5" style="margin: auto;width: 100%; column-width: auto;">
+                <thead>
+                  <tr>
+                    <th style='column-width: auto;'>Executable Name</th>
+                    <th style='column-width: auto;'>Compiler Output</th>
+                    <th style='column-width: auto;'>Compiler Error</th>
+                  </tr>
+                </thead>
+                <tbody id="log-report">
+                </tbody>
+              </table>
+            </div>
+            <br>
+            <br>
+              <!--<form action="{% url 'check_status' %}" method='post'>
                 <script>
 
-                  var tab=[{task_id:"00010",compiler:"GCC 4.8",flag:"-O1,-Wall",username:"Jeffrey",tag:"#test",date:"6/13/2018",time:"07:05"},{task_id:"00011",compiler:"GCC 5.5",flag:"-O2,-Werror",username:"David",tag:"#task1",date:"6/13/2018",time:"09:14"}]
+                  var tab = [{ task_id: "00010", compiler: "GCC 4.8", flag: "-O1,-Wall", username: "Jeffrey", tag: "#test", date: "6/13/2018", time: "07:05" }, { task_id: "00011", compiler: "GCC 5.5", flag: "-O2,-Werror", username: "David", tag: "#task1", date: "6/13/2018", time: "09:14" }]
 
-                  var heads = ["Task ID","Compiler","Flags","Username","Tags","Date Submitted","Time Submitted"] 
+                  var heads = ["Task ID", "Compiler", "Flags", "Username", "Tags", "Date Submitted", "Time Submitted"]
 
 
-                  function tableCreate(myArray,myheads)
-                  {
-              var body = document.getElementById('thisone');
-                tbl  = document.createElement('table');
-              tbl.style.width  = '700px';
-              tbl.style.border = '2px solid black';
-              //tbl.style.float = 'middle';
+                  function tableCreate(myArray, myheads) {
+                    var body = document.getElementById('thisone');
+                    tbl = document.createElement('table');
+                    tbl.style.width = '700px';
+                    tbl.style.border = '2px solid black';
+                    //tbl.style.float = 'middle';
 
-              var header = tbl.createTHead();
-              var row = header.insertRow();
-              for (var l=0;l<myheads.length;l++)
-              {
-                var cell = row.insertCell();
-                cell.innerHTML=myheads[l]
-                cell.style.border='2px solid black'
-                cell.style="font-weight:bold"
-              }
-              
+                    var header = tbl.createTHead();
+                    var row = header.insertRow();
+                    for (var l = 0; l < myheads.length; l++) {
+                      var cell = row.insertCell();
+                      cell.innerHTML = myheads[l]
+                      cell.style.border = '2px solid black'
+                      cell.style = "font-weight:bold"
+                    }
 
-              for(var i = 0; i<myArray.length; i++)
-              {
-                  var tr = tbl.insertRow();
-                  for(var key in myArray[i])
-                  {
+
+                    for (var i = 0; i < myArray.length; i++) {
+                      var tr = tbl.insertRow();
+                      for (var key in myArray[i]) {
                         var td = tr.insertCell();
-                        var numb=myArray[i]['task_id']
+                        var numb = myArray[i]['task_id']
                         //window.alert(numb)
-                        td.onclick=(function(numb){return function() {assign_id(numb) }})(numb);
+                        td.onclick = (function (numb) { return function () { assign_id(numb) } })(numb);
                         td.appendChild(document.createTextNode(myArray[i][key]));
                         td.style.border = '1px solid black';
-                
+
+                      }
+                    }
+                    body.appendChild(tbl);
+                    return
                   }
-              }
-              body.appendChild(tbl);
-              return 
-          }
-          g=tableCreate(tab,heads);
+                  g = tableCreate(tab, heads);
 
 
-                  </script>
-          
+                </script>
+              
                 <script>
                   function assign_id(b) {
-                    task_id=b
+                    task_id = b
                     window.alert(task_id)
-                   }
+                  }
                 </script>
-              </form> -->
-            </div>
+              </form>-->
           </div>
         </div>
       </div>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>
