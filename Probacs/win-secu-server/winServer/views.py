@@ -36,7 +36,7 @@ def execute(request):
 	# host_ip = request.META['REMOTE_ADDR']
 	# host_port = request.META['SERVER_PORT']
 	# hostserver = "http://"+host_ip+":"+host_port+"/"
-	print(host_ip+" "+host_port)
+	# print(host_ip+" "+host_port)
 	hostserver = request.POST['host_ip']+"/"
 	src_dir = 'src'
 	if not os.path.exists(src_dir):

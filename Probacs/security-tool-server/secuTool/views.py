@@ -21,7 +21,7 @@ import zipfile,io,base64
 # global variables
 # winurl = 'http://172.16.165.132:8000'
 # self_ip = 
-host_ip_gateway = settins.GATEWAY
+host_ip_gateway = settings.GATEWAY
 enable_test = settings.ENABLE_LOCALTEST
 print(enable_test)
 local_ip = settings.LOCAL_IP
