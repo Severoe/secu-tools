@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 import requests
 from django.conf import settings
-from parser import *
+from probacs_parser import parseTaskFile
 from django.core import serializers
 from io import BytesIO
 import zipfile,io,base64
