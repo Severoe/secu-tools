@@ -24,8 +24,7 @@ import zipfile,io,base64
 host_ip_gateway = settings.GATEWAY
 enable_test = settings.ENABLE_LOCALTEST
 print(enable_test)
-local_ip = settings.LOCAL_IP
-self_ip = local_ip 
+self_ip = settings.LOCAL_IP
 winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
 rootDir = 'Compilation_tasks/'
@@ -251,7 +250,12 @@ def param_upload(request):
                 print("asyn call encountered")
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
-            param['host_ip'] = host_ip_gateway
+            ## if compile on same machine but diff port, using self_ip
+            self_ip_addr = self_ip.split(":")
+            if task_compiler.ip == self_ip_addr[0]+":"+self_ip_addr[1]:
+                param['host_ip'] = self_ip
+            else:
+                param['host_ip'] = host_ip_gateway
             print(param['host_ip'])
             upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
     
