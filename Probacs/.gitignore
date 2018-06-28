@@ -6,7 +6,7 @@ local_settings.py
 # Editor backup files
 *~
 *#
-
+*.swp
 # MAC DS Store file
 .DS_Store
 
@@ -21,7 +21,7 @@ db.sqlite3
 *.exe
 
 # Secret config parameters
-*.ini
+# *.ini
 
 
 
