@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from configparser import ConfigParser
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -120,4 +121,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-TASKS = {}
+
+# read server params for testing
+config = ConfigParser()
+config.read(os.path.join(BASE_DIR, 'config.ini'))
+
+
+ENABLE_LOCALTEST =True if config.get("Localtest","Allow_localtest") == "true" else False
+LOCAL_IP = config.get("Localtest", "Local_ip")
+
+

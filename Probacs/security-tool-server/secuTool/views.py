@@ -20,8 +20,10 @@ import zipfile,io,base64
 ################################
 # global variables
 # winurl = 'http://172.16.165.132:8000'
-# self_ip = 'http://192.168.56.101:8000'
-self_ip = 'http://localhost:7992'
+# self_ip = 
+enable_test = settings.ENABLE_LOCALTEST
+local_ip = settings.LOCAL_IP
+self_ip = local_ip if enable_test else 'http://192.168.56.101:8000'
 winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
 rootDir = 'Compilation_tasks/'
@@ -45,7 +47,7 @@ def preview(request):
 
     taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     message, params = process_files(request, taskName,  compiler_divided)
-    print(params)
+    # print(params)
     #######################################
     ## register task metadata table
     #######################################
@@ -235,8 +237,7 @@ def param_upload(request):
         #############################
         # calling compilation tasks
         #############################
-        if True:
-        # if task_http == self_ip:
+        if enable_test or task_http == self_ip:
             outputDir = taskFolder+"/"+"secu_compile"
             data = {
             'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
