@@ -78,6 +78,7 @@ function add_row() {
 	flags = $('#group').text().trim().split(" ")
 	flags = flags.join(", ")
 	new_row = ""
+	message = ""
 	var selected = 0
 	$('.row-button').each(function () {
 		if ($(this).hasClass("chosen")) {
@@ -97,10 +98,16 @@ function add_row() {
 			button_id++;
 			$(this).removeClass("chosen")
 			selected++
+			message += $(this).closest('tr').find('td.os').text()
 		}
 	})
 	if (selected === 0) return
 	$('#preview-list').append(new_row)
+
+	addedgroup=$("#group").text()
+	logtext='<br>You added '+ addedgroup + ' to ' + message
+	addLog(logtext)
+
 	$('#groups').empty()
 	$('#group').empty()
 	$('#group-handin').empty()
@@ -108,8 +115,19 @@ function add_row() {
 
 function delete_row(row) {
 	var id = '#' + row
+	b=$(id).closest('tr').find('td.os').text()
 	$(id).closest('tr').remove()
+	st='<br>' + 'You deleted ' + b
+    addLog(st);
 }
+
+function addLog(logentry)
+{
+x=document.getElementById("rolling-log") 
+x.innerHTML=x.innerHTML+logentry    // Change the content 
+window.alert("BOO")
+}
+
 
 $('#compile').submit(function (e) {
 	$('.row-button').each(function () {
