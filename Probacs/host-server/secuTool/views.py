@@ -6,7 +6,7 @@ from wsgiref.util import FileWrapper
 from django.shortcuts import render, redirect
 from secuTool.forms import *
 from secuTool.models import *
-from django.core.files import File 
+from django.core.files import File
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
@@ -20,7 +20,7 @@ import zipfile,io,base64
 ################################
 # global variables
 # winurl = 'http://172.16.165.132:8000'
-# self_ip = 
+# self_ip =
 host_ip_gateway = settings.GATEWAY
 enable_test = settings.ENABLE_LOCALTEST
 print(enable_test)
@@ -44,7 +44,7 @@ def preview(request):
     src_filename = request.FILES['srcFile'].name  # llok into tar bar
     compiler_divided = {}
     if "compiler" in request.POST:
-        compiler_divided['compiler'], compiler_divided['version'] = request.POST['compiler'].split(" ")        
+        compiler_divided['compiler'], compiler_divided['version'] = request.POST['compiler'].split(" ")
 
     taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     message, params = process_files(request, taskName,  compiler_divided)
@@ -71,7 +71,7 @@ def preview(request):
         flag_from_profile = []
         for profile_name in param['profile']:
             # print(profile_name)
-            p_tmp = Profile_conf.objects.get(name=profile_name, 
+            p_tmp = Profile_conf.objects.get(name=profile_name,
                                                 target_os=param['target_os'],
                                                 compiler=param['compiler'],
                                                 version=param['version'])
@@ -83,7 +83,7 @@ def preview(request):
         # each element in compile_combination is a space-separated flag list
         compile_combination = [" ".join(x) for x in compile_combination]
         profiles = ",".join(param['profile'])
-        
+
         for flag in compile_combination:
             rows.append({'target_os':param['target_os'],
                             'compiler':param['compiler']+" "+param['version'],
@@ -221,11 +221,11 @@ def param_upload(request):
         task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
 
         #############################
-        # add entries into task database 
+        # add entries into task database
         for ele in param['flag'].split(","):
             new_task = Task(task_id=task_name,username=param['username'],
                 tag=None if not 'tag' in param else param['tag'],
-                src_file=filename,target_os=param['target_os'], 
+                src_file=filename,target_os=param['target_os'],
                 compiler=param['compiler'],version=param['version'],flag=ele)
             new_task.save()
             task_num += 1
@@ -244,7 +244,7 @@ def param_upload(request):
                 compile(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, param['flag'],on_complete)
                 #new thread
                 print("finished compile")
-                os._exit(0)  
+                os._exit(0)
             else:
                 #parent process, simply return to client
                 print("asyn call encountered")
@@ -258,7 +258,7 @@ def param_upload(request):
                 param['host_ip'] = host_ip_gateway
             print(param['host_ip'])
             upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
-    
+
     cur_taskMeta.compilation_num = task_num
     cur_taskMeta.save()
     response = {}
@@ -290,8 +290,8 @@ def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFold
     files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
     pid = os.fork()
     if pid == 0:
-        response = requests.post(ip, files=files,data=data) 
-        os._exit(0)  
+        response = requests.post(ip, files=files,data=data)
+        os._exit(0)
     else:
         return
 
@@ -401,7 +401,7 @@ def rcv_platform_result(request):
     if task == None or task.exename != None:
         print('task already gone or already updated')
         return HttpResponse()
-    task.exename = request.POST['exename'] 
+    task.exename = request.POST['exename']
     task.out = request.POST['out']
     task.err = request.POST['err']
     print(request.POST['out'], request.POST['err'])
@@ -416,7 +416,7 @@ def on_complete(task_info):
     '''
     called when each time compilation finished
     '''
-    response = requests.post(url=self_ip+"/rcv_compilation",data = task_info)  
+    response = requests.post(url=self_ip+"/rcv_compilation",data = task_info)
     return
 
 def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, on_complete):
@@ -474,7 +474,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
     log_file = open(log_filename, "w")
 
     print("compilation begins...")
-        
+
     cnt = 0
     for flag in flag_list:
         cnt += 1
@@ -487,7 +487,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
         compilation = Popen(command, stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
         log_file.write("%s, %s, %s\n"%(logline, out, err))
-        
+
         # execute callback to notice the completion of a single compilation
         task_info['out'] = out
         task_info['err'] = err
@@ -515,7 +515,7 @@ def test(request):
             profile_dict[target_os][compiler] = []
         profile_dict[target_os][compiler].append(name)
 
-    context['json_profiles'] = json.dumps(profile_dict) 
+    context['json_profiles'] = json.dumps(profile_dict)
     # context['status'] = statuses
     return render(request, 'secuTool/test.html',context)
 
@@ -591,8 +591,8 @@ def peek_profile(request):
     target_os = request.POST['target_os']
     compiler, version = request.POST['compiler'].split(' ')
     name = request.POST['name']
-    
-    profile = Profile_conf.objects.filter(name=name, 
+
+    profile = Profile_conf.objects.filter(name=name,
                                         target_os=target_os,
                                         compiler=compiler,
                                         version=version)
@@ -673,6 +673,13 @@ def addProfile(request):
 
     return render(request, "secuTool/test.html", context)
 
+def manageProfile(request):
+    return render(request, "secuTool/editProfile.html")
+
+
+def manageCompiler(request):
+    return render(request, "secuTool/editCompiler.html")
+
 ###########################################################################
 ###########################################################################
 #########           BELOW ARE SOME HELPER/TEST FUNCTIONS       ############
@@ -745,7 +752,7 @@ def printRcd(rcd):
     print("exename: "+ str(rcd.exename))
     print("err: "+ str(rcd.err))
     print("out: "+ str(rcd.out))
-    
+
     return
 
 
@@ -760,8 +767,8 @@ def printRcd(rcd):
 def rcvSrc(request):
     timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     #create unique task forder for each task, inside which includes:
-    # srcCode, <profiles>, compiled file & log, 
-    # the archive for downloading will be delete 
+    # srcCode, <profiles>, compiled file & log,
+    # the archive for downloading will be delete
     taskName = timestr
     taskFolder = rootDir+timestr
     codeFolder = taskFolder+"/"+"src"
@@ -835,14 +842,14 @@ def rcvSrc(request):
         compile_combination = [" ".join(x) for x in compile_combination]
         compile_combination = [x.replace(" ","_") for x in compile_combination]
         #############################
-        # add entries into task database 
+        # add entries into task database
         for ele in compile_combination:
             new_task = Task(task_id=taskName,username=param['username'],
                 tag=None if not 'tag' in param else param['tag'],
-                src_file=filename,target_os=param['target_os'], 
+                src_file=filename,target_os=param['target_os'],
                 compiler=param['compiler'],version=param['version'],flag=ele)
             new_task.save()
-        final_flags = ",".join(compile_combination) 
+        final_flags = ",".join(compile_combination)
         #############################
         # calling compilation tasks
         #############################
@@ -858,18 +865,17 @@ def rcvSrc(request):
                 #new thread
                 # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
                 print("finished compile")
-                os._exit(0)  
+                os._exit(0)
             else:
                 #parent process, simply return to client
                 print("asyn call encountered")
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
             upload_to_platform(param,task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
-        
+
     context['task_id'] = taskName
     context['message'] = "file is compiling..."
     context['form'] = ProfileUserForm()
     context['progress'] = 'block'
     context['linux_taskFolder'] = taskName
     return render(request, 'secuTool/index.html', context)
-
