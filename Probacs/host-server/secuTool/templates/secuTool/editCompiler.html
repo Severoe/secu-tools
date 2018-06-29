@@ -38,7 +38,62 @@
     <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
   </header>
   
+  <div class="container">
+    <div class="col">
+      <div class="row-sm-5">
+        <h3>Profile list</h3>
+        <br>
+        <table id="profile">
+          <thead>
+            <tr>
+              <th>Target OS</th>
+              <th>Compilers</th>
+              <th>Version</th>
+              <th>IP</th>
+              <th>Port</th>
+              <th>HTTP path</th>
+              <th></th>
+            </tr>
+          </thead>
+          <!-- {% if rows %}
+            <tbody id="preview-list">
+              {% for ele in rows %}
+              <tr>
+                <td class="os">{{ele.targetOS}}</td>
+                <td class="compiler">{{ele.compiler}}</td>
+                <td class="version">{{ele.version}}</td>
+                <td class='ip'>{{ele.ip}}</td>
+                <td class="port">{{ele.port}}</td>
+                <td class="http_path">{{ele.http_path}}</td>
+                <td>
+                  <button class="btn btn-light btn-sm" id="r{{ele.seq}}" onclick="editCompiler('r{{ele.seq}}')">edit</button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            {% endif %} -->
+          <tbody id="preview-list">
+            <tr>
+              <td class="os">Linux</td>
+              <td class="compiler">gcc</td>
+              <td class="version">4.8</td>
+              <td class='ip'>...</td>
+              <td class="port">...</td>
+              <td class="http_path">...</td>
+              <td>
+                <button class="btn btn-light btn-sm" id="row" onclick="editCompiler(this.id)">edit</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <br>
+        <br>
+      </div>
+      <div class="row-sm-7" id="textbox">
   
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>
