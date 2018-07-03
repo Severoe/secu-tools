@@ -64,7 +64,7 @@
               <td class='name'>{{ele.name}}</td>
               <td class="nums">{{ele.num_of_flag}}</td>
               <td>
-                <button class="btn btn-light btn-sm" id="r{{ele.seq}}" onclick="editProfile('r{{ele.seq}}')">edit</button>
+                <button class="btn btn-light btn-sm" onclick="editProfile('{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}', '{{ele.name}}')">edit</button>
               </td>
             </tr>
             {% endfor %}
