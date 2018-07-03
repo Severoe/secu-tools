@@ -55,7 +55,7 @@
               <th></th>
             </tr>
           </thead>
-          <!-- {% if rows %}
+          {% if rows %}
             <tbody id="preview-list">
               {% for ele in rows %}
               <tr>
@@ -71,20 +71,7 @@
               </tr>
               {% endfor %}
             </tbody>
-            {% endif %} -->
-          <tbody id="preview-list">
-            <tr>
-              <td class="os">Linux</td>
-              <td class="compiler">gcc</td>
-              <td class="version">4.8</td>
-              <td class='ip'>...</td>
-              <td class="port">...</td>
-              <td class="http_path">...</td>
-              <td>
-                <button class="btn btn-light btn-sm" id="row" onclick="editCompiler(this.id)">edit</button>
-              </td>
-            </tr>
-          </tbody>
+            {% endif %}
         </table>
         <br>
         <br>
