@@ -99,13 +99,14 @@ function add_row() {
 			$(this).removeClass("chosen")
 			selected++
 			message += $(this).closest('tr').find('td.id').text()
+			details=" ("+$(id).closest('tr').find('td.os').text()+"; "+$(id).closest('tr').find('td.compiler').text()+"; "+$(id).closest('tr').find('td.profile').text()+"; "+$(id).closest('tr').find('td.flag').text()+"; "+$(id).closest('tr').find('td.username').text()+")"
 		}
 	})
 	if (selected === 0) return
 	$('#preview-list').append(new_row)
 
 	addedgroup = $("#group").text()
-	logtext = '<br>You added ' + addedgroup + ' to ' + message
+	logtext = '<br>You added ' + addedgroup + ' to ' + message +details
 	addLog(logtext)
 
 	$('#groups').empty()
@@ -116,7 +117,7 @@ function add_row() {
 function delete_row(row) {
 	var id = '#' + row
 	b=$(id).closest('tr').find('td.id').text()
-	details=" ("+$(id).closest('tr').find('td.os').text()+", "+$(id).closest('tr').find('td.compiler').text()+", "+$(id).closest('tr').find('td.profile').text()+", "+$(id).closest('tr').find('td.flag').text()+", "+$(id).closest('tr').find('td.username').text()+")"
+	details=" ("+$(id).closest('tr').find('td.os').text()+"; "+$(id).closest('tr').find('td.compiler').text()+"; "+$(id).closest('tr').find('td.profile').text()+"; "+$(id).closest('tr').find('td.flag').text()+"; "+$(id).closest('tr').find('td.username').text()+")"
 	$(id).closest('tr').remove()
 	st='<br>' + 'You deleted task' + b+ details
     addLog(st);
