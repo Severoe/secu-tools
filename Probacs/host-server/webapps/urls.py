@@ -27,6 +27,7 @@ urlpatterns = [
     # url(r'^download_file$', views.send_zip, name='download_file'),
     # url(r'^serve_pdf$', views.serve_pdf, name='serve_pdf'),
     url(r'^download_tar$', views.wrap_dir, name='download_tar'),
+
     url(r'^check_status$', views.check_status, name='check_status'),
     url(r'^test$', views.test, name='test'),
     url(r'^redirect_trace$', views.redirect_trace, name='redirect_trace'),
