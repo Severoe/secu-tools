@@ -674,7 +674,19 @@ def addProfile(request):
     return render(request, "secuTool/test.html", context)
 
 def manageProfile(request):
-    return render(request, "secuTool/manageProfile.html")
+    context = {}
+    profiles = Profile_conf.objects.values()
+    rows = []
+    for profile in profiles:
+        p_dict = {"target_os": profile["target_os"],
+                    "compiler": profile["compiler"],
+                    "version": profile["version"],
+                    "name": profile["name"],
+                    "num_of_flag": len(json.loads(profile['flag']))
+                    }
+        rows.append(p_dict.copy())
+    context["rows"] = rows
+    return render(request, "secuTool/manageProfile.html", context)
 
 
 def manageCompiler(request):

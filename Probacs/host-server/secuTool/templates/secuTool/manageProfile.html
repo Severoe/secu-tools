@@ -54,34 +54,22 @@
               <th></th>
             </tr>
           </thead>
-          <!-- {% if rows %}
+          {% if rows %}
           <tbody id="preview-list">
             {% for ele in rows %}
             <tr>
-              <td class="os">{{ele.targetOS}}</td>
+              <td class="os">{{ele.target_os}}</td>
               <td class="compiler">{{ele.compiler}}</td>
               <td class="version">{{ele.version}}</td>
               <td class='name'>{{ele.name}}</td>
-              <td class="nums">{{ele.numOfFlags}}</td>
+              <td class="nums">{{ele.num_of_flag}}</td>
               <td>
                 <button class="btn btn-light btn-sm" id="r{{ele.seq}}" onclick="editProfile('r{{ele.seq}}')">edit</button>
               </td>
             </tr>
             {% endfor %}
           </tbody>
-          {% endif %} -->
-          <tbody id="preview-list">
-            <tr>
-              <td class="os">Linux</td>
-              <td class="compiler">gcc</td>
-              <td class="version">4.8</td>
-              <td class='name'>max_optimization</td>
-              <td class="nums">50</td>
-              <td>
-                <button class="btn btn-light btn-sm" id="row" onclick="editProfile(this.id)">edit</button>
-              </td>
-            </tr>
-          </tbody>
+          {% endif %}
         </table>
         <br>
         <br>
