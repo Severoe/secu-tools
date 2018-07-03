@@ -116,8 +116,9 @@ function add_row() {
 function delete_row(row) {
 	var id = '#' + row
 	b=$(id).closest('tr').find('td.id').text()
+	details=" ("+$(id).closest('tr').find('td.os').text()+", "+$(id).closest('tr').find('td.compiler').text()+", "+$(id).closest('tr').find('td.profile').text()+", "+$(id).closest('tr').find('td.flag').text()+", "+$(id).closest('tr').find('td.username').text()+")"
 	$(id).closest('tr').remove()
-	st='<br>' + 'You deleted ' + b
+	st='<br>' + 'You deleted task' + b+ details
     addLog(st);
 }
 
