@@ -90,7 +90,7 @@ function add_row() {
 				'<td class="os">' + $(this).closest('tr').find('td.os').text() + '</td>' +
 				'<td class="compiler">' + $(this).closest('tr').find('td.compiler').text() + '</td>' +
 				'<td class="profile">' + $(this).closest('tr').find('td.profile').text() + '</td>' +
-				'<td class="flag" contenteditable="true">' + $(this).closest('tr').find('td.flag').text() + ", " + flags + '</td>' +
+				'<td class="flag" contenteditable="true" id='editflags'>' + $(this).closest('tr').find('td.flag').text() + ", " + flags + '</td>' +
 				'<td class="username">' + $(this).closest('tr').find('td.username').text() + '</td>' +
 				'<td class="tags">' + $(this).closest('tr').find('td.tags').text() + '</td>' +
 				'<td><button class="btn btn-light btn-sm" onclick="delete_row(\'r' + button_id + '\')">delete</button></td>'
@@ -106,7 +106,7 @@ function add_row() {
 	$('#preview-list').append(new_row)
 
 	addedgroup = $("#group").text()
-	logtext = '<br>You added ' + addedgroup + ' to ' + message +details
+	logtext = '<br>You added ' + addedgroup + ' to ' + message +details + '<br>'
 	addLog(logtext)
 
 	$('#groups').empty()
@@ -119,7 +119,7 @@ function delete_row(row) {
 	b=$(id).closest('tr').find('td.id').text()
 	details=" ("+$(id).closest('tr').find('td.os').text()+"; "+$(id).closest('tr').find('td.compiler').text()+"; "+$(id).closest('tr').find('td.profile').text()+"; "+$(id).closest('tr').find('td.flag').text()+"; "+$(id).closest('tr').find('td.username').text()+")"
 	$(id).closest('tr').remove()
-	st='<br>' + 'You deleted task' + b+ details
+	st='<br>' + 'You deleted task' + b+ details + '<br>'
     addLog(st);
 }
 
