@@ -98,7 +98,7 @@ function add_row() {
 			button_id++;
 			$(this).removeClass("chosen")
 			selected++
-			message += $(this).closest('tr').find('td.os').text()
+			message += $(this).closest('tr').find('td.id').text()
 		}
 	})
 	if (selected === 0) return
@@ -115,7 +115,7 @@ function add_row() {
 
 function delete_row(row) {
 	var id = '#' + row
-	b=$(id).closest('tr').find('td.os').text()
+	b=$(id).closest('tr').find('td.id').text()
 	$(id).closest('tr').remove()
 	st='<br>' + 'You deleted ' + b
     addLog(st);
