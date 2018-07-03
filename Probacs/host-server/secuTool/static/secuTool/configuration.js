@@ -10,7 +10,7 @@ function editProfile(os, compiler, version, name) {
             name: name,
         },
         success: function (response) {
-            
+            console.log(response)
         }
     });
 }
@@ -18,7 +18,7 @@ function editProfile(os, compiler, version, name) {
 function editCompiler(os, compiler, version) {
     $.ajax({
         type: 'POST',
-        url: "/getProfile",
+        url: "/getCompiler",
         dataType: "json",
         data: {
             target_os: os,
