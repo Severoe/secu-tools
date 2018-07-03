@@ -26,5 +26,5 @@ db.sqlite3
 
 
 # compilation files
-/security-tool-server/Compilation_tasks/*
-/win-secu-server/Compilation_tasks/*
+/host-server/Compilation_tasks/*
+/platform-server/Compilation_tasks/*
