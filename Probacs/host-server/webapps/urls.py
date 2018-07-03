@@ -42,8 +42,8 @@ urlpatterns = [
     url(r'^addCompiler', views.addCompiler, name='addCompiler'),
     url(r'^addProfile', views.addProfile, name='addProfile'),
     
-    url(r'^editCompiler', views.manageCompiler, name='manageCompiler'),
-    url(r'^editProfile', views.manageProfile, name='manageProfile'),
+    url(r'^manageCompiler', views.manageCompiler, name='manageCompiler'),
+    url(r'^manageProfile', views.manageProfile, name='manageProfile'),
     
     url(r'^trace$', views.trace, name='trace'),
     url(r'^tracetest$', views.tracetest, name='tracetest'),

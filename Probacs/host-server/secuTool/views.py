@@ -674,11 +674,11 @@ def addProfile(request):
     return render(request, "secuTool/test.html", context)
 
 def manageProfile(request):
-    return render(request, "secuTool/editProfile.html")
+    return render(request, "secuTool/manageProfile.html")
 
 
 def manageCompiler(request):
-    return render(request, "secuTool/editCompiler.html")
+    return render(request, "secuTool/manageCompiler.html")
 
 ###########################################################################
 ###########################################################################
