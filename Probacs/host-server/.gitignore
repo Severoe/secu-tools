@@ -6,12 +6,12 @@ local_settings.py
 # Editor backup files
 *~
 *#
-*.swp
+
 # MAC DS Store file
 .DS_Store
 
 # Django's SQL Lite Database File
-db.sqlite3
+# db.sqlite3
 
 # Image files (so we don't put into the repo demo files uploaded when this app was run)
 *.jpg
@@ -26,5 +26,4 @@ db.sqlite3
 
 
 # compilation files
-/security-tool-server/Compilation_tasks/*
-/win-secu-server/Compilation_tasks/*
+/Compilation_tasks/*
