@@ -63,7 +63,7 @@ def preview(request):
     if message:
         return render(request, 'secuTool/test.html', {"message":message})
     rows = []
-    seq = 0
+    seq = 1
     for param in params:
         # permute flags combination  from diff flags
         # print(param)
