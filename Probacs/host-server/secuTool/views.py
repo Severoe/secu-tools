@@ -690,7 +690,19 @@ def manageProfile(request):
 
 
 def manageCompiler(request):
-    return render(request, "secuTool/manageCompiler.html")
+    context = {}
+    compilers = Compiler_conf.objects.values()
+    rows = []
+    for compiler in compilers:
+        c_dict = {"target_os": compiler['target_os'],
+                    'compiler': compiler['compiler'],
+                    'version': compiler['version'],
+                    'ip': compiler['ip'],
+                    'port': compiler['port'],
+                    'http_path': compiler['http_path']}
+        rows.append(c_dict.copy())
+    context['rows'] = rows
+    return render(request, "secuTool/manageCompiler.html", context)
 
 ###########################################################################
 ###########################################################################
