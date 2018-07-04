@@ -754,8 +754,8 @@ def getProfile(request):
     profile = Profile_conf.objects.get(target_os=request.POST['target_os'],
                                             compiler=request.POST['compiler'],
                                             version=request.POST['version'],
-                                            name=request.POST['name']).values()
-    num = profile.count()
+                                            name=request.POST['name'])
+    res = {}
     for key in ["target_os", "compiler", "version", "name", "flag"]:
         res[key] = getattr(profile, key)
     return HttpResponse(json.dumps(res), content_type="application/json")
