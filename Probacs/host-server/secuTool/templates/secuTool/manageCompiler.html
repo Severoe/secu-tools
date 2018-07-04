@@ -43,7 +43,7 @@
       <div class="row-sm-5">
         <h3>Compiler list</h3>
         <br>
-        <table id="compiler">
+        <table id="compiler-list">
           <thead>
             <tr>
               <th>Target OS</th>
@@ -67,6 +67,7 @@
               <td class="http_path">{{ele.http_path}}</td>
               <td>
                 <button class="btn btn-light btn-sm" onclick="editCompiler('{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}')">edit</button>
+                <button class="btn btn-light btn-sm" id="row" onclick="deleteCompiler(this.id, '{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}')">delete</button>
               </td>
             </tr>
             {% endfor %}
@@ -76,7 +77,44 @@
         <br>
         <br>
       </div>
-      <div class="row-sm-7" id="textbox">
+      <div class="row-sm-7" id="update_compiler" style='visibility: hidden'>
+        <form action="/updateCompiler" method="post" enctype="multipart/form-data">
+          <h4>Please modify the profile</h4>
+          <br>
+          <h6>Target_os:</h6>
+          <textarea rows="1" cols="20" id="target_os" name="target_os" required></textarea>
+          <br>
+          <br>
+          <h6>Compiler:</h6>
+          <textarea rows="1" cols="20" id="compiler" name="compiler" required></textarea>
+          <br>
+          <br>
+          <h6>Version:</h6>
+          <textarea rows="1" cols="20" id="version" name="version" required></textarea>
+          <br>
+          <br>
+          <h6>IP:</h6>
+          <textarea rows="1" cols="20" id="ip" name="ip" required></textarea>
+          <br>
+          <br>
+          <h6>Port:</h6>
+          <textarea rows="1" cols="20" id="port" name="port" required></textarea>
+          <br>
+          <br>
+          <h6>HTTP path:</h6>
+          <textarea rows="1" cols="20" id="http_path" name="http_path"></textarea>
+          <br>
+          <br>
+          <h6>Invoke format:</h6>
+          <textarea id="invoke_format" name="invoke_format"></textarea>
+          <br>
+          <br>
+          <input id="old_target_os" type="hidden" value="" name="old_target_os" />
+          <input id="old_compiler" type="hidden" value="" name="old_compiler" />
+          <input id="old_version" type="hidden" value="" name="old_version" />
+          <input type="submit" id="save" value="save" /> {% csrf_token %}
+          <input type="submit" id="save_as_new" value="save as new" /> {% csrf_token %}
+        </form>
       </div>
     </div>
   </div>

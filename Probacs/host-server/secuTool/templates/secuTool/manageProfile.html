@@ -65,6 +65,7 @@
               <td class="nums">{{ele.num_of_flag}}</td>
               <td>
                 <button class="btn btn-light btn-sm" onclick="editProfile('{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}', '{{ele.name}}')">edit</button>
+                <button class="btn btn-light btn-sm" id="row" onclick="deleteProfile(this.id, '{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}', '{{ele.name}}')">delete</button>
               </td>
             </tr>
             {% endfor %}
@@ -95,14 +96,23 @@
           <br>
           <br>
           <h6>Flags:</h6>
-          <textarea rows="4" cols="20" id="flag" name="flag" required></textarea>
+          <textarea id="flag" name="flag" required></textarea>
+          <br>
+          <br>
+          <h6>Uploader:</h6>
+          <textarea rows="1" cols="20" id="uploader" name="uploader" required></textarea>
+          <br>
+          <br>
+          <h6>Upload time:</h6>
+          <textarea rows="1" cols="20" id="upload_time" name="upload_time" required></textarea>
           <br>
           <br>
           <input id="old_target_os" type="hidden" value="" name="old_target_os" />
           <input id="old_compiler" type="hidden" value="" name="old_compiler" />
           <input id="old_version" type="hidden" value="" name="old_version" />
           <input id="old_name" type="hidden" value="" name="old_name" />
-          <input type="submit" value="save" /> {% csrf_token %}
+          <input type="submit" id="save" value="save" /> {% csrf_token %}
+          <input type="submit" id="save_as_new" value="save as new" /> {% csrf_token %}
         </form>
       </div>
     </div>

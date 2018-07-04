@@ -783,12 +783,17 @@ def updateProfile(request):
 
     for key in ['target_os', 'compiler', 'version', 'name']:
         setattr(profile, key, request.POST[key])
+    
     new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
     new_flag = filter(lambda x: x, new_flag)
     setattr(profile, 'flag', json.dumps(new_flag))
 
     profile.save()
 
+    # message = {}
+    # message["message"] = "Profile successfully updated"
+    # HttpResponse(json.dumps(message), content_type="application/json")
+    # return render(request, "secuTool/test.html")
     return render(request, "secuTool/test.html", {'message':'Profile successfully updated'})
 
 

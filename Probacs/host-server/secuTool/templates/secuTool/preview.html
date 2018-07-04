@@ -27,12 +27,8 @@
         overflow-y: scroll;
       }
 
-       .log {
-        margin-left: 700px;
-        margin-top: 0px;
-        border: 1px blue;
+      .log {
         background: yellow;
-
       }
 
       table, th, td {
@@ -107,7 +103,6 @@
               <tr>
                 <td>
                   <button class="row-button" id="r{{ele.seq}}" onclick="addflag('r{{ele.seq}}')"></button>
-                  </div>
                 </td>
                 <td class="id">{{ele.seq}}</td>
                 <td class="os">{{ele.target_os}}</td>
@@ -124,25 +119,16 @@
             </tbody>
             {% endif %}
           </table>
-          <br>
-          <br>
-
-          <div class='log'>
-
-            <h3> Log </h3>
-             <p id='rolling-log'> 
-              <script>
-                addLog('')
-              </script>
-              </p>
-
-          </div>
-
-
           <p>* Please edit or select more flags and start compilation.</p>
-          <br>
-          <br>
         </div>
+        <br>
+        <br>
+        <div class="row-sm-5">
+          <h3>Log</h3>
+          <div class="log" id="log"></div>
+        </div>
+        <br>
+        <br>
         <div class="row-sm-7">
           <h3>Select more flags</h3>
           <br>

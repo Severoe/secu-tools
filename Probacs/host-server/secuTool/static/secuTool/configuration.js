@@ -27,14 +27,39 @@ function editProfile(os, compiler, version, name) {
             $('#flag').empty()
             var plist = JSON.parse(response['flag'])
             for (p in plist) {
-                $('#flag').append(plist[p] + '\n')
+                $('#flag').append(plist[p])
+                if (p != plist.length - 1) {
+                    $('#flag').append('\n')
+                }
             }
-            console.log(document.getElementById('old_target_os').value)
+            $('#uploader').empty()
+            $('#uploader').append(response['uploader'])
+            $('#upload_time').empty()
+            $('#upload_time').append(response['upload_time'])
+        }
+    });
+}
+
+function deleteProfile(row, os, compiler, version, name) {
+    var id = '#' + row
+    $.ajax({
+        type: 'POST',
+        url: "/deleteProfile",
+        dataType: "json",
+        data: {
+            target_os: os,
+            compiler: compiler,
+            version: version,
+            name: name,
+        },
+        success: function (response) {
+            $(id).closest('tr').remove()
         }
     });
 }
 
 function editCompiler(os, compiler, version) {
+    document.getElementById('update_compiler').style.visibility = 'visible'
     $.ajax({
         type: 'POST',
         url: "/getCompiler",
@@ -45,7 +70,41 @@ function editCompiler(os, compiler, version) {
             version: version,
         },
         success: function (response) {
+            document.getElementById('old_target_os').value = response['target_os']
+            document.getElementById('old_compiler').value = response['compiler']
+            document.getElementById('old_version').value = response['version']
 
+            $('#target_os').empty()
+            $('#target_os').append(response['target_os'])
+            $('#compiler').empty()
+            $('#compiler').append(response['compiler'])
+            $('#version').empty()
+            $('#version').append(response['version'])
+            $('#ip').empty()
+            $('#ip').append(response['ip'])
+            $('#port').empty()
+            $('#port').append(response['port'])
+            $('#http_path').empty()
+            $('#http_path').append(response['http_path'])
+            $('#invoke_format').empty()
+            $('#invoke_format').append(response['invoke_format'])
+        }
+    });
+}
+
+function deleteCompiler(row, os, compiler, version) {
+    var id = '#' + row
+    $.ajax({
+        type: 'POST',
+        url: "/deleteCompiler",
+        dataType: "json",
+        data: {
+            target_os: os,
+            compiler: compiler,
+            version: version,
+        },
+        success: function (response) {
+            $(id).closest('tr').remove()
         }
     });
 }

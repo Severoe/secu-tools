@@ -78,13 +78,11 @@ function add_row() {
 	flags = $('#group').text().trim().split(" ")
 	flags = flags.join(", ")
 	new_row = ""
-	message = ""
 	var selected = 0
 	$('.row-button').each(function () {
 		if ($(this).hasClass("chosen")) {
 			//append a new row
 			var os = $(this).closest('tr').find('td.os').text()
-			console.log(os)
 			new_row += '<tr bgcolor="#F0F8FF">' +
 				'<td><button class="row-button" id="r' + button_id + '" onclick="addflag(\'r' + button_id + '\')"></button></div></td>' +
 				'<td class="os">' + $(this).closest('tr').find('td.os').text() + '</td>' +
@@ -95,19 +93,19 @@ function add_row() {
 				'<td class="tags">' + $(this).closest('tr').find('td.tags').text() + '</td>' +
 				'<td><button class="btn btn-light btn-sm" onclick="delete_row(\'r' + button_id + '\')">delete</button></td>'
 				+ '</tr>'
-			button_id++;
+			button_id++
 			$(this).removeClass("chosen")
 			selected++
-			message += $(this).closest('tr').find('td.id').text()
-			details=" ("+$(id).closest('tr').find('td.os').text()+"; "+$(id).closest('tr').find('td.compiler').text()+"; "+$(id).closest('tr').find('td.profile').text()+"; "+$(id).closest('tr').find('td.flag').text()+"; "+$(id).closest('tr').find('td.username').text()+")"
+			message = $(id).closest('tr').find('td.id').text() + " (" + $(id).closest('tr').find('td.os').text() + "; " +
+				$(id).closest('tr').find('td.compiler').text() + "; " + $(id).closest('tr').find('td.profile').text() + "; " +
+				$(id).closest('tr').find('td.flag').text() + "; " + $(id).closest('tr').find('td.username').text() + ")"
 		}
 	})
 	if (selected === 0) return
 	$('#preview-list').append(new_row)
 
-	addedgroup = $("#group").text()
-	logtext = '<br>You added ' + addedgroup + ' to ' + message +details + '<br>'
-	addLog(logtext)
+	logtext = 'You added ' + $("#group").text() + ' to ' + message + '<br>'
+	document.getElementById("log").innerHTML += logtext
 
 	$('#groups').empty()
 	$('#group').empty()
@@ -116,16 +114,13 @@ function add_row() {
 
 function delete_row(row) {
 	var id = '#' + row
-	b=$(id).closest('tr').find('td.id').text()
-	details=" ("+$(id).closest('tr').find('td.os').text()+"; "+$(id).closest('tr').find('td.compiler').text()+"; "+$(id).closest('tr').find('td.profile').text()+"; "+$(id).closest('tr').find('td.flag').text()+"; "+$(id).closest('tr').find('td.username').text()+")"
+	console.log($(id).closest('tr').find('td.id').text())
+	message = $(id).closest('tr').find('td.id').text() + " (" + $(id).closest('tr').find('td.os').text() + "; " +
+				$(id).closest('tr').find('td.compiler').text() + "; " + $(id).closest('tr').find('td.profile').text() + "; " +
+				$(id).closest('tr').find('td.flag').text() + "; " + $(id).closest('tr').find('td.username').text() + ")"
 	$(id).closest('tr').remove()
-	st='<br>' + 'You deleted task' + b+ details + '<br>'
-    addLog(st);
-}
-
-function addLog(logentry) {
-	x = document.getElementById("rolling-log")
-	x.innerHTML = x.innerHTML + logentry
+	logtext = 'You deleted task' + message + '<br>'
+	document.getElementById("log").innerHTML += logtext
 }
 
 $('#compile').submit(function (e) {
