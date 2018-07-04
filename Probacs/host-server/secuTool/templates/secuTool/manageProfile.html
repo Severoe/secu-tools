@@ -30,11 +30,6 @@
       border: 1px solid black;
       text-align: center;
     }
-
-    textarea {
-      height: 28px;
-      width: 400px;
-    }
   </style>
 </head>
 
@@ -83,11 +78,31 @@
         <form action="/updateProfile" method="post" enctype="multipart/form-data">
           <h4>Please modify the profile</h4>
           <br>
-          <h5>Target_os:</h5>
-          <div class="text">
-            <input type="text" id="target_os" name="target_os" required>
-            <br/>
-          </div>
+          <h6>Target_os:</h6>
+          <textarea rows="1" cols="20" id="target_os" name="target_os" required></textarea>
+          <br>
+          <br>
+          <h6>Compiler:</h6>
+          <textarea rows="1" cols="20" id="compiler" name="compiler" required></textarea>
+          <br>
+          <br>
+          <h6>Version:</h6>
+          <textarea rows="1" cols="20" id="version" name="version" required></textarea>
+          <br>
+          <br>
+          <h6>Name:</h6>
+          <textarea rows="1" cols="20" id="name" name="name" required></textarea>
+          <br>
+          <br>
+          <h6>Flags:</h6>
+          <textarea rows="4" cols="20" id="flag" name="flag" required></textarea>
+          <br>
+          <br>
+          <input id="old_target_os" type="hidden" value="" name="old_target_os" />
+          <input id="old_compiler" type="hidden" value="" name="old_compiler" />
+          <input id="old_version" type="hidden" value="" name="old_version" />
+          <input id="old_name" type="hidden" value="" name="old_name" />
+          <input type="submit" value="save" /> {% csrf_token %}
         </form>
       </div>
     </div>

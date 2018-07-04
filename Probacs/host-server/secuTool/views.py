@@ -359,15 +359,15 @@ def check_status(request):
         request.POST['task_id'].split(",")
 
     if request.POST['flags']==None:
-        query_dict['flag'] = None  
+        query_dict['flag'] = None
         empty_count += 1
-    else: 
+    else:
         request.POST['flags'].split(",")
 
     if request.POST['username']==None:
-        query_dict['username'] = None  
+        query_dict['username'] = None
         empty_count += 1
-    else: 
+    else:
         request.POST['username'].split(",")
 
     constraints = {"target_os__in": ['Linux']}
@@ -552,9 +552,9 @@ def redirect_trace(request):
     current_id = None
     if 'ongoing' in request.GET:
         current_id = request.GET['ongoing']
-        context['ongoing_display'] = 'block';
+        context['ongoing_display'] = 'block'
     else:
-        context['ongoing_display'] = 'none';
+        context['ongoing_display'] = 'none'
     ## now retrieve top five in database
     ## form a dictionary adn return
     tasks_report = []
@@ -682,7 +682,7 @@ def addProfile(request):
     if message:
         return render(request, 'secuTool/test.html', {"message":message, "nav2":"active show"})
 
-    old_profile = Profile_conf.filter(target_os=profile['target_os'], 
+    old_profile = Profile_conf.filter(target_os=profile['target_os'],
                             compiler=profile['compiler'],
                             version=profile['version'],
                             name=profile['name'])
@@ -745,7 +745,7 @@ def getCompiler(request):
     res = {}
     for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
         res[key] = getattr(compiler, key)
-    
+
     return HttpResponse(json.dumps(res), content_type="application/json ")
 
 # ajax function to show content of profile
