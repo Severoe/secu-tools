@@ -25,6 +25,7 @@ host_ip_gateway = settings.GATEWAY
 enable_test = settings.ENABLE_LOCALTEST
 print(enable_test)
 self_ip = settings.LOCAL_IP
+print(self_ip)
 winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
 rootDir = 'Compilation_tasks/'
@@ -320,12 +321,14 @@ def saveExe(request):
     return response
 
 
-#need to pack task based on taskid, also return blank page if request is empty
+#download files based on whole task level
 def wrap_dir(request):
-    taskFolder = request.POST['taskid']
-    if taskFolder == None or taskFolder == "":
-        return redirect('home')
+    taskFolder = request.POST['downloadtaskid']
+    if taskFolder == None or taskFolder == "" or TaskMeta.objects.filter(task_id=taskFolder).count() == 0:
+        message = "there is no corresponding tasks"
+        return render(request, 'secuTool/test.html', {"message":message, "nav4":"active show"})
     print("taskFolder: "+taskFolder )
+
     #pack executables inside task folder, send back
     new_name = "archive_"+taskFolder+".tgz"
     current_rootDir = rootDir+taskFolder+'/'
@@ -340,14 +343,36 @@ def wrap_dir(request):
 
 @transaction.atomic
 def check_status(request):
+    ##KWARGS
     context = {}
     task_id = request.POST['task_id']
     flags = request.POST['flags']
     obj = Task.objects.all()
+    empty_count = 0
+    total_count = 5
     query_dict = {}
-    query_dict['task_id'] = None if request.POST['task_id']==None else request.POST['task_id'].split(",")
-    query_dict['flag'] = None if request.POST['flags']==None else request.POST['flags'].split(",")
-    query_dict['username'] = None if request.POST['username']==None else request.POST['username'].split(",")
+
+    if request.POST['task_id']==None:
+        query_dict['task_id'] = None
+        empty_count += 1
+    else:
+        request.POST['task_id'].split(",")
+
+    if request.POST['flags']==None:
+        query_dict['flag'] = None  
+        empty_count += 1
+    else: 
+        request.POST['flags'].split(",")
+
+    if request.POST['username']==None:
+        query_dict['username'] = None  
+        empty_count += 1
+    else: 
+        request.POST['username'].split(",")
+
+    constraints = {"target_os__in": ['Linux']}
+    print (Compiler_conf.objects.filter(**constraints).count())
+
     query_dict['compiler'] = None if request.POST['compilers']==None else request.POST['compilers'].split(",")
     query_dict['tag'] = None if request.POST['tag']==None else request.POST['tag'].split(",")
     # query_dict['profiles'] = None if request.POST['profiles']==None else request.POST['profiles'].split(",")
@@ -369,21 +394,19 @@ def check_status(request):
             elif key=='tag':
                 obj = obj.filter(tag__in=val)
 
+
     # obj = obj.filter({"task_id__in":val, })
-
-    context['form'] = ProfileUserForm()
-
-
-    context['tasks'] = obj
-    for ele in context['tasks']:
-        ele.flag = ele.flag.replace("_", " ")
-        ele.status = 'not finished' if ele.exename == None else 'finished'
-        ele.exename = '-' if not ele.exename else ele.exename
-        ele.out = '-' if not ele.out else ele.out
-        ele.err = '-' if not ele.err else ele.err
-
+    if obj.count() != Task.objects.all().count():
+        context['tasks'] = obj
+        for ele in context['tasks']:
+            ele.flag = ele.flag.replace("_", " ")
+            ele.status = 'not finished' if ele.exename == None else 'finished'
+            ele.exename = '-' if not ele.exename else ele.exename
+            ele.out = '-' if not ele.out else ele.out
+            ele.err = '-' if not ele.err else ele.err
+    context['nav3'] = "active show"
     # context['task_id'] = request.POST['task_id']
-    return render(request, 'secuTool/index.html',context)
+    return render(request, 'secuTool/test.html',context)
 
 
 

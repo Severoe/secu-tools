@@ -200,9 +200,10 @@ function trace_job() {
                 // clearInterval(event_id)
             }
         	percent = finished*100/total
-        	report = finished.toString()+" / "+total.toString()+" compilation finished for job id: "+response.task_id
+        	report = "<span id='task_finished'>"+ finished.toString()+"</span> / "+"<span id='task_total'>"+total.toString()+"</span>"+" compilation finished for job id: "+response.task_id
         	$('#result-trace').css('display','block')
-            $('#result-report').text(report)
+        	$('#result-report').empty()
+            $('#result-report').append(report)
         	$('#bar-growth').width(percent.toString()+'%')
         	// adjost log output
         	$('#log-report').empty()
@@ -336,4 +337,24 @@ function onload_wrapper() {
 window.onload = onload_wrapper;
 var event_id = window.setInterval(trace_job, interval);
 
+
+
+
+
+
+
+
+
+
+//**************** function for tar downloading
+function download_tar(){
+	var id = $('#ongoing-task').text().trim()
+	var finished = $('#task_finished').text().trim()
+	var total = $('#task_total').text().trim()
+	if(finished !== total) return;
+	console.log("eligible for download")
+	$('input[name="downloadtaskid"]').val(id)
+	console.log($('input[name="downloadtaskid"]').val())
+	$('#download_full').submit()
+}
 
