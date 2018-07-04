@@ -697,7 +697,6 @@ def manageProfile(request):
     context["rows"] = rows
     return render(request, "secuTool/manageProfile.html", context)
 
-
 def manageCompiler(request):
     context = {}
     compilers = Compiler_conf.objects.values()
@@ -714,6 +713,7 @@ def manageCompiler(request):
     return render(request, "secuTool/manageCompiler.html", context)
 
 # ajax function to show content of compiler configuration
+@csrf_exempt
 def getCompiler(request):
     compiler = Compiler_conf.objects.get(target_os=request.POST['target_os'],
                                         compiler=request.POST['compiler'],
@@ -721,27 +721,23 @@ def getCompiler(request):
 
     res = {}
     for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
-        res[key] = compiler[key]
+        res[key] = getattr(compiler, key)
     
     return HttpResponse(json.dumps(res), content_type="application/json ")
 
 # ajax function to show content of profile
+@csrf_exempt
 def getProfile(request):
-    profile = Profile_conf.objects.filter(target_os=request.POST['target_os'],
+    profile = Profile_conf.objects.get(target_os=request.POST['target_os'],
                                             compiler=request.POST['compiler'],
                                             version=request.POST['version'],
-                                            name=request.POST['name'])
+                                            name=request.POST['name']).values()
     num = profile.count()
-    if num > 1:
-        res = {"message": "Multiple profiles found with given information"}
-    elif num < 1:
-        res = {"message": "No profile matching given information"}
-    else:
-        res = {}
-        for key in ["target_os", "compiler", "version", "name", "flag"]:
-            res[key] = profile[0][key]
+    for key in ["target_os", "compiler", "version", "name", "flag"]:
+        res[key] = getattr(profile, key)
     return HttpResponse(json.dumps(res), content_type="application/json")
 
+@csrf_exempt
 def updateCompiler(request):
     compiler = Compiler_conf.objects.get(target_os=request.POST['old_target_os'],
                                 compiler=request.POST['old_compiler'],
@@ -754,6 +750,7 @@ def updateCompiler(request):
 
     return render(request, "secuTool/test.html", {'message':'Compiler successfully updated'})
 
+@csrf_exempt
 def updateProfile(request):
     profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
                                 compiler=request.POST['old_compiler'],
