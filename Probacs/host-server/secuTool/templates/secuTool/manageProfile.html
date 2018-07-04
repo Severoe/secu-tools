@@ -30,6 +30,11 @@
       border: 1px solid black;
       text-align: center;
     }
+
+    textarea {
+      height: 28px;
+      width: 400px;
+    }
   </style>
 </head>
 
@@ -74,8 +79,16 @@
         <br>
         <br>
       </div>
-      <div class="row-sm-7" id="textbox">
-
+      <div class="row-sm-7" id="update_profile" style='visibility: hidden'>
+        <form action="/updateProfile" method="post" enctype="multipart/form-data">
+          <h4>Please modify the profile</h4>
+          <br>
+          <h5>Target_os:</h5>
+          <div class="text">
+            <input type="text" id="target_os" name="target_os" required>
+            <br/>
+          </div>
+        </form>
       </div>
     </div>
   </div>

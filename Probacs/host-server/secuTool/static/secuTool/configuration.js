@@ -1,4 +1,5 @@
 function editProfile(os, compiler, version, name) {
+    document.getElementById('update_profile').style.visibility = 'visible'
     $.ajax({
         type: 'POST',
         url: "/getProfile",
@@ -11,6 +12,7 @@ function editProfile(os, compiler, version, name) {
         },
         success: function (response) {
             console.log(response)
+            $('#target_os').append(response['target_os'])
         }
     });
 }
