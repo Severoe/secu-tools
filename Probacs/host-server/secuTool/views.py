@@ -756,8 +756,9 @@ def getProfile(request):
                                             version=request.POST['version'],
                                             name=request.POST['name'])
     res = {}
-    for key in ["target_os", "compiler", "version", "name", "flag"]:
+    for key in ["target_os", "compiler", "version", "name", "flag", "uploader"]:
         res[key] = getattr(profile, key)
+    res["upload_time"] = profile.upload_time.strftime("%Y-%m-%d-%H-%M-%S")
     return HttpResponse(json.dumps(res), content_type="application/json")
 
 @csrf_exempt
@@ -767,7 +768,7 @@ def updateCompiler(request):
                                 version=request.POST['old_version'])
 
     for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
-        compiler[key] = request.POST[key]
+        setattr(compiler, key, request.POST[key])
 
     compiler.save()
 
@@ -781,8 +782,10 @@ def updateProfile(request):
                                 name=request.POST['old_name'])
 
     for key in ['target_os', 'compiler', 'version', 'name']:
-        profile[key] = request.POST[key]
-    profile['flag'] = json.dumps(request.POST['flag'].split('\n'))
+        setattr(profile, key, request.POST[key])
+    new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
+    new_flag = filter(lambda x: x, new_flag)
+    setattr(profile, 'flag', json.dumps(new_flag))
 
     profile.save()
 
