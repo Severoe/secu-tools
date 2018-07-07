@@ -119,9 +119,23 @@ function delete_row(row) {
 				$(id).closest('tr').find('td.compiler').text() + "; " + $(id).closest('tr').find('td.profile').text() + "; " +
 				$(id).closest('tr').find('td.flag').text() + "; " + $(id).closest('tr').find('td.username').text() + ")"
 	$(id).closest('tr').remove()
-	logtext = 'You deleted task' + message + '<br>'
+	logtext = 'You deleted task ' + message + '<br>'
 	document.getElementById("log").innerHTML += logtext
 }
+
+$(function () {
+	$('table td').focus(function () {
+		original = $(this).text()
+	});
+	$('table td').blur(function () {
+		updated = $(this).text()
+		if (original != updated) {
+			id = $(this).closest('tr').find('td.id').text()
+			logtext = 'You modified task ' + id + ': from "' + original + '" to "' + updated + '"<br>'
+			document.getElementById("log").innerHTML += logtext
+		}
+	});
+});
 
 $('#compile').submit(function (e) {
 	$('.row-button').each(function () {
