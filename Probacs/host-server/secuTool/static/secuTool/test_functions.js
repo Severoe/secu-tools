@@ -1,3 +1,9 @@
+var groupNumber = 0
+var button_id = 100
+var interval = 1000;
+var finished_status = false
+var text = ""
+
 function setCurrentJob(job_id){
 	// event_id = setInterval(trace_job, interval);
 	$('#ongoing-task').text(job_id)
@@ -143,3 +149,24 @@ function peek(profile) {
         $(id).empty()
     }
 }
+
+function onload_wrapper() {
+    getOS()
+    trace_job()
+}
+
+window.onload = onload_wrapper;
+var event_id = window.setInterval(trace_job, interval);
+
+//**************** function for tar downloading
+function download_tar(){
+    var id = $('#ongoing-task').text().trim()
+    var finished = $('#task_finished').text().trim()
+    var total = $('#task_total').text().trim()
+    if(finished !== total) return;
+    console.log("eligible for download")
+    $('input[name="downloadtaskid"]').val(id)
+    console.log($('input[name="downloadtaskid"]').val())
+    $('#download_full').submit()
+}
+
