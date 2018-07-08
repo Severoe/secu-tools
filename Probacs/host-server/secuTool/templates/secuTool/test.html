@@ -237,32 +237,34 @@
                 </tr>
                 <tr>
                   <td>
-                    <input style="width:100px;" type="text" name='task_id'>
+                    <input style="width:100px;" type="text" name='task_id' value="{{task_id}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='compilers'>
+                    <input style="width:100px;" type="text" name='compilers' value="{{compilers}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='flags'>
+                    <input style="width:100px;" type="text" name='flags' value="{{flags}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='username'>
+                    <input style="width:100px;" type="text" name='username' value="{{username}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='tag'>
+                    <input style="width:100px;" type="text" name='tag' value="{{tag}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='date after'>
+                    <input style="width:100px;" type="text" name='date after' value="{{date_after}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='date before'>
+                    <input style="width:100px;" type="text" name='date before' value="{{date_before}}">
                   </td>
                 </tr>
               </table>
               <br>
               <input type="submit" value="submit" class="submit-edition"> {% csrf_token %}
               <br>
+              <div style="margin-top: 10px;padding-bottom: 10px;">{{search_result}}</div>
               <br>
+
             </form>
             {% if tasks %} 
               <table >
@@ -298,6 +300,7 @@
                 {% endfor %}
                 </table>
             {% endif %}
+              <br><br>
               <form enctype="multipart/form-data" action="{% url 'download_tar' %}" method='post'>
                 <input type="hidden" name="taskid" value={linux_taskFolder}}>
                 <input type="submit" value="Download Directory" class="submit-edition"> {% csrf_token %}
