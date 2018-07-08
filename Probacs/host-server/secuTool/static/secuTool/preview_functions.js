@@ -124,11 +124,12 @@ function delete_row(row) {
 	document.getElementById("log").innerHTML += logtext
 }
 
-$(function () {
-	$('table td').focus(function () {
+function edit_flags() {
+	$('.flag').focus(function () {
 		original = $(this).text()
+		console.log(original)
 	});
-	$('table td').blur(function () {
+	$('.flag').blur(function () {
 		updated = $(this).text()
 		if (original != updated) {
 			id = $(this).closest('tr').find('td.id').text()
@@ -136,7 +137,7 @@ $(function () {
 			document.getElementById("log").innerHTML += logtext
 		}
 	});
-});
+}
 
 function compile() {
 	var param = []
@@ -191,6 +192,7 @@ function display_flags() {
 
 function onload_wrapper() {
 	display_flags()
+	edit_flags()
 }
 
 window.onload = onload_wrapper;
