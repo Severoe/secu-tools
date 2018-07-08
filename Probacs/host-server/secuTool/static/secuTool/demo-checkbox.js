@@ -50,7 +50,7 @@ function confirmgroup() {
 	$('#group-handin').prepend(form_item)
 }
 
-function delflag(flag) {
+function delflag(flag) {                           //NOT FOUND ANYWHERE
 	var button_id = '#' + flag + "z"
 	var flag = $(button_id).text().trim()
 	var parent_id = $(button_id).parent().attr("id")
