@@ -34,8 +34,7 @@ function editProfile(os, compiler, version, name) {
             }
             $('#uploader').empty()
             $('#uploader').append(response['uploader'])
-            $('#upload_time').empty()
-            $('#upload_time').append(response['upload_time'])
+            document.getElementById('upload_time').value = response['upload_time']
         }
     });
 }
