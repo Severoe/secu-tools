@@ -790,10 +790,6 @@ def updateProfile(request):
 
     profile.save()
 
-    # message = {}
-    # message["message"] = "Profile successfully updated"
-    # HttpResponse(json.dumps(message), content_type="application/json")
-    # return render(request, "secuTool/test.html")
     return render(request, "secuTool/test.html", {'message':'Profile successfully updated'})
 
 
