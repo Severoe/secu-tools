@@ -320,7 +320,7 @@ function peek(profile) {
 					message += "version: &nbsp &nbsp &nbsp" + response['version'] +  "<br>"
 					message += "flag: &nbsp &nbsp &nbsp" + response['flag'] + "<br>"
 					message += "uploader: &nbsp &nbsp" + response['uploader'] + "<br>"
-					message += "upload_time: &nbsp" + response['upload_time'] + "<br><br></div>"
+					message += "upload_time: &nbsp" + response['upload_time'] + "<br></div><br>"
 					$(id).append(message)
 				}
 			}

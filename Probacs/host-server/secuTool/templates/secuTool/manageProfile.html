@@ -65,7 +65,13 @@
               <td class="nums">{{ele.num_of_flag}}</td>
               <td>
                 <button class="btn btn-light btn-sm" onclick="editProfile('{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}', '{{ele.name}}')">edit</button>
-                <button class="btn btn-light btn-sm" id="row" onclick="deleteProfile(this.id, '{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}', '{{ele.name}}')">delete</button>
+                <form action="/deleteProfile" method="post" enctype="multipart/form-data">
+                  <input id="target_os" type="hidden" value="" name="target_os" />
+                  <input id="compiler" type="hidden" value="" name="compiler" />
+                  <input id="version" type="hidden" value="" name="version" />
+                  <input id="name" type="hidden" value="" name="name" />
+                  <button class="btn btn-light btn-sm" type="submit" id="deleteProfile" name="submit" value="deleteProfile">delete</button> {% csrf_token %}
+                </form>
               </td>
             </tr>
             {% endfor %}

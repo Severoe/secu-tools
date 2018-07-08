@@ -40,24 +40,6 @@ function editProfile(os, compiler, version, name) {
     });
 }
 
-function deleteProfile(row, os, compiler, version, name) {
-    var id = '#' + row
-    $.ajax({
-        type: 'POST',
-        url: "/deleteProfile",
-        dataType: "json",
-        data: {
-            target_os: os,
-            compiler: compiler,
-            version: version,
-            name: name,
-        },
-        success: function (response) {
-            $(id).closest('tr').remove()
-        }
-    });
-}
-
 function editCompiler(os, compiler, version) {
     document.getElementById('update_compiler').style.visibility = 'visible'
     $.ajax({
@@ -88,23 +70,6 @@ function editCompiler(os, compiler, version) {
             $('#http_path').append(response['http_path'])
             $('#invoke_format').empty()
             $('#invoke_format').append(response['invoke_format'])
-        }
-    });
-}
-
-function deleteCompiler(row, os, compiler, version) {
-    var id = '#' + row
-    $.ajax({
-        type: 'POST',
-        url: "/deleteCompiler",
-        dataType: "json",
-        data: {
-            target_os: os,
-            compiler: compiler,
-            version: version,
-        },
-        success: function (response) {
-            $(id).closest('tr').remove()
         }
     });
 }
