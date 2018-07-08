@@ -332,9 +332,9 @@ function peek(profile) {
 }
 
 function display_flags() {
-	var json_profiles = $('#json_profiles').text()
-	if (json_profiles === "" || json_profiles === null) return
-	var plist = JSON.parse(json_profiles)
+	var json_flags = $('#json_flags').text()
+	if (json_flags === "" || json_flags === null) return
+	var plist = JSON.parse(json_flags)
 	var message = ''
 	for (p in plist) {
 		message += '<div class="js-debug">'
