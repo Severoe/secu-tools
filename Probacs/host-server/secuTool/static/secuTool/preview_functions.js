@@ -1,8 +1,4 @@
-var groupNumber = 0
 var button_id = 100
-var interval = 1000;
-var finished_status = false
-var text = ""
 
 function addflag(flag) {
 	var id = "#" + flag
@@ -13,7 +9,7 @@ function addflag(flag) {
 	}
 }
 
-function delflag(flag) {                           //NOT FOUND ANYWHERE
+function delflag(flag) {
 	var button_id = '#' + flag + "z"
 	var flag = $(button_id).text().trim()
 	var parent_id = $(button_id).parent().attr("id")
@@ -78,6 +74,7 @@ function add_row() {
 	flags = $('#group').text().trim().split(" ")
 	flags = flags.join(", ")
 	new_row = ""
+	message = ""
 	var selected = 0, max_row = 0
 	$('.row-button').each(function () {
 		var row = parseInt($(this).closest('tr').find('td.id').text())
@@ -101,16 +98,15 @@ function add_row() {
 			selected++
 			button_id++
 			$(this).removeClass("chosen")
-			message = $(this).closest('tr').find('td.id').text() + ": " + $(this).closest('tr').find('td.os').text() + " (" +
-				$(this).closest('tr').find('td.os').text() + "; " + $(this).closest('tr').find('td.compiler').text() + "; " +
-				$(this).closest('tr').find('td.profile').text() + "; " + $(this).closest('tr').find('td.flag').text() + "; " +
-				$(this).closest('tr').find('td.username').text() + ")"
+			message += $(this).closest('tr').find('td.id').text() + ": (" + $(this).closest('tr').find('td.os').text() + "; " +
+				$(this).closest('tr').find('td.compiler').text() + "; " + $(this).closest('tr').find('td.profile').text() + "; " +
+				$(this).closest('tr').find('td.flag').text() + "; " + $(this).closest('tr').find('td.username').text() + ") <br>"
 		}
 	})
 	if (selected === 0) return
 	$('#preview-list').append(new_row)
 
-	logtext = 'You added ' + $("#group").text() + ' to task ' + message + '<br>'
+	logtext = 'You added ' + $("#group").text() + ' to task ' + message
 	document.getElementById("log").innerHTML += logtext
 
 	$('#groups').empty()
@@ -182,9 +178,9 @@ function compile() {
 }
 
 function display_flags() {
-	var json_profiles = $('#json_profiles').text()
-	if (json_profiles === "" || json_profiles === null) return
-	var plist = JSON.parse(json_profiles)
+	var json_flags = $('#json_flags').text()
+	if (json_flags === "" || json_flags === null) return
+	var plist = JSON.parse(json_flags)
 	var message = ''
 	for (p in plist) {
 		message += '<div class="js-debug">'

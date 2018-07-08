@@ -1,5 +1,4 @@
 var groupNumber = 0
-var button_id = 100
 var interval = 1000;
 var finished_status = false
 var text = ""
@@ -9,7 +8,6 @@ function setCurrentJob(job_id){
 	$('#ongoing-task').text(job_id)
 	finished_status = false
 }
-
 
 // invoked when job tracking request has been called
 function trace_job() {
@@ -169,4 +167,3 @@ function download_tar(){
     console.log($('input[name="downloadtaskid"]').val())
     $('#download_full').submit()
 }
-
