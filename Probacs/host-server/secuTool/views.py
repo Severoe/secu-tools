@@ -814,7 +814,22 @@ def updateProfile(request):
         return render(request, "secuTool/test.html", {'message':'New profile successfully saved', 'nav2': 'active show'})
 
 
+@csrf_exempt
+def deleteCompiler(request):
+    compiler_to_delete = Compiler_conf.objects.get(target_os=request.POST['target_os'],
+                                    compiler=request.POST['compiler'],
+                                    version=request.POST['version'])
+    compiler_to_delete.delete()
+    return render(request, "secuTool/test.html", {'message':'Compiler successfully deleted', 'nav2': 'active show'})
 
+@csrf_exempt
+def deleteProfile(request):
+    profile_to_delete = Profile_conf.objects.get(target_os=request.POST['target_os'],
+                                                compiler=request.POST['compiler'],
+                                                version=request.POST['version'],
+                                                name=request.POST['name'])
+    profile_to_delete.delete()
+    return render(request, "secuTool/test.html", {'message':'Profile successfully deleted', 'nav2': 'active show'})    
 
 ###########################################################################
 ###########################################################################
