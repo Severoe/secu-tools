@@ -814,6 +814,7 @@ def parse_taskMeta(ele, iscur):
     tmp['profiles'] = ele.profiles
     tmp['username'] = ele.username
     tmp['tag'] = ele.tag
+    tmp['total'] = ele.compilation_num
     tmp['submittime'] = ".".join(ele.task_id.split("-")[:3])+" "+":".join(ele.task_id.split("-")[3:])
     if iscur:
         tmp['current_task']="background: yellow;"
