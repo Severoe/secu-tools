@@ -13,6 +13,23 @@ function addflag(flag) {
 	}
 }
 
+function delflag(flag) {                           //NOT FOUND ANYWHERE
+	var button_id = '#' + flag + "z"
+	var flag = $(button_id).text().trim()
+	var parent_id = $(button_id).parent().attr("id")
+	var input_id = '#input' + parent_id.substring(parent_id.length - 1, parent_id.length)
+	var cnt = Number($(button_id).parent().children(".cnter").text()) - 1
+	if (cnt === 0) {
+		$(button_id).parent().remove()
+		$(input_id).remove()
+	} else {
+		var form_value = $(input_id).attr("value").replace(flag, "")
+		$(button_id).parent().children(".cnter").text(cnt)
+		$(input_id).attr({ "value": form_value })
+		$(button_id).remove()
+	}
+}
+
 function selectall() {
 	$('.row-button').each(function () {
 		$(this).addClass('chosen')
@@ -167,3 +184,21 @@ function compile() {
 		}
 	});
 }
+
+function display_flags() {
+	var json_profiles = $('#json_profiles').text()
+	if (json_profiles === "" || json_profiles === null) return
+	var plist = JSON.parse(json_profiles)
+	var message = ''
+	for (p in plist) {
+		message += '<div class="js-debug">'
+		message += '<button class="button-check-box" id=flag' + p + ' onclick="addflag(this.id)"></button> ' + plist[p] + '</div>'
+	}
+	$('#display_flags').append(message)
+}
+
+function onload_wrapper() {
+	display_flags()
+}
+
+window.onload = onload_wrapper;
