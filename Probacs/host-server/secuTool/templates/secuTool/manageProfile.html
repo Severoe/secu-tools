@@ -65,7 +65,13 @@
               <td class="nums">{{ele.num_of_flag}}</td>
               <td>
                 <button class="btn btn-light btn-sm" onclick="editProfile('{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}', '{{ele.name}}')">edit</button>
-                <button class="btn btn-light btn-sm" id="row" onclick="deleteProfile(this.id, '{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}', '{{ele.name}}')">delete</button>
+                <form action="/deleteProfile" method="post" enctype="multipart/form-data">
+                  <input type="hidden" value={{ele.target_os}} name="target_os" />
+                  <input type="hidden" value={{ele.compiler}} name="compiler" />
+                  <input type="hidden" value={{ele.version}} name="version" />
+                  <input type="hidden" value={{ele.name}} name="name" />
+                  <button class="btn btn-light btn-sm" type="submit" id="deleteProfile" name="submit" value="deleteProfile">delete</button> {% csrf_token %}
+                </form>
               </td>
             </tr>
             {% endfor %}
@@ -99,12 +105,12 @@
           <textarea id="flag" name="flag" required></textarea>
           <br>
           <br>
-          <h6>Uploader:</h6>
+          <h6>Uploader:<h7><span style="color:red">(Cannot be modified unless save as new)</span></h7></h6>
           <textarea rows="1" cols="20" id="uploader" name="uploader" required></textarea>
           <br>
           <br>
           <h6>Upload time:</h6>
-          <textarea rows="1" cols="20" id="upload_time" name="upload_time" required></textarea>
+          <input type="text" id="upload_time" value="" readonly="true">
           <br>
           <br>
           <input id="old_target_os" type="hidden" value="" name="old_target_os" />

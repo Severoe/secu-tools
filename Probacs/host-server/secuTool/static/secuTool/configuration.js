@@ -34,26 +34,7 @@ function editProfile(os, compiler, version, name) {
             }
             $('#uploader').empty()
             $('#uploader').append(response['uploader'])
-            $('#upload_time').empty()
-            $('#upload_time').append(response['upload_time'])
-        }
-    });
-}
-
-function deleteProfile(row, os, compiler, version, name) {
-    var id = '#' + row
-    $.ajax({
-        type: 'POST',
-        url: "/deleteProfile",
-        dataType: "json",
-        data: {
-            target_os: os,
-            compiler: compiler,
-            version: version,
-            name: name,
-        },
-        success: function (response) {
-            $(id).closest('tr').remove()
+            document.getElementById('upload_time').value = response['upload_time']
         }
     });
 }
@@ -88,23 +69,6 @@ function editCompiler(os, compiler, version) {
             $('#http_path').append(response['http_path'])
             $('#invoke_format').empty()
             $('#invoke_format').append(response['invoke_format'])
-        }
-    });
-}
-
-function deleteCompiler(row, os, compiler, version) {
-    var id = '#' + row
-    $.ajax({
-        type: 'POST',
-        url: "/deleteCompiler",
-        dataType: "json",
-        data: {
-            target_os: os,
-            compiler: compiler,
-            version: version,
-        },
-        success: function (response) {
-            $(id).closest('tr').remove()
         }
     });
 }

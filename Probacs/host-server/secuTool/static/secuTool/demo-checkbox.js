@@ -50,7 +50,7 @@ function confirmgroup() {
 	$('#group-handin').prepend(form_item)
 }
 
-function delflag(flag) {
+function delflag(flag) {                           //NOT FOUND ANYWHERE
 	var button_id = '#' + flag + "z"
 	var flag = $(button_id).text().trim()
 	var parent_id = $(button_id).parent().attr("id")
@@ -78,13 +78,18 @@ function add_row() {
 	flags = $('#group').text().trim().split(" ")
 	flags = flags.join(", ")
 	new_row = ""
-	var selected = 0
+	var selected = 0, max_row = 0
+	$('.row-button').each(function () {
+		var row = parseInt($(this).closest('tr').find('td.id').text())
+		max_row = Math.max(row, max_row)
+	})
 	$('.row-button').each(function () {
 		if ($(this).hasClass("chosen")) {
+			max_row++
 			//append a new row
-			var os = $(this).closest('tr').find('td.os').text()
 			new_row += '<tr bgcolor="#F0F8FF">' +
 				'<td><button class="row-button" id="r' + button_id + '" onclick="addflag(\'r' + button_id + '\')"></button></div></td>' +
+				'<td class="id">' + max_row + '</td>' +
 				'<td class="os">' + $(this).closest('tr').find('td.os').text() + '</td>' +
 				'<td class="compiler">' + $(this).closest('tr').find('td.compiler').text() + '</td>' +
 				'<td class="profile">' + $(this).closest('tr').find('td.profile').text() + '</td>' +
@@ -93,18 +98,19 @@ function add_row() {
 				'<td class="tags">' + $(this).closest('tr').find('td.tags').text() + '</td>' +
 				'<td><button class="btn btn-light btn-sm" onclick="delete_row(\'r' + button_id + '\')">delete</button></td>'
 				+ '</tr>'
+			selected++
 			button_id++
 			$(this).removeClass("chosen")
-			selected++
-			message = $(id).closest('tr').find('td.id').text() + " (" + $(id).closest('tr').find('td.os').text() + "; " +
-				$(id).closest('tr').find('td.compiler').text() + "; " + $(id).closest('tr').find('td.profile').text() + "; " +
-				$(id).closest('tr').find('td.flag').text() + "; " + $(id).closest('tr').find('td.username').text() + ")"
+			message = $(this).closest('tr').find('td.id').text() + ": " + $(this).closest('tr').find('td.os').text() + " (" +
+					$(this).closest('tr').find('td.os').text() + "; " + $(this).closest('tr').find('td.compiler').text() + "; " +
+					$(this).closest('tr').find('td.profile').text() +"; " + $(this).closest('tr').find('td.flag').text() + "; " +
+					$(this).closest('tr').find('td.username').text() + ")"
 		}
 	})
 	if (selected === 0) return
 	$('#preview-list').append(new_row)
 
-	logtext = 'You added ' + $("#group").text() + ' to ' + message + '<br>'
+	logtext = 'You added ' + $("#group").text() + ' to task ' + message + '<br>'
 	document.getElementById("log").innerHTML += logtext
 
 	$('#groups').empty()
@@ -114,8 +120,7 @@ function add_row() {
 
 function delete_row(row) {
 	var id = '#' + row
-	console.log($(id).closest('tr').find('td.id').text())
-	message = $(id).closest('tr').find('td.id').text() + " (" + $(id).closest('tr').find('td.os').text() + "; " +
+	message = $(id).closest('tr').find('td.id').text() + ": (" + $(id).closest('tr').find('td.os').text() + "; " +
 				$(id).closest('tr').find('td.compiler').text() + "; " + $(id).closest('tr').find('td.profile').text() + "; " +
 				$(id).closest('tr').find('td.flag').text() + "; " + $(id).closest('tr').find('td.username').text() + ")"
 	$(id).closest('tr').remove()
@@ -136,15 +141,6 @@ $(function () {
 		}
 	});
 });
-
-$('#compile').submit(function (e) {
-	$('.row-button').each(function () {
-		if ($(this).hasClass("chosen")) {
-
-		}
-	})
-	$("#compile input:submit").click();
-})
 
 function compile() {
 	var param = []
@@ -320,7 +316,7 @@ function peek(profile) {
 					message += "version: &nbsp &nbsp &nbsp" + response['version'] +  "<br>"
 					message += "flag: &nbsp &nbsp &nbsp" + response['flag'] + "<br>"
 					message += "uploader: &nbsp &nbsp" + response['uploader'] + "<br>"
-					message += "upload_time: &nbsp" + response['upload_time'] + "<br><br></div>"
+					message += "upload_time: &nbsp" + response['upload_time'] + "<br></div><br>"
 					$(id).append(message)
 				}
 			}
@@ -332,9 +328,9 @@ function peek(profile) {
 }
 
 function display_flags() {
-	var json_profiles = $('#json_profiles').text()
-	if (json_profiles === "" || json_profiles === null) return
-	var plist = JSON.parse(json_profiles)
+	var json_flags = $('#json_flags').text()
+	if (json_flags === "" || json_flags === null) return
+	var plist = JSON.parse(json_flags)
 	var message = ''
 	for (p in plist) {
 		message += '<div class="js-debug">'

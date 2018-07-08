@@ -67,7 +67,12 @@
               <td class="http_path">{{ele.http_path}}</td>
               <td>
                 <button class="btn btn-light btn-sm" onclick="editCompiler('{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}')">edit</button>
-                <button class="btn btn-light btn-sm" id="row" onclick="deleteCompiler(this.id, '{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}')">delete</button>
+                <form action="/deleteCompiler" method="post" enctype="multipart/form-data">
+                  <input type="hidden" value={{ele.target_os}} name="target_os" />
+                  <input type="hidden" value={{ele.compiler}} name="compiler" />
+                  <input type="hidden" value={{ele.version}} name="version" />
+                  <button class="btn btn-light btn-sm" type="submit" id="deleteCompiler" name="submit" value="deleteCompiler">delete</button> {% csrf_token %}
+                </form>
               </td>
             </tr>
             {% endfor %}

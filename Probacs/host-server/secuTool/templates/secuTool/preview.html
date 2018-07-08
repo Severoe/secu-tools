@@ -6,7 +6,7 @@
     <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
-    <script src="{% static 'secuTool/demo-checkbox.js'%}"></script>
+    <script src="{% static 'secuTool/preview_functions.js'%}"></script> 
     <style>
       header, footer {  
         color: white;
@@ -28,7 +28,10 @@
       }
 
       .log {
-        background: yellow;
+        border: 2px solid #ccc;
+        width: 900px;
+        height: 120px;
+        overflow-y: scroll;
       }
 
       table, th, td {
@@ -78,7 +81,7 @@
     <div class="container">
       <div class="col">
         <div class="row-sm-5">
-          <div style="display:none" id='json_profiles'>{{flag_list}}</div>
+          <div style="display:none" id='json_flags'>{{json_flags}}</div>
           <h3>Preview</h3>
           <br>
           <button class="btn btn-light" onclick="selectall()">select all</button>
@@ -125,6 +128,7 @@
         <br>
         <div class="row-sm-5">
           <h3>Log</h3>
+          <br>
           <div class="log" id="log"></div>
         </div>
         <br>
