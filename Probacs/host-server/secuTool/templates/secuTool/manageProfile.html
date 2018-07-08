@@ -111,8 +111,8 @@
           <input id="old_compiler" type="hidden" value="" name="old_compiler" />
           <input id="old_version" type="hidden" value="" name="old_version" />
           <input id="old_name" type="hidden" value="" name="old_name" />
-          <input type="submit" id="save" value="save" /> {% csrf_token %}
-          <input type="submit" id="save_as_new" value="save as new" /> {% csrf_token %}
+          <input type="submit" id="save" name="submit" value="save" /> {% csrf_token %}
+          <input type="submit" id="save_as_new" name="submit" value="save as new" /> {% csrf_token %}
         </form>
       </div>
     </div>
