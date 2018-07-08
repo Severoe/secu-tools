@@ -149,13 +149,19 @@ $('#compile').submit(function (e) {
 function compile() {
 	var param = []
 	var cnt = 0
+	var set = new Set()
 	$('.row-button').each(function () {
 		if ($(this).hasClass("chosen")) {
 			var obj = {}
 			obj['os'] = $(this).closest('tr').find('td.os').text()
 			obj['compiler'] = $(this).closest('tr').find('td.compiler').text()
 			obj['profile'] = $(this).closest('tr').find('td.profile').text()
-			obj['flag'] = $(this).closest('tr').find('td.flag').text()
+			var flag = $(this).closest('tr').find('td.flag').text()
+			if(set.has(flag)) {
+				return
+			}
+			set.add(flag)
+			obj['flag'] = flag
 			obj['username'] = $(this).closest('tr').find('td.username').text()
 			obj['tags'] = $(this).closest('tr').find('td.tags').text()
 			param.push(obj)

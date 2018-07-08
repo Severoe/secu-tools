@@ -313,7 +313,7 @@
           <div id='thisone' class="col-sm-10 debug">
             <h3>Track job status.</h3>
             <br>
-            <h4>Currently running jobs.</h4>
+            <h4>Recent jobs.</h4>
             <br>
             <div style="display: none;" id="ongoing-task">{{ongoing_tasks}}</div>
             {% if tracing_tasks %}
@@ -326,6 +326,7 @@
                   <th>Profiles</th>
                   <th>Username</th>
                   <th>Tags</th>
+                  <th># of exe</th>
                   <th>Time Submitted</th>
                 </tr>
               </thead>
@@ -341,6 +342,7 @@
                   <td class="task_profile">{{ele.profiles}}</td>
                   <td class="task_username">{{ele.username}}</td>
                   <td class="task_tags">{{ele.tag}}</td>
+                  <td class="task_total">{{ele.total}}</td>
                   <td class="task_submittime">{{ele.submittime}}</td>
                 </tr>
                 {% endfor %}

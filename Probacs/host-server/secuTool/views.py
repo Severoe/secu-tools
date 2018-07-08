@@ -763,36 +763,73 @@ def getProfile(request):
 
 @csrf_exempt
 def updateCompiler(request):
-    compiler = Compiler_conf.objects.get(target_os=request.POST['old_target_os'],
-                                compiler=request.POST['old_compiler'],
-                                version=request.POST['old_version'])
+    if request.POST['submit'] == 'save':
+        compiler = Compiler_conf.objects.get(target_os=request.POST['old_target_os'],
+                                    compiler=request.POST['old_compiler'],
+                                    version=request.POST['old_version'])
+        for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
+            setattr(compiler, key, request.POST[key])
 
-    for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
-        setattr(compiler, key, request.POST[key])
+        compiler.save()
+        return render(request, "secuTool/test.html", {'message':'Compiler successfully updated', 'nav2': 'active show'})
+    else:
+        d = {}
+        for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
+            d[key] = request.POST[key]
 
-    compiler.save()
+        new_compiler = Compiler_conf(**d)
+        new_compiler.save()
+        return render(request, "secuTool/test.html", {'message':'New compiler successfully saved', 'nav2': 'active show'})
 
-    return render(request, "secuTool/test.html", {'message':'Compiler successfully updated'})
 
 @csrf_exempt
 def updateProfile(request):
-    profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
-                                compiler=request.POST['old_compiler'],
-                                version=request.POST['old_version'],
-                                name=request.POST['old_name'])
+    if request.POST['submit'] == 'save':
+        profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
+                                    compiler=request.POST['old_compiler'],
+                                    version=request.POST['old_version'],
+                                    name=request.POST['old_name'])
 
-    for key in ['target_os', 'compiler', 'version', 'name']:
-        setattr(profile, key, request.POST[key])
-    
-    new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
-    new_flag = filter(lambda x: x, new_flag)
-    setattr(profile, 'flag', json.dumps(new_flag))
+        for key in ['target_os', 'compiler', 'version', 'name']:
+            setattr(profile, key, request.POST[key])
+        
+        new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
+        new_flag = filter(lambda x: x, new_flag)
+        setattr(profile, 'flag', json.dumps(new_flag))
 
-    profile.save()
+        profile.save()
+        return render(request, "secuTool/test.html", {'message':'Profile successfully updated', 'nav2': 'active show'})
 
-    return render(request, "secuTool/test.html", {'message':'Profile successfully updated'})
+    else:
+        d = {}
+        for key in ['target_os', 'compiler', 'version', 'name', 'uploader']:
+            d[key] = request.POST[key]
+        d['upload_time'] = datetime.now()
+        new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
+        new_flag = filter(lambda x: x, new_flag)
+        d['flag'] = json.dumps(new_flag)
+
+        new_profile = Profile_conf(**d)
+        new_profile.save()
+        return render(request, "secuTool/test.html", {'message':'New profile successfully saved', 'nav2': 'active show'})
 
 
+@csrf_exempt
+def deleteCompiler(request):
+    compiler_to_delete = Compiler_conf.objects.get(target_os=request.POST['target_os'],
+                                    compiler=request.POST['compiler'],
+                                    version=request.POST['version'])
+    compiler_to_delete.delete()
+    return render(request, "secuTool/test.html", {'message':'Compiler successfully deleted', 'nav2': 'active show'})
+
+@csrf_exempt
+def deleteProfile(request):
+    profile_to_delete = Profile_conf.objects.get(target_os=request.POST['target_os'],
+                                                compiler=request.POST['compiler'],
+                                                version=request.POST['version'],
+                                                name=request.POST['name'])
+    profile_to_delete.delete()
+    return render(request, "secuTool/test.html", {'message':'Profile successfully deleted', 'nav2': 'active show'})    
 
 ###########################################################################
 ###########################################################################
@@ -810,6 +847,7 @@ def parse_taskMeta(ele, iscur):
     tmp['profiles'] = ele.profiles
     tmp['username'] = ele.username
     tmp['tag'] = ele.tag
+    tmp['total'] = ele.compilation_num
     tmp['submittime'] = ".".join(ele.task_id.split("-")[:3])+" "+":".join(ele.task_id.split("-")[3:])
     if iscur:
         tmp['current_task']="background: yellow;"
