@@ -763,38 +763,55 @@ def getProfile(request):
 
 @csrf_exempt
 def updateCompiler(request):
-    compiler = Compiler_conf.objects.get(target_os=request.POST['old_target_os'],
-                                compiler=request.POST['old_compiler'],
-                                version=request.POST['old_version'])
+    if request.POST['submit'] == 'save':
+        compiler = Compiler_conf.objects.get(target_os=request.POST['old_target_os'],
+                                    compiler=request.POST['old_compiler'],
+                                    version=request.POST['old_version'])
+        for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
+            setattr(compiler, key, request.POST[key])
 
-    for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
-        setattr(compiler, key, request.POST[key])
+        compiler.save()
+        return render(request, "secuTool/test.html", {'message':'Compiler successfully updated', 'nav2': 'active show'})
+    else:
+        d = {}
+        for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
+            d[key] = request.POST[key]
 
-    compiler.save()
+        new_compiler = Compiler_conf(**d)
+        new_compiler.save()
+        return render(request, "secuTool/test.html", {'message':'New compiler successfully saved', 'nav2': 'active show'})
 
-    return render(request, "secuTool/test.html", {'message':'Compiler successfully updated'})
 
 @csrf_exempt
 def updateProfile(request):
-    profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
-                                compiler=request.POST['old_compiler'],
-                                version=request.POST['old_version'],
-                                name=request.POST['old_name'])
+    if request.POST['submit'] == 'save':
+        profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
+                                    compiler=request.POST['old_compiler'],
+                                    version=request.POST['old_version'],
+                                    name=request.POST['old_name'])
 
-    for key in ['target_os', 'compiler', 'version', 'name']:
-        setattr(profile, key, request.POST[key])
-    
-    new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
-    new_flag = filter(lambda x: x, new_flag)
-    setattr(profile, 'flag', json.dumps(new_flag))
+        for key in ['target_os', 'compiler', 'version', 'name']:
+            setattr(profile, key, request.POST[key])
+        
+        new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
+        new_flag = filter(lambda x: x, new_flag)
+        setattr(profile, 'flag', json.dumps(new_flag))
 
-    profile.save()
+        profile.save()
+        return render(request, "secuTool/test.html", {'message':'Profile successfully updated', 'nav2': 'active show'})
 
-    # message = {}
-    # message["message"] = "Profile successfully updated"
-    # HttpResponse(json.dumps(message), content_type="application/json")
-    # return render(request, "secuTool/test.html")
-    return render(request, "secuTool/test.html", {'message':'Profile successfully updated'})
+    else:
+        d = {}
+        for key in ['target_os', 'compiler', 'version', 'name', 'uploader']:
+            d[key] = request.POST[key]
+        d['upload_time'] = datetime.now()
+        new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
+        new_flag = filter(lambda x: x, new_flag)
+        d['flag'] = json.dumps(new_flag)
+
+        new_profile = Profile_conf(**d)
+        new_profile.save()
+        return render(request, "secuTool/test.html", {'message':'New profile successfully saved', 'nav2': 'active show'})
 
 
 
