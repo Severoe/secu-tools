@@ -99,6 +99,7 @@ def preview(request):
     # for row in rows:
     print(rows)
     context['taskid'] = taskName
+    context['json_flags'] = json.dumps(['-Wall', '-Wextra', '-O1', '/WX', '/Od'])
     return render(request, 'secuTool/preview.html',context)
 
 
