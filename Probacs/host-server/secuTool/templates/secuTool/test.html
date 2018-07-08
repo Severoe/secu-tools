@@ -55,14 +55,14 @@
     }
 
     .peek {
-      margin-top: 250px;
+      margin-top: -400px;
       margin-bottom: 100px;
-      margin-left: -200px;
-      margin-right: 150px;
+      margin-left: 350px;
     }
 
     .peek_text {
       border: 2px solid #ccc;
+      width: 300px;
       font-family: 'Times New Roman', Times, serif;
     }
 
@@ -128,7 +128,7 @@
         <div class="tab-pane fade" id="nav-12" role="tabpanel" aria-labelledby="nav-12-tab">
           <div class="container">
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-8">
                 <h3>Submit a job.</h3>
                 <br>
                 <form action="/preview" method="post" enctype="multipart/form-data">
@@ -169,8 +169,8 @@
                   <br>
                   <input type="submit" value="Preview" /> {% csrf_token %}
                 </form>
-              </div>
-              <div class="col-sm-6 peek" id="profile_content">
+                <div class="peek" id="profile_content">
+                </div>
               </div>
             </div>
           </div>
