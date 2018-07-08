@@ -16,6 +16,7 @@ from probacs_parser import parseTaskFile
 from django.core import serializers
 from io import BytesIO
 import zipfile,io,base64
+from django.db.models import Q
 # Create your views here.
 ################################
 # global variables
@@ -345,67 +346,100 @@ def wrap_dir(request):
 def check_status(request):
     ##KWARGS
     context = {}
-    task_id = request.POST['task_id']
-    flags = request.POST['flags']
+    context['nav3'] = "active show"
+    flags = None
+    compilers = None
     obj = Task.objects.all()
     empty_count = 0
     total_count = 5
     query_dict = {}
 
-    if request.POST['task_id']==None:
-        query_dict['task_id'] = None
+    if 'task_id' not in request.POST or request.POST['task_id']=="":
         empty_count += 1
     else:
-        request.POST['task_id'].split(",")
+        context['task_id'] = request.POST['task_id']
+        query_dict["task_id__in"] = request.POST['task_id'].split(",")
+        query_dict['task_id__in'] = [ele.strip() for ele in query_dict['task_id__in']]
 
-    if request.POST['flags']==None:
-        query_dict['flag'] = None
+    if 'flags' not in request.POST or request.POST['flags']=="":
+        flags = None
         empty_count += 1
     else:
-        request.POST['flags'].split(",")
+        context['flags'] = request.POST['flags']
+        flags_filter = Q()
+        for flag in request.POST['flags'].split(","):
+            flags_filter |= Q(flag__icontains = flag.strip())
+        flags = flags_filter
 
-    if request.POST['username']==None:
-        query_dict['username'] = None
+    if 'username' not in request.POST or request.POST['username']=="":
         empty_count += 1
     else:
-        request.POST['username'].split(",")
+        context['username'] = request.POST['username']
+        query_dict['username__in'] = request.POST['username'].split(",")
+        query_dict['username__in'] = [ele.strip() for ele in query_dict['username__in']]
 
-    constraints = {"target_os__in": ['Linux']}
-    print (Compiler_conf.objects.filter(**constraints).count())
+    if 'compilers' not in request.POST or request.POST['compilers']=="":
+        empty_count += 1
+    else:
+        context['compilers'] = request.POST['compilers']
+        compiler_dict = {}
+        for ele in request.POST['compilers'].split(","):
+            divide = ele.strip().split(" ")
+            query_key = divide[0].lower()
+            query_val = divide[1]
+            if query_val == "*":
+                compiler_dict[query_key]= None
+            else:
+                if query_key in compiler_dict.keys() and compiler_dict[query_key] != None:
+                    compiler_dict[query_key].append(query_val)
+                elif query_key not in compiler_dict.keys():
+                    compiler_dict[query_key] = [query_val]
+        print(compiler_dict)
+        compiler_filter = Q()
+        for key, val in compiler_dict.items():
+            if key == "*":
+                if val == None:
+                    compiler_filter |= Q(compiler__icontains="")
+                else:
+                    compiler_filter |= Q(version__in=val)
+            elif val == None:
+                compiler_filter |= Q(compiler__icontains=key)
+            else:
+                compiler_filter |= Q(compiler__icontains=key, version__in=val)
+        compilers = compiler_filter
 
-    query_dict['compiler'] = None if request.POST['compilers']==None else request.POST['compilers'].split(",")
-    query_dict['tag'] = None if request.POST['tag']==None else request.POST['tag'].split(",")
+    if 'tag' not in request.POST or request.POST['tag']=="":
+        empty_count += 1
+    else:
+        context['tag'] = request.POST['tag']
+        query_dict['tag__in'] = request.POST['tag'].split(",")
+        query_dict['tag__in'] = [ele.strip() for ele in query_dict['tag__in']]
+
+    if empty_count == total_count:
+        context['search_result'] = "-- Showing 0 result of user request."
+        return render(request, 'secuTool/test.html',context)
+
     # query_dict['profiles'] = None if request.POST['profiles']==None else request.POST['profiles'].split(",")
     print(query_dict)
-    for key, val in query_dict.items():
-        if obj == None:
-            break
-        if val == None or val==['']:
-            continue
+    obj = Task.objects.filter(**query_dict)        
+    if flags != None:
+        obj = obj.filter(flags)
+    if compilers != None:
+        obj = obj.filter(compilers)
+
+    context['tasks'] = obj
+    for ele in context['tasks']:
+        if ele.target_os == 'Windows':
+            delimit = "\\"
         else:
-            if key=='task_id':
-                obj = obj.filter(task_id__in=val)
-            elif key=='flag':
-                obj = obj.filter(flag__in=[ele.replace(" ","_") for ele in val])
-            elif key=='username':
-                obj = obj.filter(username__in=val)
-            elif key=='compiler':
-                obj = obj.filter(compiler__in=val)
-            elif key=='tag':
-                obj = obj.filter(tag__in=val)
-
-
-    # obj = obj.filter({"task_id__in":val, })
-    if obj.count() != Task.objects.all().count():
-        context['tasks'] = obj
-        for ele in context['tasks']:
-            ele.flag = ele.flag.replace("_", " ")
-            ele.status = 'not finished' if ele.exename == None else 'finished'
-            ele.exename = '-' if not ele.exename else ele.exename
-            ele.out = '-' if not ele.out else ele.out
-            ele.err = '-' if not ele.err else ele.err
-    context['nav3'] = "active show"
+            delimit = "/"
+        ele.flag = ele.flag.replace("_", " ")
+        ele.status = 'not finished' if ele.exename == None else 'finished'
+        ele.exename = '-' if not ele.exename else ele.exename.split(delimit)[-1]
+        ele.out = '-' if not ele.out else ele.out
+        ele.err = '-' if not ele.err else ele.err
     # context['task_id'] = request.POST['task_id']
+    context['search_result'] = "-- Showing "+str(obj.count())+" results of user request."
     return render(request, 'secuTool/test.html',context)
 
 
