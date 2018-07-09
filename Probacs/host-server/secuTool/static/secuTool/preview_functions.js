@@ -190,6 +190,10 @@ function display_flags() {
 	$('#display_flags').append(message)
 }
 
+function main_page() {
+	window.location.href = '/test';
+}
+
 function onload_wrapper() {
 	display_flags()
 	edit_flags()
