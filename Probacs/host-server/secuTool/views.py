@@ -422,7 +422,7 @@ def check_status(request):
 
     # query_dict['profiles'] = None if request.POST['profiles']==None else request.POST['profiles'].split(",")
     print(query_dict)
-    obj = Task.objects.filter(**query_dict)        
+    obj = Task.objects.filter(**query_dict)
     if flags != None:
         obj = obj.filter(flags)
     if compilers != None:
@@ -749,7 +749,8 @@ def manageProfile(request):
                     "compiler": profile["compiler"],
                     "version": profile["version"],
                     "name": profile["name"],
-                    "num_of_flag": len(json.loads(profile['flag']))
+                    "flag": ", ".join(json.loads(profile['flag'])),
+                    "date": profile['upload_time'].strftime("%Y-%m-%d %H:%M:%S")
                     }
         rows.append(p_dict.copy())
     context["rows"] = rows
@@ -793,7 +794,7 @@ def getProfile(request):
     res = {}
     for key in ["target_os", "compiler", "version", "name", "flag", "uploader"]:
         res[key] = getattr(profile, key)
-    res["upload_time"] = profile.upload_time.strftime("%Y-%m-%d-%H-%M-%S")
+    res["upload_time"] = profile.upload_time.strftime("%Y-%m-%d %H:%M:%S")
     return HttpResponse(json.dumps(res), content_type="application/json")
 
 @csrf_exempt
@@ -827,7 +828,7 @@ def updateProfile(request):
 
         for key in ['target_os', 'compiler', 'version', 'name']:
             setattr(profile, key, request.POST[key])
-        
+
         new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
         new_flag = filter(lambda x: x, new_flag)
         setattr(profile, 'flag', json.dumps(new_flag))
@@ -864,7 +865,7 @@ def deleteProfile(request):
                                                 version=request.POST['version'],
                                                 name=request.POST['name'])
     profile_to_delete.delete()
-    return render(request, "secuTool/test.html", {'message':'Profile successfully deleted', 'nav2': 'active show'})    
+    return render(request, "secuTool/test.html", {'message':'Profile successfully deleted', 'nav2': 'active show'})
 
 ###########################################################################
 ###########################################################################

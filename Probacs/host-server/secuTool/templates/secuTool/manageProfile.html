@@ -50,7 +50,8 @@
               <th>Compilers</th>
               <th>Version</th>
               <th>Name</th>
-              <th>Number of flags</th>
+              <th>Flags</th>
+              <th>Date</th>
               <th></th>
             </tr>
           </thead>
@@ -58,12 +59,13 @@
           <tbody id="preview-list">
             {% for ele in rows %}
             <tr>
-              <td class="os">{{ele.target_os}}</td>
-              <td class="compiler">{{ele.compiler}}</td>
-              <td class="version">{{ele.version}}</td>
-              <td class='name'>{{ele.name}}</td>
-              <td class="nums">{{ele.num_of_flag}}</td>
-              <td>
+              <td class="os" width="10%">{{ele.target_os}}</td>
+              <td class="compiler" width="15%">{{ele.compiler}}</td>
+              <td class="version" width="10%">{{ele.version}}</td>
+              <td class="name" width="15%">{{ele.name}}</td>
+              <td class="flag" width="25%">{{ele.flag}}</td>
+              <td class="date" width="15%">{{ele.date}}</td>
+              <td width="15%">
                 <button class="btn btn-light btn-sm" onclick="editProfile('{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}', '{{ele.name}}')">edit</button>
                 <form action="/deleteProfile" method="post" enctype="multipart/form-data">
                   <input type="hidden" value={{ele.target_os}} name="target_os" />
