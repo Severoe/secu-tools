@@ -80,6 +80,9 @@
       background: black;
       height: 20px;
     }
+    #download_wrapper{
+      /*display: none;*/
+    }
   </style>
 </head>
 
@@ -252,10 +255,10 @@
                     <input style="width:100px;" type="text" name='tag' value="{{tag}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='date after' value="{{date_after}}">
+                    <input style="width:100px;" type="text" name='date_after' value="{{date_after}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='date before' value="{{date_before}}">
+                    <input style="width:100px;" type="text" name='date_before' value="{{date_before}}">
                   </td>
                 </tr>
               </table>
@@ -279,7 +282,6 @@
                     <th>flag</th>
                     <th>compilation status</th>
                     <th>executable names</th>
-                    <th>output</th>
                     <th>error</th>
                 </tr>
                 {% for ele in tasks %}
@@ -294,7 +296,6 @@
                   <td>{{ele.flag}}</td>
                   <td>{{ele.status}}</td>
                   <td>{{ele.exename}}</td>
-                  <td>{{ele.out}}</td>
                   <td>{{ele.err}}</td>
                 </tr>
                 {% endfor %}
@@ -363,7 +364,7 @@
               </div>
               <!-- download button -->
               <br>
-              <button class="btn btn-light" onclick="download_tar()"> download </button>
+              <button class="btn btn-light" id="download_wrapper" onclick="download_tar()"> download </button>
               <form enctype="multipart/form-data" id="download_full" action="{% url 'download_tar' %}" method='post' style="display: none;">
                 <input type="hidden" name="downloadtaskid" value="">
                 <input type="submit" value="Download Directory" class="submit-edition"> {% csrf_token %}
@@ -373,7 +374,7 @@
                 <thead>
                   <tr>
                     <th style='column-width: auto;'>Executable Name</th>
-                    <th style='column-width: auto;'>Compiler Output</th>
+                    <th style='column-width: auto;'>compilation status</th>
                     <th style='column-width: auto;'>Compiler Error</th>
                   </tr>
                 </thead>

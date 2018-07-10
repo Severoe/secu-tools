@@ -48,7 +48,8 @@ def preview(request):
     if "compiler" in request.POST:
         compiler_divided['compiler'], compiler_divided['version'] = request.POST['compiler'].split(" ")
 
-    taskName = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    task_created_time = datetime.now()
+    taskName = task_created_time.strftime("%Y-%m-%d-%H-%M-%S")
     message, params = process_files(request, taskName,  compiler_divided)
     # print(params)
     #######################################
@@ -59,7 +60,8 @@ def preview(request):
 
     new_taskMeta = TaskMeta(task_id=taskName,username=params[0]['username'],tag=params[0]['tag'],
         src_filename=src_filename,target_os=", ".join(target_os_list),
-        compiler_full=", ".join(compiler_full_list),profiles = ", ".join(params[0]['profile']))
+        compiler_full=", ".join(compiler_full_list),profiles = ", ".join(params[0]['profile']), 
+        created_date=task_created_time)
     new_taskMeta.save()
 
     if message:
@@ -226,12 +228,15 @@ def param_upload(request):
         #############################
         # add entries into task database
         for ele in param['flag'].split(","):
+            task_num += 1
             new_task = Task(task_id=task_name,username=param['username'],
                 tag=None if not 'tag' in param else param['tag'],
                 src_file=filename,target_os=param['target_os'],
-                compiler=param['compiler'],version=param['version'],flag=ele)
+                compiler=param['compiler'],version=param['version'],
+                flag=ele,init_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
+                exename=getExename(filename,ele,task_num))
             new_task.save()
-            task_num += 1
+            
 
         #############################
         # calling compilation tasks
@@ -352,9 +357,10 @@ def check_status(request):
     compilers = None
     obj = Task.objects.all()
     empty_count = 0
-    total_count = 5
+    total_count = 7
     query_dict = {}
 
+    # 2018-07-02 16:08
     if 'task_id' not in request.POST or request.POST['task_id']=="":
         empty_count += 1
     else:
@@ -416,6 +422,23 @@ def check_status(request):
         query_dict['tag__in'] = request.POST['tag'].split(",")
         query_dict['tag__in'] = [ele.strip() for ele in query_dict['tag__in']]
 
+    if 'date_after' not in request.POST or request.POST['date_after']=="":
+        empty_count += 1
+    else:
+        f = "%Y-%m-%d %H:%M"
+        context['date_after'] = request.POST['date_after']
+        date_obj = datetime.strptime(request.POST['date_after'], f).strftime("%Y-%m-%d %H-%M-%S")
+        query_dict['init_tmstmp__gte'] = date_obj
+
+    if 'date_before' not in request.POST or request.POST['date_before']=="":
+        empty_count += 1
+    else:
+        f = "%Y-%m-%d %H:%M"
+        context['date_before'] = request.POST['date_before']
+        date_obj = datetime.strptime(request.POST['date_before'], f).strftime("%Y-%m-%d %H-%M-%S")
+        query_dict['init_tmstmp__lte'] = date_obj
+
+
     if empty_count == total_count:
         context['search_result'] = "-- Showing 0 result of user request."
         return render(request, 'secuTool/test.html',context)
@@ -435,11 +458,19 @@ def check_status(request):
         else:
             delimit = "/"
         ele.flag = ele.flag.replace("_", " ")
-        ele.status = 'not finished' if ele.exename == None else 'finished'
-        ele.exename = '-' if not ele.exename else ele.exename.split(delimit)[-1]
-        ele.out = '-' if not ele.out else ele.out
-        ele.err = '-' if not ele.err else ele.err
-    # context['task_id'] = request.POST['task_id']
+        if not ele.exename:
+            ele.status = "running"
+            ele.err = "-"
+            ele.exename = "-"
+        else:
+            ele.exename = ele.exename.split(delimit)[-1]
+            if not ele.err:
+                ele.status = 'success'
+                ele.err = '-'
+            else:
+                ele.status = 'fail'
+
+        # context['task_id'] = request.POST['task_id']
     context['search_result'] = "-- Showing "+str(obj.count())+" results of user request."
     return render(request, 'secuTool/test.html',context)
 
@@ -456,12 +487,13 @@ def rcv_platform_result(request):
         target_os=request.POST['target_os'],compiler=request.POST['compiler'],version=request.POST['version'])
     # print("exename "+str(task.exename))
     #handle error case
-    if task == None or task.exename != None:
-        print('task already gone or already updated')
-        return HttpResponse()
-    task.exename = request.POST['exename']
+    # if task == None or task.exename != None:
+    #     print('task already gone or already updated')
+    #     return HttpResponse()
+    # task.exename = request.POST['exename']
     task.out = request.POST['out']
     task.err = request.POST['err']
+    task.finish_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S")
     print(request.POST['out'], request.POST['err'])
     print('update from platform finished')
     task.save()
@@ -629,15 +661,23 @@ def trace_task_by_id(request):
     finished = 0
     log_report = []
     for ele in obj:
-        # printRcd(ele)
-        # print(ele.exename == None)
-        if ele.exename != None:
-            finished+= 1
-            new_log = {}
-            new_log['exename'] = ele.exename.split("/")[-1]
-            new_log['out'] = "-" if ele.out == "" else ele.out
+        # get os type, define delimit
+        if ele.target_os == 'Windows':
+            delimit = "\\"
+        else:
+            delimit = "/"
+        new_log = {}
+        new_log['exename'] = ele.exename#.split(delimit)[-1]
+        if ele.finish_tmstmp == "" or ele.finish_tmstmp == None: #ongoing
+            new_log['err'] = "-"
+            new_log['status'] = "ongoing"
+        else:
+            finished += 1
+            new_log['status'] = "success" if ele.err == "" or ele.err == "-" else "fail"
             new_log['err'] = "-" if ele.err == "" else ele.err
-            log_report.append(new_log)
+
+        
+        log_report.append(new_log)
 
     response['finished'] = finished
     response['task_id'] = task_id
@@ -829,7 +869,7 @@ def updateProfile(request):
             setattr(profile, key, request.POST[key])
         
         new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
-        new_flag = filter(lambda x: x, new_flag)
+        new_flag = list(filter(lambda x: x, new_flag))
         setattr(profile, 'flag', json.dumps(new_flag))
 
         profile.save()
@@ -841,7 +881,7 @@ def updateProfile(request):
             d[key] = request.POST[key]
         d['upload_time'] = datetime.now()
         new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
-        new_flag = filter(lambda x: x, new_flag)
+        new_flag = list(filter(lambda x: x, new_flag))
         d['flag'] = json.dumps(new_flag)
 
         new_profile = Profile_conf(**d)
@@ -871,6 +911,9 @@ def deleteProfile(request):
 #########           BELOW ARE SOME HELPER/TEST FUNCTIONS       ############
 ###########################################################################
 ###########################################################################
+def getExename(filename,ele,num):
+    return ".".join(filename.split(".")[:-1])+"_"+str(num)+"_"+ele
+
 def parse_taskMeta(ele, iscur):
     '''
     parse taskMeta object to be valid object in django template

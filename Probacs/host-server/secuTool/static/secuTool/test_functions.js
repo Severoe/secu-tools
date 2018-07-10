@@ -29,6 +29,7 @@ function trace_job() {
             total = response.total
             if(finished === total) {
             	finished_status = true
+                // $('#download_wrapper').css('display','block')
                 // clearInterval(event_id)
             }
         	percent = finished*100/total
@@ -44,7 +45,7 @@ function trace_job() {
         		var log = response.log_report[i]
         		var out_theme = ""
         		var err_theme = ""
-        		// console.log(d.year)
+        		console.log(log)
         		if(log.err !== "-") {
         			out_theme = "text-align:left;"
         		}
@@ -53,7 +54,7 @@ function trace_job() {
         		}
         		var log_row = "<tr>"+
                     "<td class='report-row' style='column-width: auto;'>"+log.exename.trim()+"</td>"+
-                    "<td class='report-row' style='column-width: auto;"+out_theme+"'>"+log.out+"</td>"+
+                    "<td class='report-row' style='column-width: auto;"+out_theme+"'>"+log.status+"</td>"+
                     "<td class='report-row' style='column-width: auto;"+err_theme+"'>"+log.err+"</td>"+
 					// "<td>" + d.year + d.month + d.day + d.hours + d.minutes + d.seconds + "</td>"
                     "</tr>"
