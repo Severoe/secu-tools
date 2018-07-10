@@ -727,7 +727,7 @@ def addProfile(request):
 
 
     new_profile = Profile_conf(uploader=profile['uploader'],
-                                upload_time=timezone.now(),
+                                upload_time=datetime.now(),
                                 name=profile['name'],
                                 target_os=profile['target_os'],
                                 compiler=profile['compiler'],
@@ -798,7 +798,7 @@ def getProfile(request):
 
 @csrf_exempt
 def updateCompiler(request):
-    if request.POST['submit'] == 'save':
+    if request.POST['submit'] == 'save':    #update existing
         compiler = Compiler_conf.objects.get(target_os=request.POST['old_target_os'],
                                     compiler=request.POST['old_compiler'],
                                     version=request.POST['old_version'])
@@ -807,7 +807,13 @@ def updateCompiler(request):
 
         compiler.save()
         return render(request, "secuTool/test.html", {'message':'Compiler successfully updated', 'nav2': 'active show'})
-    else:
+    else:           #save as new
+        compiler = Compiler_conf.objects.filter(target_os=request.POST['target_os'],
+                                                compiler=request.POST['compiler'],
+                                                version=request.POST['version'])
+        if compiler.count() != 0:
+            return render(request, "secuTool/test.html", {"message": "A compiler with the same OS/name/version already exists"})
+
         d = {}
         for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
             d[key] = request.POST[key]
@@ -819,7 +825,7 @@ def updateCompiler(request):
 
 @csrf_exempt
 def updateProfile(request):
-    if request.POST['submit'] == 'save':
+    if request.POST['submit'] == 'save':    #update existing one
         profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
                                     compiler=request.POST['old_compiler'],
                                     version=request.POST['old_version'],
@@ -835,7 +841,14 @@ def updateProfile(request):
         profile.save()
         return render(request, "secuTool/test.html", {'message':'Profile successfully updated', 'nav2': 'active show'})
 
-    else:
+    else:       #save as new
+        profile = Profile_conf.objects.filter(target_os=request.POST['target_os'],
+                                                compiler=request.POST['compiler'],
+                                                version=request.POST['version'],
+                                                name=request.POST['name'])
+        if profile.count() != 0:
+            return render(request, "secuTool/test.html", {"message": "A profile with the same OS/compiler/name/version already exists"})
+
         d = {}
         for key in ['target_os', 'compiler', 'version', 'name', 'uploader']:
             d[key] = request.POST[key]
