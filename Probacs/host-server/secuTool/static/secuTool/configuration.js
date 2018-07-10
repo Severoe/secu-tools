@@ -72,3 +72,7 @@ function editCompiler(os, compiler, version) {
         }
     });
 }
+
+function main_page() {
+    window.location.href = '/test';
+}

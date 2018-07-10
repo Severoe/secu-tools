@@ -445,7 +445,7 @@ def check_status(request):
 
     # query_dict['profiles'] = None if request.POST['profiles']==None else request.POST['profiles'].split(",")
     print(query_dict)
-    obj = Task.objects.filter(**query_dict)        
+    obj = Task.objects.filter(**query_dict)
     if flags != None:
         obj = obj.filter(flags)
     if compilers != None:
@@ -767,7 +767,7 @@ def addProfile(request):
 
 
     new_profile = Profile_conf(uploader=profile['uploader'],
-                                upload_time=timezone.now(),
+                                upload_time=datetime.now(),
                                 name=profile['name'],
                                 target_os=profile['target_os'],
                                 compiler=profile['compiler'],
@@ -789,7 +789,8 @@ def manageProfile(request):
                     "compiler": profile["compiler"],
                     "version": profile["version"],
                     "name": profile["name"],
-                    "num_of_flag": len(json.loads(profile['flag']))
+                    "flag": ", ".join(json.loads(profile['flag'])),
+                    "date": profile['upload_time'].strftime("%Y-%m-%d %H:%M:%S")
                     }
         rows.append(p_dict.copy())
     context["rows"] = rows
@@ -833,12 +834,12 @@ def getProfile(request):
     res = {}
     for key in ["target_os", "compiler", "version", "name", "flag", "uploader"]:
         res[key] = getattr(profile, key)
-    res["upload_time"] = profile.upload_time.strftime("%Y-%m-%d-%H-%M-%S")
+    res["upload_time"] = profile.upload_time.strftime("%Y-%m-%d %H:%M:%S")
     return HttpResponse(json.dumps(res), content_type="application/json")
 
 @csrf_exempt
 def updateCompiler(request):
-    if request.POST['submit'] == 'save':
+    if request.POST['submit'] == 'save':    #update existing
         compiler = Compiler_conf.objects.get(target_os=request.POST['old_target_os'],
                                     compiler=request.POST['old_compiler'],
                                     version=request.POST['old_version'])
@@ -847,7 +848,13 @@ def updateCompiler(request):
 
         compiler.save()
         return render(request, "secuTool/test.html", {'message':'Compiler successfully updated', 'nav2': 'active show'})
-    else:
+    else:           #save as new
+        compiler = Compiler_conf.objects.filter(target_os=request.POST['target_os'],
+                                                compiler=request.POST['compiler'],
+                                                version=request.POST['version'])
+        if compiler.count() != 0:
+            return render(request, "secuTool/test.html", {"message": "A compiler with the same OS/name/version already exists"})
+
         d = {}
         for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
             d[key] = request.POST[key]
@@ -859,7 +866,7 @@ def updateCompiler(request):
 
 @csrf_exempt
 def updateProfile(request):
-    if request.POST['submit'] == 'save':
+    if request.POST['submit'] == 'save':    #update existing one
         profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
                                     compiler=request.POST['old_compiler'],
                                     version=request.POST['old_version'],
@@ -867,7 +874,7 @@ def updateProfile(request):
 
         for key in ['target_os', 'compiler', 'version', 'name']:
             setattr(profile, key, request.POST[key])
-        
+
         new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
         new_flag = list(filter(lambda x: x, new_flag))
         setattr(profile, 'flag', json.dumps(new_flag))
@@ -875,7 +882,14 @@ def updateProfile(request):
         profile.save()
         return render(request, "secuTool/test.html", {'message':'Profile successfully updated', 'nav2': 'active show'})
 
-    else:
+    else:       #save as new
+        profile = Profile_conf.objects.filter(target_os=request.POST['target_os'],
+                                                compiler=request.POST['compiler'],
+                                                version=request.POST['version'],
+                                                name=request.POST['name'])
+        if profile.count() != 0:
+            return render(request, "secuTool/test.html", {"message": "A profile with the same OS/compiler/name/version already exists"})
+
         d = {}
         for key in ['target_os', 'compiler', 'version', 'name', 'uploader']:
             d[key] = request.POST[key]
@@ -904,7 +918,7 @@ def deleteProfile(request):
                                                 version=request.POST['version'],
                                                 name=request.POST['name'])
     profile_to_delete.delete()
-    return render(request, "secuTool/test.html", {'message':'Profile successfully deleted', 'nav2': 'active show'})    
+    return render(request, "secuTool/test.html", {'message':'Profile successfully deleted', 'nav2': 'active show'})
 
 ###########################################################################
 ###########################################################################
