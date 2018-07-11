@@ -149,6 +149,25 @@ function peek(profile) {
     }
 }
 
+// when hit download, append chosen field into form, then trigger form handin
+function download_search() {
+    $('.row-button').each(function () {
+        if($(this).hasClass('chosen')){
+            if($(this).closest('tr').find('td.download_status').text().trim() === "success") {
+                var task_id = $(this).closest('tr').find('td.download_id').text().trim()
+                var exename = $(this).closest('tr').find('td.download_exe').text().trim()
+                var rcd = "<input name='exe_pair' value="+task_id+"$%$"+exename+">"
+                $('#search_dld').prepend(rcd)
+            }
+        }
+    })
+    $('#search_dld').submit()
+}
+
+
+
+
+
 function onload_wrapper() {
     getOS()
     trace_job()

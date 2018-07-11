@@ -230,7 +230,7 @@ def param_upload(request):
         for ele in param['flag'].split(","):
             task_num += 1
             new_task = Task(task_id=task_name,username=param['username'],
-                tag=None if not 'tag' in param else param['tag'],
+                tag=param['tags'],
                 src_file=filename,target_os=param['target_os'],
                 compiler=param['compiler'],version=param['version'],
                 flag=ele,init_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
@@ -348,6 +348,12 @@ def wrap_dir(request):
     # os.system("rm "+taskFolder+'/'+new_name)
     return response
 
+
+def search_panel(request):
+    context = {}
+    context['nav3'] = "active show"
+    return render(request, 'secuTool/test.html',context)
+
 @transaction.atomic
 def check_status(request):
     ##KWARGS
@@ -452,7 +458,10 @@ def check_status(request):
         obj = obj.filter(compilers)
 
     context['tasks'] = obj
+    seq = 0
     for ele in context['tasks']:
+        ele.seq = seq
+        seq+=1
         if ele.target_os == 'Windows':
             delimit = "\\"
         else:
@@ -474,7 +483,21 @@ def check_status(request):
     context['search_result'] = "-- Showing "+str(obj.count())+" results of user request."
     return render(request, 'secuTool/test.html',context)
 
-
+@csrf_exempt
+def download_search(request):
+    ## remains earcgh params when privide dowload
+    obj = dict(request.POST)
+    print(obj['exe_pair'])
+    new_name = "archive_searchReqest.tgz"
+    with tarfile.open(new_name, "w:gz") as tar:
+        for ele in obj['exe_pair']:
+            taskFolder,exename = ele.split("$%$") 
+            exe_path = rootDir+taskFolder+"/secu_compile/"+exename
+            tar.add(exe_path, arcname=os.path.join(taskFolder,exename))
+    compressed_dir = open(new_name,'rb')
+    response = HttpResponse(compressed_dir,content_type='application/tgz')
+    response['Content-Disposition'] = 'attachment; filename='+new_name
+    return response
 
 
 @transaction.atomic
@@ -853,7 +876,7 @@ def updateCompiler(request):
                                                 compiler=request.POST['compiler'],
                                                 version=request.POST['version'])
         if compiler.count() != 0:
-            return render(request, "secuTool/test.html", {"message": "A compiler with the same OS/name/version already exists"})
+            return render(request, "secuTool/test.html", {"message": "A compiler with the same OS/name/version already exists",'nav2': 'active show'})
 
         d = {}
         for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
@@ -888,7 +911,7 @@ def updateProfile(request):
                                                 version=request.POST['version'],
                                                 name=request.POST['name'])
         if profile.count() != 0:
-            return render(request, "secuTool/test.html", {"message": "A profile with the same OS/compiler/name/version already exists"})
+            return render(request, "secuTool/test.html", {"message": "A profile with the same OS/compiler/name/version already exists",'nav2': 'active show'})
 
         d = {}
         for key in ['target_os', 'compiler', 'version', 'name', 'uploader']:

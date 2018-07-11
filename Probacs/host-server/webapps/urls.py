@@ -28,7 +28,10 @@ urlpatterns = [
     # url(r'^serve_pdf$', views.serve_pdf, name='serve_pdf'),
     url(r'^download_tar$', views.wrap_dir, name='download_tar'),
 
+    url(r'^search_panel$', views.search_panel, name='search_panel'),
     url(r'^check_status$', views.check_status, name='check_status'),
+    url(r'^download_search$', views.download_search, name='download_search'),
+    
     url(r'^test$', views.test, name='test'),
     url(r'^redirect_trace$', views.redirect_trace, name='redirect_trace'),
     
