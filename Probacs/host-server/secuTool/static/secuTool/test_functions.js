@@ -187,3 +187,10 @@ function download_tar(){
     console.log($('input[name="downloadtaskid"]').val())
     $('#download_full').submit()
 }
+
+// $(document).ready(function(){ 
+//       $( "#dateafter" ).datepicker(); 
+// });
+
+
+

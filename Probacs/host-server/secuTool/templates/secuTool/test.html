@@ -15,6 +15,11 @@
   <script src="{% static 'secuTool/test_functions.js'%}"></script>
   <script src="{% static 'secuTool/preview_functions.js'%}"></script>
 
+<!--   <link rel="stylesheet" href="jquery-ui.min.css">
+  <script src="jquery.js"></script>
+  <script src="jquery-ui.min.js"></script>
+  <script src="index.js"></script>
+ -->
   <style>
     header, footer {
       color: white;
@@ -266,10 +271,10 @@
                     <input style="width:100px;" type="text" name='tag' value="{{tag}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='date_after' value="{{date_after}}">
+                    <input style="width:100px;" type="text" name='date_after' id="dateafter' value="{{date_after}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='date_before' value="{{date_before}}">
+                    <input style="width:100px;" type="text" name='date_before' id="datebefore" value="{{date_before}}">
                   </td>
                 </tr>
               </table>
