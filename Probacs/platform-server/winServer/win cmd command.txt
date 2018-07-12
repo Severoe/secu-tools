@@ -1,4 +1,0 @@
-win cmd command
-
-
-del /-f file   # remove dile by specifing name
