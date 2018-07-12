@@ -80,7 +80,6 @@ function getOS() {
         options += "<option>" + os_list[os] + "</option>"
     }
     $('#target_os').append(options)
-
 }
 
 function getCompiler(os) {

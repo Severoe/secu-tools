@@ -60,7 +60,7 @@ def preview(request):
 
     new_taskMeta = TaskMeta(task_id=taskName,username=params[0]['username'],tag=params[0]['tag'],
         src_filename=src_filename,target_os=", ".join(target_os_list),
-        compiler_full=", ".join(compiler_full_list),profiles = ", ".join(params[0]['profile']), 
+        compiler_full=", ".join(compiler_full_list),profiles = ", ".join(params[0]['profile']),
         created_date=task_created_time)
     new_taskMeta.save()
 
@@ -236,7 +236,7 @@ def param_upload(request):
                 flag=ele,init_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
                 exename=getExename(filename,ele,task_num))
             new_task.save()
-            
+
 
         #############################
         # calling compilation tasks
@@ -676,7 +676,7 @@ def trace_task_by_id(request):
             new_log['status'] = "success" if ele.err == "" or ele.err == "-" else "fail"
             new_log['err'] = "-" if ele.err == "" else ele.err
 
-        
+
         log_report.append(new_log)
 
     response['finished'] = finished
@@ -784,16 +784,26 @@ def manageProfile(request):
     context = {}
     profiles = Profile_conf.objects.values()
     rows = []
+    profile_dict = {}
     for profile in profiles:
-        p_dict = {"target_os": profile["target_os"],
-                    "compiler": profile["compiler"],
-                    "version": profile["version"],
+        target_os, compiler, version = profile["target_os"], profile["compiler"], profile["version"]
+        p_dict = {"target_os": target_os,
+                    "compiler": compiler,
+                    "version": version,
                     "name": profile["name"],
                     "flag": ", ".join(json.loads(profile['flag'])),
                     "date": profile['upload_time'].strftime("%Y-%m-%d %H:%M:%S")
                     }
         rows.append(p_dict.copy())
+        if target_os not in profile_dict:
+            profile_dict[target_os] = {}
+        if compiler not in profile_dict[target_os]:
+            profile_dict[target_os][compiler] = []
+        if version not in profile_dict[target_os][compiler]:
+            profile_dict[target_os][compiler].append(version)
+
     context["rows"] = rows
+    context['json_profiles'] = json.dumps(profile_dict)
     return render(request, "secuTool/manageProfile.html", context)
 
 def manageCompiler(request):
@@ -839,7 +849,7 @@ def getProfile(request):
 
 @csrf_exempt
 def updateCompiler(request):
-    if request.POST['submit'] == 'save':    #update existing
+    if request.POST['submit'] == 'save':    #update existing one
         compiler = Compiler_conf.objects.get(target_os=request.POST['old_target_os'],
                                     compiler=request.POST['old_compiler'],
                                     version=request.POST['old_version'])
@@ -872,6 +882,13 @@ def updateProfile(request):
                                     version=request.POST['old_version'],
                                     name=request.POST['old_name'])
 
+        # if profile.count() != 0:
+        #     return render(
+        #         request, "secuTool/test.html", {
+        #             "message":
+        #             "A profile with the same OS/compiler/version/name already exists"
+        #         })
+
         for key in ['target_os', 'compiler', 'version', 'name']:
             setattr(profile, key, request.POST[key])
 
@@ -888,7 +905,11 @@ def updateProfile(request):
                                                 version=request.POST['version'],
                                                 name=request.POST['name'])
         if profile.count() != 0:
-            return render(request, "secuTool/test.html", {"message": "A profile with the same OS/compiler/name/version already exists"})
+            return render(
+                request, "secuTool/test.html", {
+                    "message":
+                    "A profile with the same OS/compiler/version/name already exists"
+                })
 
         d = {}
         for key in ['target_os', 'compiler', 'version', 'name', 'uploader']:

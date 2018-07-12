@@ -37,7 +37,7 @@
   <header onclick="main_page()">
     <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
   </header>
-
+  <div style="display:none" id='json_profiles'>{{json_profiles}}</div>
   <div class="container">
     <div class="col">
       <div class="row-sm-5">
@@ -88,15 +88,20 @@
           <h4>Please modify the profile</h4>
           <br>
           <h6>Target_os:</h6>
-          <textarea rows="1" cols="20" id="target_os" name="target_os" required></textarea>
+          <select name="target_os" id="target_os" onChange="getCompiler(this.value, '');" required>
+          </select>
+          <div style="display:none" id='os_selected'></div>
           <br>
           <br>
           <h6>Compiler:</h6>
-          <textarea rows="1" cols="20" id="compiler" name="compiler" required></textarea>
+          <select name="compiler" id="compiler" onchange="getVersion(this.value, '');" required>
+          </select>
           <br>
           <br>
           <h6>Version:</h6>
-          <textarea rows="1" cols="20" id="version" name="version" required></textarea>
+          <select name="version" id="version" required>
+          </select>
+          <div style="display:none" id='version_selected'></div>
           <br>
           <br>
           <h6>Name:</h6>
@@ -107,7 +112,7 @@
           <textarea id="flag" name="flag" required></textarea>
           <br>
           <br>
-          <h6>Uploader:<h7><span style="color:red">(Cannot be modified unless save as new)</span></h7></h6>
+          <h6>Uploader:<span style="color:red">(Cannot be modified unless save as new)</span></h6>
           <textarea rows="1" cols="20" id="uploader" name="uploader" required></textarea>
           <br>
           <br>
