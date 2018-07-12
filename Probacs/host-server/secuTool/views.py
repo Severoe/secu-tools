@@ -900,17 +900,22 @@ def updateCompiler(request):
 @csrf_exempt
 def updateProfile(request):
     if request.POST['submit'] == 'save':    #update existing one
+        new_profile = Profile_conf.objects.filter(target_os=request.POST['target_os'],
+                                    compiler=request.POST['compiler'],
+                                    version=request.POST['version'],
+                                    name=request.POST['name'])
+
+        if new_profile.count() != 0:
+            return render(
+                request, "secuTool/test.html", {
+                    "message":
+                    "A profile with the same OS/compiler/version/name already exists"
+                })
+
         profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
                                     compiler=request.POST['old_compiler'],
                                     version=request.POST['old_version'],
                                     name=request.POST['old_name'])
-
-        # if profile.count() != 0:
-        #     return render(
-        #         request, "secuTool/test.html", {
-        #             "message":
-        #             "A profile with the same OS/compiler/version/name already exists"
-        #         })
 
         for key in ['target_os', 'compiler', 'version', 'name']:
             setattr(profile, key, request.POST[key])
