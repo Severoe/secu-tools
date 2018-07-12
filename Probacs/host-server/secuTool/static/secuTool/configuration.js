@@ -1,3 +1,5 @@
+var text = ""
+
 function editProfile(os, compiler, version, name) {
     document.getElementById('update_profile').style.visibility = 'visible'
     $.ajax({
@@ -15,13 +17,11 @@ function editProfile(os, compiler, version, name) {
             document.getElementById('old_compiler').value = response['compiler']
             document.getElementById('old_version').value = response['version']
             document.getElementById('old_name').value = response['name']
-
-            $('#target_os').empty()
-            $('#target_os').append(response['target_os'])
-            $('#compiler').empty()
-            $('#compiler').append(response['compiler'])
-            $('#version').empty()
-            $('#version').append(response['version'])
+            
+            getOS(response['target_os'])
+            getCompiler(response['target_os'], response['compiler'])
+            getVersion(response['compiler'], response['version'])
+            
             $('#name').empty()
             $('#name').append(response['name'])
             $('#flag').empty()
@@ -76,3 +76,82 @@ function editCompiler(os, compiler, version) {
 function main_page() {
     window.location.href = '/test';
 }
+
+function read_profiles() {
+    var json_profiles = $('#json_profiles').text()
+    if (json_profiles === "" || json_profiles === null) return
+    text = JSON.parse(json_profiles)
+}
+
+function getOS(target_os) {
+    $('#target_os').empty()
+    var os_list = []
+    for (os in text) {
+        os_list.push(os)
+    }
+    os_list.sort()
+    var options = ""
+    for (os in os_list) {
+        if (os_list[os] === target_os)
+            options += "<option selected>" + os_list[os] + "</option>"
+        else
+            options += "<option>" + os_list[os] + "</option>"
+    }
+    $('#target_os').append(options)
+}
+
+function getCompiler(os, target_compiler) {
+    $('#compiler').empty()
+    $('#os_selected').text(os)
+
+    var compiler_list = []
+    for (compiler in text[os]) {
+        compiler_list.push(compiler)
+    }
+    compiler_list.sort()
+    var options = ""
+    if (target_compiler === "") {
+        $('#version').empty()
+        options += "<option value='' disabled selected>Select</option>"
+        for (compiler in compiler_list) {
+            options += "<option>" + compiler_list[compiler] + "</option>"
+        }
+    } else {
+        for (compiler in compiler_list) {
+            if (compiler_list[compiler] === target_compiler)
+                options += "<option selected>" + compiler_list[compiler] + "</option>"
+            else
+                options += "<option>" + compiler_list[compiler] + "</option>"
+        }
+    }
+    $('#compiler').append(options)
+}
+
+function getVersion(compiler, target_version) {
+    $('#version').empty()
+    var os = $('#os_selected').text()
+    var plist = text[os][compiler].sort()
+    var options = ""
+    if (target_version === "") {
+        options += "<option value='' disabled selected>Select</option>"
+        for (p in plist) {
+            options += "<option>" + plist[p] + "</option>"
+        }
+    } else {
+        for (p in plist) {
+            if (plist[p] === target_version) {
+                options += "<option selected>" + plist[p] + "</option>"
+            }
+            else {
+                options += "<option>" + plist[p] + "</option>"
+            }
+        }
+    }
+    $('#version').append(options)
+}
+
+function onload_wrapper() {
+    read_profiles()
+}
+
+window.onload = onload_wrapper;

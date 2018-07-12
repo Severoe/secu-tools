@@ -20,6 +20,7 @@ db.sqlite3
 *.png
 *.exe
 
+*.ini
 # Secret config parameters
 # *.ini
 
