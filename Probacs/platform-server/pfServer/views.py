@@ -1,5 +1,5 @@
 
-import os, tempfile, zipfile,tarfile, time,sys
+import os, tempfile, zipfile,tarfile, time,sys, signal
 from datetime import datetime
 from wsgiref.util import FileWrapper
 from django.shortcuts import render
