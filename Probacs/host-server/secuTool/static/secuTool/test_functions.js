@@ -67,6 +67,7 @@ function trace_job() {
 }
 
 function getOS() {
+    console.log("SSS")
     var json_profiles = $('#json_profiles').text()
     if (json_profiles === "" || json_profiles === null) return
     text = JSON.parse(json_profiles)
@@ -188,7 +189,8 @@ function download_tar(){
     $('#download_full').submit()
 }
 
+
 function calendar(){ 
       $( "#dateafter" ).datepicker();
       $( "#datebefore" ).datepicker();  
-};
+}
