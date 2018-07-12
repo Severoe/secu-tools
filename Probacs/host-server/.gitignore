@@ -19,7 +19,7 @@ db.sqlite3
 *.jpeg
 *.png
 *.exe
-
+*.tgz
 # Secret config parameters
 *.ini
 

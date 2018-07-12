@@ -72,16 +72,29 @@ def execute(request):
 	# print("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
 	# cl = r'"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
 	if cl == None:
-		os.system("python make_compilation.py "+taskFolder+" "+
-			request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
-			srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
+		proc = subprocess.Popen(["python","make_compilation.py",taskFolder,request.POST['target_os'],
+			request.POST['compiler'],request.POST['version'],srcpath,compileDir,request.POST['command'],
+			request.POST['flags'],hostserver], shell=True)
+		print(proc.pid)
+		# os.system("python make_compilation.py "+taskFolder+" "+
+		# 	request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
+		# 	srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
 	else:
-		os.system(cl+"&& python make_compilation.py "+taskFolder+" "+
-			request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
-			srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
-
+		# os.system(cl+"&& python make_compilation.py "+taskFolder+" "+
+		# 	request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
+		# 	srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
+		proc = subprocess.Popen([cl,"&&","python","make_compilation.py",taskFolder,request.POST['target_os'],
+			request.POST['compiler'],request.POST['version'],srcpath,compileDir,request.POST['command'],
+			request.POST['flags'],hostserver], shell=True)
+		print(proc.pid)
 	############################################
 	# send back exe archive to host by http request
+	while True:
+		time.sleep(1)
+		poll = proc.poll() #none indicating still running
+		if poll != None:
+			break
+
 	responseFromHost,tmpzip = sendBackExe(taskFolder, hostserver) # test purpose, replace hellomake later
 	##clear environment
 	if os_name == 'nt':

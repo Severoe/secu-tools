@@ -11,7 +11,7 @@ tempDir = 'temp/'
 
 
 ############################################################################
-##################. helper function for preview ##################
+##################. helper function for preview ############################
 ############################################################################
 def process_files(request, taskName, compiler_divided):
     """
@@ -166,6 +166,7 @@ def construct_querySet(request):
 ############################################################################
 ##################. helper function for local compilation ##################
 ############################################################################
+
 def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, on_complete):
     """
     task_id: string, task id of this job
@@ -249,7 +250,9 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
 
 
 
-
+############################################################################
+##################. other helper function ##################################
+############################################################################
 
 def getExename(filename,ele,num):
     '''

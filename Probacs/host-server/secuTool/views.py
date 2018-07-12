@@ -22,7 +22,6 @@ from helper import *
 ################################
 # global variables
 # winurl = 'http://172.16.165.132:8000'
-# self_ip =
 host_ip_gateway = settings.GATEWAY
 enable_test = settings.ENABLE_LOCALTEST
 print(enable_test)
@@ -438,6 +437,10 @@ def check_status(request):
 ##############################################################################################
 ##################. function for ajax tracking/ update########################################
 ##############################################################################################
+
+
+
+
 
 @transaction.atomic
 @csrf_exempt
