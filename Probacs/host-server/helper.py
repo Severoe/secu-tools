@@ -3,6 +3,7 @@ import requests
 from probacs_parser import parseTaskFile
 import os, tempfile, zipfile,tarfile, time,json
 from subprocess import Popen, PIPE
+from datetime import datetime
 
 
 ## global variables
@@ -145,7 +146,8 @@ def construct_querySet(request):
     if 'date_after' not in request.POST or request.POST['date_after']=="":
         empty_count += 1
     else:
-        f = "%Y-%m-%d %H:%M"
+        # f = "%Y-%m-%d %H:%M"
+        f = "%m/%d/%Y"
         context['date_after'] = request.POST['date_after']
         date_obj = datetime.strptime(request.POST['date_after'], f).strftime("%Y-%m-%d %H-%M-%S")
         query_dict['init_tmstmp__gte'] = date_obj
@@ -153,7 +155,8 @@ def construct_querySet(request):
     if 'date_before' not in request.POST or request.POST['date_before']=="":
         empty_count += 1
     else:
-        f = "%Y-%m-%d %H:%M"
+        # f = "%Y-%m-%d %H:%M"
+        f = "%m/%d/%Y"
         context['date_before'] = request.POST['date_before']
         date_obj = datetime.strptime(request.POST['date_before'], f).strftime("%Y-%m-%d %H-%M-%S")
         query_dict['init_tmstmp__lte'] = date_obj

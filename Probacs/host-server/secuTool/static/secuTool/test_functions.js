@@ -3,6 +3,44 @@ var interval = 1000;
 var finished_status = false
 var text = ""
 
+
+function addflag(flag) {
+    var id = "#" + flag
+    if ($(id).hasClass("chosen")) {
+        $(id).removeClass("chosen")
+    } else {
+        $(id).addClass("chosen")
+    }
+}
+
+function delflag(flag) {
+    var button_id = '#' + flag + "z"
+    var flag = $(button_id).text().trim()
+    var parent_id = $(button_id).parent().attr("id")
+    var input_id = '#input' + parent_id.substring(parent_id.length - 1, parent_id.length)
+    var cnt = Number($(button_id).parent().children(".cnter").text()) - 1
+    if (cnt === 0) {
+        $(button_id).parent().remove()
+        $(input_id).remove()
+    } else {
+        var form_value = $(input_id).attr("value").replace(flag, "")
+        $(button_id).parent().children(".cnter").text(cnt)
+        $(input_id).attr({ "value": form_value })
+        $(button_id).remove()
+    }
+}
+
+function selectall() {
+    $('.row-button').each(function () {
+        $(this).addClass('chosen')
+    })
+}
+
+function deselectall() {
+    $('.row-button').each(function () {
+        $(this).removeClass('chosen')
+    })
+}
 function setCurrentJob(job_id){
 	// event_id = setInterval(trace_job, interval);
 	$('#ongoing-task').text(job_id)
@@ -169,9 +207,10 @@ function download_search() {
 
 
 function onload_wrapper() {
+        calendar()
     getOS()
     trace_job()
-    calendar()
+
 }
 
 window.onload = onload_wrapper;
