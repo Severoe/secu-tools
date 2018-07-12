@@ -108,6 +108,8 @@ if __name__ == "__main__":
         exit(-1)
     hostserver = sys.argv[9]
     print(hostserver)
+    cur_id = os.getpid()
+    print(cur_id)
     compile(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4],sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
 
     # do_compilation(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

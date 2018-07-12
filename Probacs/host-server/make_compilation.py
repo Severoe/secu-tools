@@ -56,4 +56,6 @@ if __name__ == "__main__":
         sys.stderr.write("Usage: python make_compilation <source file> <output dir> <invoke_format> <flags>\n")
         sys.stderr.flush()
         exit(-1)
+    cur_id = os.getpid()
+    print(cur_id)
     do_compilation(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
