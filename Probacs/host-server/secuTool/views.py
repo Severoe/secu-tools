@@ -17,11 +17,11 @@ from django.core import serializers
 from io import BytesIO
 import zipfile,io,base64
 from django.db.models import Q
+from helper import *
 # Create your views here.
 ################################
 # global variables
 # winurl = 'http://172.16.165.132:8000'
-# self_ip =
 host_ip_gateway = settings.GATEWAY
 enable_test = settings.ENABLE_LOCALTEST
 print(enable_test)
@@ -34,11 +34,61 @@ tempDir = 'temp/'
 # the datastructure  is stored in settings
 ################################
 
+
+##############################################################################################
+##############################################################################################
+##################. function for main page ################################################
+##############################################################################################
 def home(request):
     context = {}
     context['form'] = ProfileUserForm()
-    return render(request,'secuTool/index.html',context)
+    context['nav1'] = "active show"
+    profiles = Profile_conf.objects.values()
+    profile_dict = {}
+    for profile in profiles:
+        target_os, compiler, name = profile["target_os"], profile["compiler"] + " " + profile["version"], profile["name"]
+        if target_os not in profile_dict:
+            profile_dict[target_os] = {}
+        if compiler not in profile_dict[target_os]:
+            profile_dict[target_os][compiler] = []
+        profile_dict[target_os][compiler].append(name)
 
+    context['json_profiles'] = json.dumps(profile_dict)
+    # context['status'] = statuses
+    return render(request, 'secuTool/test.html',context)
+
+@csrf_exempt
+def peek_profile(request):
+    target_os = request.POST['target_os']
+    compiler, version = request.POST['compiler'].split(' ')
+    name = request.POST['name']
+
+    profile = Profile_conf.objects.filter(name=name,
+                                        target_os=target_os,
+                                        compiler=compiler,
+                                        version=version)
+
+    num = profile.count()
+    if num > 1:
+        res = {"message":"Multiple profiles found with given information"}
+    elif num < 1:
+        res = {"message":"No profile matching given information"}
+    else:
+        res = {"target_os": profile[0].target_os,
+                "compiler": profile[0].compiler,
+                "version": profile[0].version,
+                "name": profile[0].name,
+                "uploader": profile[0].uploader,
+                "upload_time": profile[0].upload_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                "flag": profile[0].flag}
+
+    return HttpResponse(json.dumps(res), content_type="application/json")
+
+
+##############################################################################################
+##############################################################################################
+##################. function for preview page ################################################
+##############################################################################################
 
 def preview(request):
     # print(request.POST)
@@ -106,58 +156,10 @@ def preview(request):
     return render(request, 'secuTool/preview.html',context)
 
 
-def process_files(request, taskName, compiler_divided):
-    """
-    save and extract source code, and parse task file (or task form)
-    :type request: http request obbject
-    :type taskName: str, name of this task
-    :rtype: tuple
-        tuple[0] = message
-        tuple[1] = list of dictionary, each element is the information of a task
-    """
-    taskFolder = rootDir + taskName
-    srcFolder = taskFolder + "/src"
-    os.mkdir(taskFolder)
-    os.mkdir(srcFolder)
-
-    srcPath = srcFolder + "/" + request.FILES['srcFile'].name
-    with open(srcPath, 'wb+') as dest:
-        for chunk in request.FILES['srcFile'].chunks():
-            dest.write(chunk)
-
-    cmd = None
-    if request.FILES['srcFile'].content_type == 'application/x-tar':
-        cmd = ['tar', 'xf', srcPath, '-C', srcFolder]
-    elif request.FILES['srcFile'].content_type == 'application/gzip':
-        cmd = ['tar', 'xzf', srcPath, '-C', srcFolder]
-    elif request.FILES['srcFile'].content_type == 'application/zip':
-        cmd = ['unzip', srcPath, '-d', srcFolder]
-
-    if cmd:
-        extract = Popen(cmd, stdout=PIPE, stderr=PIPE)
-        _, err = extract.communicate()
-        if err:
-            return 'error occured when extracting file. \n%s'%err, None
-
-    # user specified task through UI, not file, then save it to disk
-    if 'taskFile' not in request.FILES:
-        with open(taskFolder + "/task.txt", 'w') as dest:
-            for key in ['compiler', 'version']:
-                dest.write(key + ":" + compiler_divided[key] + "\n")
-            for key in ['target_os', 'username']:
-                dest.write(key + ":" + request.POST[key] + "\n")
-            for key in ['profile']:
-                # print(dict(request.POST))
-                dest.write(key + ":" + ",".join(dict(request.POST)[key]) + "\n")
-            if 'tag' in request.POST:
-                dest.write('tag:' + request.POST['tag'] + "\n")
-    else:
-        with open(taskFolder + '/task.txt', 'wb+') as dest:
-            for chunk in request.FILES['taskFile'].chunks():
-                dest.write(chunk)
-
-    return parseTaskFile(taskFolder + '/task.txt')
-
+##############################################################################################
+##############################################################################################
+##################. function for compilation redirect ########################################
+##############################################################################################
 
 @csrf_exempt
 @transaction.atomic
@@ -274,7 +276,6 @@ def param_upload(request):
     return HttpResponse(json.dumps(response),content_type="application/json")
 
 
-
 def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFolder,mainSrcName):
     '''
     flags is compressed string used for make_compilation.py
@@ -303,9 +304,19 @@ def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFold
     else:
         return
 
+def on_complete(task_info):
+    '''
+    called when each time self compilation finished
+    '''
+    response = requests.post(url=self_ip+"/rcv_compilation",data = task_info)
+    return
 
 
-#receive compiled task from win, need to save file at taskFolder
+##############################################################################################
+##############################################################################################
+##################. function for saving compilation results && download request ##############
+##############################################################################################
+
 @csrf_exempt
 def saveExe(request):
     taskFolder = request.POST['taskid']
@@ -327,9 +338,10 @@ def saveExe(request):
 
     return response
 
-
-#download files based on whole task level
 def wrap_dir(request):
+    '''
+    download files based on whole task level
+    '''
     taskFolder = request.POST['downloadtaskid']
     if taskFolder == None or taskFolder == "" or TaskMeta.objects.filter(task_id=taskFolder).count() == 0:
         message = "there is no corresponding tasks"
@@ -348,6 +360,28 @@ def wrap_dir(request):
     # os.system("rm "+taskFolder+'/'+new_name)
     return response
 
+@csrf_exempt
+def download_search(request):
+    ## remains earcgh params when privide dowload
+    obj = dict(request.POST)
+    print(obj['exe_pair'])
+    new_name = "archive_searchReqest.tgz"
+    with tarfile.open(new_name, "w:gz") as tar:
+        for ele in obj['exe_pair']:
+            taskFolder,exename = ele.split("$%$") 
+            exe_path = rootDir+taskFolder+"/secu_compile/"+exename
+            tar.add(exe_path, arcname=os.path.join(taskFolder,exename))
+    compressed_dir = open(new_name,'rb')
+    response = HttpResponse(compressed_dir,content_type='application/tgz')
+    response['Content-Disposition'] = 'attachment; filename='+new_name
+    return response
+
+
+##############################################################################################
+##############################################################################################
+##################. function for search page #################################################
+##############################################################################################
+
 
 def search_panel(request):
     context = {}
@@ -355,101 +389,18 @@ def search_panel(request):
     return render(request, 'secuTool/test.html',context)
 
 @transaction.atomic
-def check_status(request):
-    ##KWARGS
-    context = {}
-    context['nav3'] = "active show"
-    flags = None
-    compilers = None
-    obj = Task.objects.all()
-    empty_count = 0
+def check_status(request):    
+    '''
+    called when search request encountered
+    '''
     total_count = 7
-    query_dict = {}
-
-    # 2018-07-02 16:08
-    if 'task_id' not in request.POST or request.POST['task_id']=="":
-        empty_count += 1
-    else:
-        context['task_id'] = request.POST['task_id']
-        query_dict["task_id__in"] = request.POST['task_id'].split(",")
-        query_dict['task_id__in'] = [ele.strip() for ele in query_dict['task_id__in']]
-
-    if 'flags' not in request.POST or request.POST['flags']=="":
-        flags = None
-        empty_count += 1
-    else:
-        context['flags'] = request.POST['flags']
-        flags_filter = Q()
-        for flag in request.POST['flags'].split(","):
-            flags_filter |= Q(flag__icontains = flag.strip())
-        flags = flags_filter
-
-    if 'username' not in request.POST or request.POST['username']=="":
-        empty_count += 1
-    else:
-        context['username'] = request.POST['username']
-        query_dict['username__in'] = request.POST['username'].split(",")
-        query_dict['username__in'] = [ele.strip() for ele in query_dict['username__in']]
-
-    if 'compilers' not in request.POST or request.POST['compilers']=="":
-        empty_count += 1
-    else:
-        context['compilers'] = request.POST['compilers']
-        compiler_dict = {}
-        for ele in request.POST['compilers'].split(","):
-            divide = ele.strip().split(" ")
-            query_key = divide[0].lower()
-            query_val = divide[1]
-            if query_val == "*":
-                compiler_dict[query_key]= None
-            else:
-                if query_key in compiler_dict.keys() and compiler_dict[query_key] != None:
-                    compiler_dict[query_key].append(query_val)
-                elif query_key not in compiler_dict.keys():
-                    compiler_dict[query_key] = [query_val]
-        print(compiler_dict)
-        compiler_filter = Q()
-        for key, val in compiler_dict.items():
-            if key == "*":
-                if val == None:
-                    compiler_filter |= Q(compiler__icontains="")
-                else:
-                    compiler_filter |= Q(version__in=val)
-            elif val == None:
-                compiler_filter |= Q(compiler__icontains=key)
-            else:
-                compiler_filter |= Q(compiler__icontains=key, version__in=val)
-        compilers = compiler_filter
-
-    if 'tag' not in request.POST or request.POST['tag']=="":
-        empty_count += 1
-    else:
-        context['tag'] = request.POST['tag']
-        query_dict['tag__in'] = request.POST['tag'].split(",")
-        query_dict['tag__in'] = [ele.strip() for ele in query_dict['tag__in']]
-
-    if 'date_after' not in request.POST or request.POST['date_after']=="":
-        empty_count += 1
-    else:
-        f = "%Y-%m-%d %H:%M"
-        context['date_after'] = request.POST['date_after']
-        date_obj = datetime.strptime(request.POST['date_after'], f).strftime("%Y-%m-%d %H-%M-%S")
-        query_dict['init_tmstmp__gte'] = date_obj
-
-    if 'date_before' not in request.POST or request.POST['date_before']=="":
-        empty_count += 1
-    else:
-        f = "%Y-%m-%d %H:%M"
-        context['date_before'] = request.POST['date_before']
-        date_obj = datetime.strptime(request.POST['date_before'], f).strftime("%Y-%m-%d %H-%M-%S")
-        query_dict['init_tmstmp__lte'] = date_obj
-
+    empty_count, query_dict, flags, compilers, context = construct_querySet(request)
+    context['nav3'] = "active show"
 
     if empty_count == total_count:
         context['search_result'] = "-- Showing 0 result of user request."
         return render(request, 'secuTool/test.html',context)
 
-    # query_dict['profiles'] = None if request.POST['profiles']==None else request.POST['profiles'].split(",")
     print(query_dict)
     obj = Task.objects.filter(**query_dict)
     if flags != None:
@@ -478,12 +429,17 @@ def check_status(request):
                 ele.err = '-'
             else:
                 ele.status = 'fail'
-
-        # context['task_id'] = request.POST['task_id']
     context['search_result'] = "-- Showing "+str(obj.count())+" results of user request."
     return render(request, 'secuTool/test.html',context)
 
+
+##############################################################################################
+##############################################################################################
+##################. function for ajax tracking/ update########################################
+##############################################################################################
+@transaction.atomic
 @csrf_exempt
+<<<<<<< HEAD
 def download_search(request):
     ## remains earcgh params when privide dowload
     obj = dict(request.POST)
@@ -498,6 +454,23 @@ def download_search(request):
     response = HttpResponse(compressed_dir,content_type='application/tgz')
     response['Content-Disposition'] = 'attachment; filename='+new_name
     return response
+=======
+def terminate(request):
+    task_id = request.POST['task_id']
+    if enable_test:
+        ## 
+        return HttpResponse()
+    else:
+        obj = Task.objects.filter(task_id=task_id)[0]
+        compiler_info = Compiler_conf.objects.get(target_os=obj.target_os,compiler=obj.compiler,version=obj.version)
+        address = compiler_info.ip+":"+compiler_info.port+"/terminate"
+        response = requests.post(address, data={"task_id":task_id})
+        response = {}
+        response['task_id'] =task_id
+        return HttpResponse(json.dumps(response))
+
+
+>>>>>>> ef3810077d4f3472a5beeb69c71e883fca5ca463
 
 
 @transaction.atomic
@@ -508,12 +481,6 @@ def rcv_platform_result(request):
     '''
     task = Task.objects.get(task_id=request.POST['task_id'],flag=request.POST['flag'].replace(" ","_"),
         target_os=request.POST['target_os'],compiler=request.POST['compiler'],version=request.POST['version'])
-    # print("exename "+str(task.exename))
-    #handle error case
-    # if task == None or task.exename != None:
-    #     print('task already gone or already updated')
-    #     return HttpResponse()
-    # task.exename = request.POST['exename']
     task.out = request.POST['out']
     task.err = request.POST['err']
     task.finish_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S")
@@ -524,113 +491,6 @@ def rcv_platform_result(request):
     # print("exename "+str(task.exename))
     return HttpResponse()
 
-
-def on_complete(task_info):
-    '''
-    called when each time compilation finished
-    '''
-    response = requests.post(url=self_ip+"/rcv_compilation",data = task_info)
-    return
-
-def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, on_complete):
-    """
-    task_id: string, task id of this job
-    target_os: string, target os for this task
-    compiler: string, compiler name
-    version: string, version number of this compiler
-    src_path: string, the source code file path
-    dest_folder: string, folder name where you want the executables and log to be
-    invoke_format: string, how to invoke the compiler, example: cc_flags_source_-o_exename
-    flags: string, combinations of flags to be used, comma seperated
-    on_complete: callback function, takes a dictionary as argument
-    def onComplete(task_info):
-        '''
-        keys = 'task_id', 'target_os', 'compiler', 'version', 'src_path', 'flag'
-        'dest_folder', 'exename', 'out', 'err'
-        '''
-    """
-    #test:
-    # tmp = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'])
-    #print(tmp.exename)
-    invoke_format = invoke_format.replace("_", " ")
-    flag_list = flags.replace("_", " ").split(",")
-
-    task_info = {"task_id": task_id,
-                "target_os": target_os,
-                "compiler": compiler,
-                "version": version,
-                "src_path": src_path,
-                "dest_folder": dest_folder}
-
-    if os.name == 'nt':
-        delimit = "\\"
-    else:
-        delimit = "/"
-
-    name, extension = src_path.split(delimit)[-1].split('.')
-
-    if dest_folder[-1] == delimit:
-        dest_folder = dest_folder[0:-1]
-
-    if os.path.exists(dest_folder) and not os.path.isdir(dest_folder):
-        sys.stderr.write("Output directory already exists!\n")
-        sys.stderr.flush()
-        exit(-1)
-
-    if not os.path.exists(dest_folder):
-        os.mkdir(dest_folder)
-    ##
-    ## what if gcc with diff version ? -> overwritten log file
-    ##
-    dest_folder += delimit
-    log_filename = dest_folder + name + ".log"
-    log_file = open(log_filename, "w")
-
-    print("compilation begins...")
-
-    cnt = 0
-    for flag in flag_list:
-        cnt += 1
-        time.sleep(2)
-        exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
-        logline = "%s\t%s"%(exename, flag)
-
-        command = invoke_format.replace("flags", flag).replace("source", src_path).replace("exename", exename).split(" ")
-        # print(command)
-        compilation = Popen(command, stdout=PIPE, stderr=PIPE)
-        out, err = compilation.communicate()
-        log_file.write("%s, %s, %s\n"%(logline, out, err))
-
-        # execute callback to notice the completion of a single compilation
-        task_info['out'] = out
-        task_info['err'] = err
-        task_info['exename'] = exename
-        task_info['flag'] = flag
-        on_complete(task_info)
-
-
-    log_file.close()
-    print("compilation done!")
-    return
-
-# test funciton
-def test(request):
-    context = {}
-    context['form'] = ProfileUserForm()
-    context['nav1'] = "active show"
-    profiles = Profile_conf.objects.values()
-    profile_dict = {}
-    for profile in profiles:
-        target_os, compiler, name = profile["target_os"], profile["compiler"] + " " + profile["version"], profile["name"]
-        if target_os not in profile_dict:
-            profile_dict[target_os] = {}
-        if compiler not in profile_dict[target_os]:
-            profile_dict[target_os][compiler] = []
-        profile_dict[target_os][compiler].append(name)
-
-    context['json_profiles'] = json.dumps(profile_dict)
-    # context['status'] = statuses
-    return render(request, 'secuTool/test.html',context)
 
 def redirect_trace(request):
     '''
@@ -707,34 +567,10 @@ def trace_task_by_id(request):
     response['log_report'] = log_report
     return HttpResponse(json.dumps(response),content_type="application/json")
 
-@csrf_exempt
-def peek_profile(request):
-    target_os = request.POST['target_os']
-    compiler, version = request.POST['compiler'].split(' ')
-    name = request.POST['name']
-
-    profile = Profile_conf.objects.filter(name=name,
-                                        target_os=target_os,
-                                        compiler=compiler,
-                                        version=version)
-
-    num = profile.count()
-    if num > 1:
-        res = {"message":"Multiple profiles found with given information"}
-    elif num < 1:
-        res = {"message":"No profile matching given information"}
-    else:
-        res = {"target_os": profile[0].target_os,
-                "compiler": profile[0].compiler,
-                "version": profile[0].version,
-                "name": profile[0].name,
-                "uploader": profile[0].uploader,
-                "upload_time": profile[0].upload_time.strftime("%Y-%m-%d-%H-%M-%S"),
-                "flag": profile[0].flag}
-
-    return HttpResponse(json.dumps(res), content_type="application/json")
-
-
+##############################################################################################
+##############################################################################################
+##################. function for profile/compiler configuration management ##################
+##############################################################################################
 
 @csrf_exempt
 def addCompiler(request):
@@ -976,206 +812,21 @@ def deleteProfile(request):
     profile_to_delete.delete()
     return render(request, "secuTool/test.html", {'message':'Profile successfully deleted', 'nav2': 'active show'})
 
+
+
 ###########################################################################
 ###########################################################################
 #########           BELOW ARE SOME HELPER/TEST FUNCTIONS       ############
 ###########################################################################
 ###########################################################################
-def getExename(filename,ele,num):
-    return ".".join(filename.split(".")[:-1])+"_"+str(num)+"_"+ele
-
-def parse_taskMeta(ele, iscur):
-    '''
-    parse taskMeta object to be valid object in django template
-    '''
-    tmp = {}
-    tmp['taskname'] = ele.task_id
-    tmp['target_os'] = ele.target_os
-    tmp['compiler'] = ele.compiler_full
-    tmp['profiles'] = ele.profiles
-    tmp['username'] = ele.username
-    tmp['tag'] = ele.tag
-    tmp['total'] = ele.compilation_num
-    tmp['submittime'] = ".".join(ele.task_id.split("-")[:3])+" "+":".join(ele.task_id.split("-")[3:])
-    if iscur:
-        tmp['current_task']="background: yellow;"
-    return tmp
-
-def tracetest(request):
-    return render(request, 'secuTool/blank.html')
-
-
-
-def trace_test(request):
-    obj = Task.objects.all()
-    response = {}
-    response['total'] = obj.count()
-    finished = 0
-    for ele in obj:
-        # printRcd(ele)
-        # print(ele.exename == None)
-        if ele.exename != None:
-            finished+= 1
-    response['finished'] = finished
-
-    return HttpResponse(json.dumps(response),content_type="application/json")
-
-def trace(request):
-    '''
-    trace job status, INVOKED BY AJAX
-    '''
-    task_id = request.GET['task_id']
-    obj = Task.objects.filter(task_id=task_id)
-    response = {}
-    response['total'] = obj.count()
-    finished = 0
-    for ele in obj:
-        # printRcd(ele)
-        # print(ele.exename == None)
-        if ele.exename != None:
-            finished+= 1
-    response['finished'] = finished
-    response['task_id'] = task_id
-    return HttpResponse(json.dumps(response),content_type="application/json")
-
-
-
-#used for database debugging
-def printRcd(rcd):
-    print("============rcd report")
-
-    if rcd == None:
-        print('rcd not exists')
-        return
-    print("id: "+ str(rcd.task_id))
-    print("flag: "+ str(rcd.flag))
-    print("exename: "+ str(rcd.exename))
-    print("err: "+ str(rcd.err))
-    print("out: "+ str(rcd.out))
-
-    return
 
 
 
 
 
-##########################################
-########## backup functions #############
 
 
-@transaction.atomic
-def rcvSrc(request):
-    timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    #create unique task forder for each task, inside which includes:
-    # srcCode, <profiles>, compiled file & log,
-    # the archive for downloading will be delete
-    taskName = timestr
-    taskFolder = rootDir+timestr
-    codeFolder = taskFolder+"/"+"src"
-    os.system("mkdir "+taskFolder)
-    context = {}
-    srcPath = ''
-    #######################
-    # handle bad submit request (attention, undergoing compilation info may be missing by rendering blank)
-    #######################
-    if 'src' not in request.FILES or 'task_file' not in request.FILES:
-        return redirect(home)
-    #######################
-    #save source files in taskfolder
-    #######################
-    filename = request.FILES['src'].name
-    taskfile = request.FILES['task_file'].name
-    print(request.FILES['src'].content_type)
-    if request.FILES['src'].content_type not in ['application/x-tar','application/gzip','application/zip']:
-        #indicating a single file
-        os.system("mkdir "+codeFolder)
-        srcPath = codeFolder+"/"+filename
-        with open(srcPath,'wb+') as dest:
-            for chunk in request.FILES['src'].chunks():
-                dest.write(chunk)
-    else:
-        #if user upload tar bar, extract and save into srcCode folder
-        #also upload filename to be main filename
-        with open(taskFolder+'/'+filename,'wb+') as dest:
-            for chunk in request.FILES['src'].chunks():
-                dest.write(chunk)
-        os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+src)
-        os.system('mv '+taskFolder+'/'+filename.split('.')[0]+' '+codeFolder)
-        srcPath = codeFolder+"/"+filename
-        # update filename to be the main srcfile name if tast srcfile is a tarball
-    #######################
-    # write task specify file to taskFolder
-    #######################
-    taskPath = taskFolder+"/"+taskfile
-    with open(taskPath,'wb+') as dest:
-        for chunk in request.FILES['task_file'].chunks():
-            dest.write(chunk)
 
 
-    #######################
-    # parse task file
-    #######################
-    p = parseTaskFile(taskPath)
-    print(p)
-    message = p.get("message", None)
-    if message != None:
-        context['form']  = ProfileUserForm()
-        context['message'] = message
-        return render(request, 'secuTool/index.html',context)
 
-    #form request format from parse.py for each task
-    for param in p:
-        task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
-        version=param['version'])
-        task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
-        # permute flags combination  from diff flags
-        jsonDec = json.decoder.JSONDecoder()
-        flag_from_profile = []
-        for profile_name in param['profile']:
-            # print(profile_name)
-            p_tmp = Profile_conf.objects.get(name=profile_name, target_os=param['target_os'],compiler=param['compiler'],
-                version=param['version'])
-            flag_from_profile.append(jsonDec.decode(p_tmp.flag))
-        compile_combination = [[]]
-        for x in flag_from_profile:
-            compile_combination = [i + [y] for y in x for i in compile_combination]
-        compile_combination = [" ".join(x) for x in compile_combination]
-        compile_combination = [x.replace(" ","_") for x in compile_combination]
-        #############################
-        # add entries into task database
-        for ele in compile_combination:
-            new_task = Task(task_id=taskName,username=param['username'],
-                tag=None if not 'tag' in param else param['tag'],
-                src_file=filename,target_os=param['target_os'],
-                compiler=param['compiler'],version=param['version'],flag=ele)
-            new_task.save()
-        final_flags = ",".join(compile_combination)
-        #############################
-        # calling compilation tasks
-        #############################
-        if task_http == self_ip:
-            outputDir = taskFolder+"/"+"secu_compile"
-            data = {
-            'task_id':taskName,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
-            'output':outputDir,'format':task_compiler.invoke_format,'flags':final_flags,
-            }
-            pid = os.fork()
-            if pid == 0:
-                compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
-                #new thread
-                # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
-                print("finished compile")
-                os._exit(0)
-            else:
-                #parent process, simply return to client
-                print("asyn call encountered")
-        # if not compiling on linux host, send params to another function, interacting with specific platform server
-        else:
-            upload_to_platform(param,task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
 
-    context['task_id'] = taskName
-    context['message'] = "file is compiling..."
-    context['form'] = ProfileUserForm()
-    context['progress'] = 'block'
-    context['linux_taskFolder'] = taskName
-    return render(request, 'secuTool/index.html', context)

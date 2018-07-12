@@ -90,7 +90,7 @@ function add_row() {
 				'<td class="os">' + $(this).closest('tr').find('td.os').text() + '</td>' +
 				'<td class="compiler">' + $(this).closest('tr').find('td.compiler').text() + '</td>' +
 				'<td class="profile">' + $(this).closest('tr').find('td.profile').text() + '</td>' +
-				'<td class="new_flag" contenteditable="true">' + $(this).closest('tr').find('td.flag').text() + ", " + flags + '</td>' +
+				'<td class="flag new_flag" contenteditable="true">' + $(this).closest('tr').find('td.flag').text() + ", " + flags + '</td>' +
 				'<td class="username">' + $(this).closest('tr').find('td.username').text() + '</td>' +
 				'<td class="tags">' + $(this).closest('tr').find('td.tags').text() + '</td>' +
 				'<td><button class="btn btn-light btn-sm" onclick="delete_row(\'r' + button_id + '\')">delete</button></td>'
@@ -129,7 +129,7 @@ function edit_flags(flag) {
 	$(flag).focus(function () {
 		original = $(this).text()
 	});
-	$(flag).blur(function () {
+	$(flagd).blur(function () {
 		updated = $(this).text()
 		if (original != updated) {
 			id = $(this).closest('tr').find('td.id').text()
@@ -162,6 +162,7 @@ function compile() {
 		}
 	})
 	if (cnt === 0) return
+	console.log(param)
 	$.ajax({
 		type: 'POST',
 		url: "/paramUpload",

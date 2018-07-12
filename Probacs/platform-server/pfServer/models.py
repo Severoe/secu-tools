@@ -11,3 +11,8 @@ class ProfileUser(models.Model):
 
     def __unicode__(self):
         return 'id=' + str(self.id) + ',bio="' + self.bio + '"'
+
+
+class CompilationPid(models.Model):
+	pid = models.IntegerField()
+	taskid = models.CharField(max_length=200)

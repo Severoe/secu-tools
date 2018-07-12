@@ -3,7 +3,9 @@
 import os, sys, time, requests
 
 from subprocess import Popen, PIPE
-
+import django
+django.setup()
+from pfServer.models import *
 
 hostserver = ""
 
@@ -108,7 +110,15 @@ if __name__ == "__main__":
         exit(-1)
     hostserver = sys.argv[9]
     print(hostserver)
+    cur_id = os.getpid()
+    ## register pid with taskid
+    new_task = CompilationPid(pid = cur_id,taskid=str(sys.argv[1]))
+    new_task.save()
+
+    print(cur_id)
     compile(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4],sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
+    finished_task = CompilationPid.objects.get(pid=cur_id)
+    # finished_task.delete()
 
     # do_compilation(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
 

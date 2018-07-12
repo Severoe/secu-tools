@@ -13,13 +13,11 @@
     crossorigin="anonymous"></script>
   <script src="{% static 'secuTool/trace_job.js'%}"></script>
   <script src="{% static 'secuTool/test_functions.js'%}"></script>
-  <script src="{% static 'secuTool/preview_functions.js'%}"></script>
 
-<!--   <link rel="stylesheet" href="jquery-ui.min.css">
-  <script src="jquery.js"></script>
-  <script src="jquery-ui.min.js"></script>
-  <script src="index.js"></script>
- -->
+  <link rel="stylesheet" href="{% static 'secuTool/jquery-ui.min.css'%}">
+  <script src="{% static 'secuTool/jquery.js'%}"></script>
+  <script src="{% static 'secuTool/jquery-ui.min.js'%}"></script>
+  
   <style>
     header, footer {
       color: white;
@@ -109,7 +107,7 @@
   <h4 style="color:red;" class="ml-5">{{message}}</h4>
   <div style="display:none" id='json_profiles'>{{json_profiles}}</div>
   <div class="nav nav-tabs tab1" id="nav-tab" role="tablist">
-    <a class="nav-item nav-link" id="nav-1-tab" href="{% url 'test' %}">Submit jobs</a>
+    <a class="nav-item nav-link" id="nav-1-tab" href="{% url 'home' %}">Submit jobs</a>
     <a class="nav-item nav-link" id="nav-2-tab" data-toggle="tab" href="#nav-2" role="tab" aria-controls="nav-2" aria-selected="false">Configuration</a>
     <a class="nav-item nav-link" id="nav-3-tab" href="{% url 'search_panel' %}">Search</a>
     <a class="nav-item nav-link" id="nav-4-tab" href="{% url 'redirect_trace' %}">Job Tracker</a>
@@ -271,10 +269,10 @@
                     <input style="width:100px;" type="text" name='tag' value="{{tag}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='date_after' id="dateafter' value="{{date_after}}">
+                    <input style="width:100px;" type="text" name='date_after' id='dateafter' value="{{date_after}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='date_before' id="datebefore" value="{{date_before}}">
+                    <input style="width:100px;" type="text" name='date_before' id='datebefore' value="{{date_before}}">
                   </td>
                 </tr>
               </table>
@@ -389,6 +387,7 @@
               <!-- download button -->
               <br>
               <button class="btn btn-light" id="download_wrapper" onclick="download_tar()"> download </button>
+              <button class="btn btn-light" id="download_wrapper" onclick="terminate()"> terminate </button>
               <form enctype="multipart/form-data" id="download_full" action="{% url 'download_tar' %}" method='post' style="display: none;">
                 <input type="hidden" name="downloadtaskid" value="">
                 <input type="submit" value="Download Directory" class="submit-edition"> {% csrf_token %}

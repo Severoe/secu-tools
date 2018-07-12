@@ -1,10 +1,10 @@
 
-import os, tempfile, zipfile,tarfile, time,sys
+import os, tempfile, zipfile,tarfile, time,sys, signal
 from datetime import datetime
 from wsgiref.util import FileWrapper
 from django.shortcuts import render
-from winServer.forms import *
-from winServer.models import *
+# from pfServer.forms import *
+from pfServer.models import *
 from django.core.files import File 
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -72,6 +72,10 @@ def execute(request):
 	# print("python make_compilation.py "+srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags'])
 	# cl = r'"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"'
 	if cl == None:
+		# proc = Popen(["python","make_compilation.py",taskFolder,request.POST['target_os'],
+		# 	request.POST['compiler'],request.POST['version'],srcpath,compileDir,request.POST['command'],
+		# 	request.POST['flags'],hostserver], shell=True)
+		# print(proc.pid)
 		os.system("python make_compilation.py "+taskFolder+" "+
 			request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
 			srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
@@ -79,9 +83,18 @@ def execute(request):
 		os.system(cl+"&& python make_compilation.py "+taskFolder+" "+
 			request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
 			srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
-
+		# proc = Popen([cl,"&&","python","make_compilation.py",taskFolder,request.POST['target_os'],
+		# 	request.POST['compiler'],request.POST['version'],srcpath,compileDir,request.POST['command'],
+		# 	request.POST['flags'],hostserver], shell=True)
+		# print(proc.pid)
 	############################################
 	# send back exe archive to host by http request
+	# while True:
+	# 	time.sleep(1)
+	# 	poll = proc.poll() #none indicating still running
+	# 	if poll != None:
+	# 		break
+
 	responseFromHost,tmpzip = sendBackExe(taskFolder, hostserver) # test purpose, replace hellomake later
 	##clear environment
 	if os_name == 'nt':
@@ -96,6 +109,16 @@ def execute(request):
 	return response
 
 
+
+@csrf_exempt
+def terminate_sub(request):
+	task_id = request.POST['task_id']
+	ongoing_process = CompilationPid.objects.get(taskid=task_id)
+	pid = ongoing_process.pid
+	os.kill(pid, signal.SIGTERM)
+	print(pid)
+	# ongoing_process.delete()
+	return HttpResponse()
 
 
 # create zip file containing exe and log, then send to host
@@ -116,6 +139,10 @@ def sendBackExe(folder,hostserver):
 	response = requests.post(url, files = files,data={'taskid': folder})
 	print("response received from host")
 	return response,new_name
+
+
+
+
 
 # test only, not fully deployed
 def retJson(request):
