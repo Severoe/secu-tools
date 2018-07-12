@@ -1,4 +1,4 @@
-import os, tempfile, zipfile,tarfile, time,json
+import os, tempfile, zipfile, tarfile, time, json
 from subprocess import Popen, PIPE
 from django.utils import timezone
 from datetime import datetime
@@ -446,6 +446,22 @@ def check_status(request):
 ##############################################################################################
 @transaction.atomic
 @csrf_exempt
+def download_search(request):
+    ## remains earcgh params when privide dowload
+    obj = dict(request.POST)
+    print(obj['exe_pair'])
+    new_name = "archive_searchReqest.tgz"
+    with tarfile.open(new_name, "w:gz") as tar:
+        for ele in obj['exe_pair']:
+            taskFolder,exename = ele.split("$%$")
+            exe_path = rootDir+taskFolder+"/secu_compile/"+exename
+            tar.add(exe_path, arcname=os.path.join(taskFolder,exename))
+    compressed_dir = open(new_name,'rb')
+    response = HttpResponse(compressed_dir,content_type='application/tgz')
+    response['Content-Disposition'] = 'attachment; filename='+new_name
+    return response
+
+
 def terminate(request):
     task_id = request.POST['task_id']
     if enable_test:
@@ -468,8 +484,6 @@ def terminate(request):
         response['finished'] = finished
         response['log_report'] = log_report
         return HttpResponse(json.dumps(response),content_type="application/json") # mark ongoing to be terminated(reform whole table)
-
-
 
 
 @transaction.atomic
@@ -653,15 +667,27 @@ def manageCompiler(request):
     context = {}
     compilers = Compiler_conf.objects.values()
     rows = []
+    compiler_dict = {}
     for compiler in compilers:
-        c_dict = {"target_os": compiler['target_os'],
-                    'compiler': compiler['compiler'],
-                    'version': compiler['version'],
-                    'ip': compiler['ip'],
-                    'port': compiler['port'],
-                    'http_path': compiler['http_path']}
+        target_os, target_compiler, version = compiler["target_os"], compiler["compiler"], compiler["version"]
+        c_dict = {
+            "target_os": target_os,
+            'compiler': target_compiler,
+            'version': version,
+            'ip': compiler['ip'],
+            'port': compiler['port'],
+            'flag': ", ".join(json.loads(compiler['flag'])),
+        }
         rows.append(c_dict.copy())
+        if target_os not in compiler_dict:
+            compiler_dict[target_os] = {}
+        if target_compiler not in compiler_dict[target_os]:
+            compiler_dict[target_os][target_compiler] = []
+        if version not in compiler_dict[target_os][target_compiler]:
+            compiler_dict[target_os][target_compiler].append(version)
+
     context['rows'] = rows
+    context['json_profiles'] = json.dumps(compiler_dict)
     return render(request, "secuTool/manageCompiler.html", context)
 
 # ajax function to show content of compiler configuration
@@ -672,7 +698,7 @@ def getCompiler(request):
                                         version=request.POST['version'])
 
     res = {}
-    for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
+    for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'flag', 'http_path', 'invoke_format']:
         res[key] = getattr(compiler, key)
 
     return HttpResponse(json.dumps(res), content_type="application/json ")
@@ -699,6 +725,10 @@ def updateCompiler(request):
         for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
             setattr(compiler, key, request.POST[key])
 
+        new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
+        new_flag = list(filter(lambda x: x, new_flag))
+        setattr(compiler, 'flag', json.dumps(new_flag))
+
         compiler.save()
         return render(request, "secuTool/test.html", {'message':'Compiler successfully updated', 'nav2': 'active show'})
     else:           #save as new
@@ -712,6 +742,10 @@ def updateCompiler(request):
         for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
             d[key] = request.POST[key]
 
+        new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
+        new_flag = list(filter(lambda x: x, new_flag))
+        d['flag'] = json.dumps(new_flag)
+
         new_compiler = Compiler_conf(**d)
         new_compiler.save()
         return render(request, "secuTool/test.html", {'message':'New compiler successfully saved', 'nav2': 'active show'})
@@ -720,18 +754,6 @@ def updateCompiler(request):
 @csrf_exempt
 def updateProfile(request):
     if request.POST['submit'] == 'save':    #update existing one
-        new_profile = Profile_conf.objects.filter(target_os=request.POST['target_os'],
-                                    compiler=request.POST['compiler'],
-                                    version=request.POST['version'],
-                                    name=request.POST['name'])
-
-        if new_profile.count() != 0:
-            return render(
-                request, "secuTool/test.html", {
-                    "message":
-                    "A profile with the same OS/compiler/version/name already exists"
-                })
-
         profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
                                     compiler=request.POST['old_compiler'],
                                     version=request.POST['old_version'],
@@ -746,7 +768,6 @@ def updateProfile(request):
 
         profile.save()
         return render(request, "secuTool/test.html", {'message':'Profile successfully updated', 'nav2': 'active show'})
-
     else:       #save as new
         profile = Profile_conf.objects.filter(target_os=request.POST['target_os'],
                                                 compiler=request.POST['compiler'],
@@ -788,22 +809,3 @@ def deleteProfile(request):
                                                 name=request.POST['name'])
     profile_to_delete.delete()
     return render(request, "secuTool/test.html", {'message':'Profile successfully deleted', 'nav2': 'active show'})
-
-
-
-###########################################################################
-###########################################################################
-#########           BELOW ARE SOME HELPER/TEST FUNCTIONS       ############
-###########################################################################
-###########################################################################
-
-
-
-
-
-
-
-
-
-
-

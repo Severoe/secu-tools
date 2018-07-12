@@ -3,7 +3,6 @@ var interval = 1000;
 var finished_status = false
 var text = ""
 
-
 function addflag(flag) {
     var id = "#" + flag
     if ($(id).hasClass("chosen")) {
@@ -117,7 +116,6 @@ function form_status_report(response){
 
 
 function getOS() {
-    console.log("SSS")
     var json_profiles = $('#json_profiles').text()
     if (json_profiles === "" || json_profiles === null) return
     text = JSON.parse(json_profiles)
@@ -238,7 +236,6 @@ function terminate(){
     });
 }
 
-
 function onload_wrapper() {
     calendar()
     getOS()
@@ -260,7 +257,6 @@ function download_tar(){
     console.log($('input[name="downloadtaskid"]').val())
     $('#download_full').submit()
 }
-
 
 function calendar(){ 
       $( "#dateafter" ).datepicker();

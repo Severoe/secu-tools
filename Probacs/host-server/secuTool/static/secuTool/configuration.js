@@ -55,16 +55,22 @@ function editCompiler(os, compiler, version) {
             document.getElementById('old_compiler').value = response['compiler']
             document.getElementById('old_version').value = response['version']
 
-            $('#target_os').empty()
-            $('#target_os').append(response['target_os'])
-            $('#compiler').empty()
-            $('#compiler').append(response['compiler'])
-            $('#version').empty()
-            $('#version').append(response['version'])
+            getOS(response['target_os'])
+            getCompiler(response['target_os'], response['compiler'])
+            getVersion(response['compiler'], response['version'])
+
             $('#ip').empty()
             $('#ip').append(response['ip'])
             $('#port').empty()
             $('#port').append(response['port'])
+            $('#flag').empty()
+            var plist = JSON.parse(response['flag']).sort()
+            for (p in plist) {
+                $('#flag').append(plist[p])
+                if (p != plist.length - 1) {
+                    $('#flag').append('\n')
+                }
+            }
             $('#http_path').empty()
             $('#http_path').append(response['http_path'])
             $('#invoke_format').empty()

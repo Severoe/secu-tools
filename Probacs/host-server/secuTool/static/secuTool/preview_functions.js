@@ -129,7 +129,7 @@ function edit_flags(flag) {
 	$(flag).focus(function () {
 		original = $(this).text()
 	});
-	$(flag).blur(function () {
+	$(flagd).blur(function () {
 		updated = $(this).text()
 		if (original != updated) {
 			id = $(this).closest('tr').find('td.id').text()
