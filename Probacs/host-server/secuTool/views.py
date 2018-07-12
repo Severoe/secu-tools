@@ -439,7 +439,6 @@ def check_status(request):
 ##############################################################################################
 @transaction.atomic
 @csrf_exempt
-<<<<<<< HEAD
 def download_search(request):
     ## remains earcgh params when privide dowload
     obj = dict(request.POST)
@@ -454,7 +453,8 @@ def download_search(request):
     response = HttpResponse(compressed_dir,content_type='application/tgz')
     response['Content-Disposition'] = 'attachment; filename='+new_name
     return response
-=======
+
+
 def terminate(request):
     task_id = request.POST['task_id']
     if enable_test:
@@ -468,9 +468,6 @@ def terminate(request):
         response = {}
         response['task_id'] =task_id
         return HttpResponse(json.dumps(response))
-
-
->>>>>>> ef3810077d4f3472a5beeb69c71e883fca5ca463
 
 
 @transaction.atomic
@@ -811,11 +808,3 @@ def deleteProfile(request):
                                                 name=request.POST['name'])
     profile_to_delete.delete()
     return render(request, "secuTool/test.html", {'message':'Profile successfully deleted', 'nav2': 'active show'})
-
-
-
-###########################################################################
-###########################################################################
-#########           BELOW ARE SOME HELPER/TEST FUNCTIONS       ############
-###########################################################################
-###########################################################################
