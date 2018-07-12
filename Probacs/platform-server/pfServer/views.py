@@ -3,8 +3,8 @@ import os, tempfile, zipfile,tarfile, time,sys
 from datetime import datetime
 from wsgiref.util import FileWrapper
 from django.shortcuts import render
-from winServer.forms import *
-from winServer.models import *
+from pfServer.forms import *
+from pfServer.models import *
 from django.core.files import File 
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
