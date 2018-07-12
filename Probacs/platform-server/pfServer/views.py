@@ -113,9 +113,11 @@ def execute(request):
 @csrf_exempt
 def terminate_sub(request):
 	task_id = request.POST['task_id']
-	pid = CompilationPid.objects.get(taskid=task_id)
+	ongoing_process = CompilationPid.objects.get(taskid=task_id)
+	pid = ongoing_process.pid
 	os.kill(pid, signal.SIGTERM)
 	print(pid)
+	# ongoing_process.delete()
 	return HttpResponse()
 
 
