@@ -40,6 +40,7 @@ class Task(models.Model):
 	err = models.TextField(null=True,blank=True)
 	init_tmstmp = models.TextField()
 	finish_tmstmp = models.TextField(null=True,blank=True)
+	status = models.TextField(null=True,blank=True)
 
 class TaskMeta(models.Model):
 	task_id = models.CharField(max_length=200)
@@ -51,6 +52,7 @@ class TaskMeta(models.Model):
 	compiler_full = models.TextField()
 	compilation_num = models.IntegerField(null=True,blank=True)
 	created_date = models.DateTimeField()
+
 
 
 

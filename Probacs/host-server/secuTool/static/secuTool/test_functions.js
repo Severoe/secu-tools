@@ -32,13 +32,17 @@ function delflag(flag) {
 
 function selectall() {
     $('.row-button').each(function () {
-        $(this).addClass('chosen')
+        if(!$(this).is(":disabled")) {
+            $(this).addClass('chosen')
+        }
     })
 }
 
 function deselectall() {
     $('.row-button').each(function () {
-        $(this).removeClass('chosen')
+        if(!$(this).is(":disabled")) {
+            $(this).removeClass('chosen')
+        }
     })
 }
 function setCurrentJob(job_id){
@@ -63,46 +67,54 @@ function trace_job() {
         },
         success:  function(response) {
         	console.log(response)
-            finished = response.finished
-            total = response.total
-            if(finished === total) {
-            	finished_status = true
-                // $('#download_wrapper').css('display','block')
-                // clearInterval(event_id)
-            }
-        	percent = finished*100/total
-        	report = "<span id='task_finished'>"+ finished.toString()+"</span> / "+"<span id='task_total'>"+total.toString()+"</span>"+" compilation finished for job id: "+response.task_id
-        	$('#result-trace').css('display','block')
-        	$('#result-report').empty()
-            $('#result-report').append(report)
-        	$('#bar-growth').width(percent.toString()+'%')
-        	// adjost log output
-        	$('#log-report').empty()
-        	for(var i in response.log_report) {
-        		// var d = new Date();
-        		var log = response.log_report[i]
-        		var out_theme = ""
-        		var err_theme = ""
-        		console.log(log)
-        		if(log.err !== "-") {
-        			out_theme = "text-align:left;"
-        		}
-        		if(log.err !== "-") {
-        			err_theme = "text-align:left;"
-        		}
-        		var log_row = "<tr>"+
-                    "<td class='report-row' style='column-width: auto;'>"+log.exename.trim()+"</td>"+
-                    "<td class='report-row' style='column-width: auto;"+out_theme+"'>"+log.status+"</td>"+
-                    "<td class='report-row' style='column-width: auto;"+err_theme+"'>"+log.err+"</td>"+
-					// "<td>" + d.year + d.month + d.day + d.hours + d.minutes + d.seconds + "</td>"
-                    "</tr>"
-                $("#log-report").append(log_row)
-        	}
-        	$('#trace-wrapper').css("display","block");
+            form_status_report(response)        	
         }
     });
     return
 }
+function form_status_report(response){
+    finished = response.finished
+    total = response.total
+    if(finished === total) {
+        finished_status = true
+        // $('#download_wrapper').css('display','block')
+        // clearInterval(event_id)
+    }
+    percent = finished*100/total
+    report = "<span id='task_finished'>"+ finished.toString()+"</span> / "+"<span id='task_total'>"+total.toString()+"</span>"+" compilation finished for job id: "+response.task_id
+    $('#result-trace').css('display','block')
+    $('#result-report').empty()
+    $('#result-report').append(report)
+    $('#bar-growth').width(percent.toString()+'%')
+    // adjost log output
+    $('#log-report').empty()
+    for(var i in response.log_report) {
+        // var d = new Date();
+        var log = response.log_report[i]
+        var out_theme = ""
+        var err_theme = ""
+        console.log(log)
+        if(log.err === null) {
+            log.err = "-"
+        }
+        if(log.err !== "-") {
+            out_theme = "text-align:left;"
+        }
+        if(log.err !== "-") {
+            err_theme = "text-align:left;"
+        }
+        var log_row = "<tr>"+
+            "<td class='report-row' style='column-width: auto;'>"+log.exename.trim()+"</td>"+
+            "<td class='report-row' style='column-width: auto;"+out_theme+"'>"+log.status+"</td>"+
+            "<td class='report-row' style='column-width: auto;"+err_theme+"'>"+log.err+"</td>"+
+            // "<td>" + d.year + d.month + d.day + d.hours + d.minutes + d.seconds + "</td>"
+            "</tr>"
+        $("#log-report").append(log_row)
+    }
+    $('#trace-wrapper').css("display","block");
+}
+
+
 
 function getOS() {
     console.log("SSS")
@@ -199,6 +211,7 @@ function download_search() {
             }
         }
     })
+
     $('#search_dld').submit()
 }
 
@@ -220,7 +233,7 @@ function terminate(){
         },
         success: function (response) {
             console.log(response)
-            finished_status = true
+            form_status_report(response)  
         }
     });
 }

@@ -305,7 +305,7 @@
                 {% for ele in tasks %}
                 <tr style="border-right: 1px solid black;">
                   <td>
-                    <button class="row-button" id="r{{ele.seq}}" onclick="addflag('r{{ele.seq}}')"></button>
+                    <button class="row-button" id="r{{ele.seq}}" onclick="addflag('r{{ele.seq}}')" {{ele.ifenable}}></button>
                   </td>
                   <td class="download_id">{{ele.task_id}}</td>
                   <td>{{ele.username}}</td>

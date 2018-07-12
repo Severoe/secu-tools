@@ -35,6 +35,14 @@ tempDir = 'temp/'
 ################################
 
 
+#**************#**************#**************#**************
+#**************    develop log#**************#**************
+'''
+    1. need to handle failure case
+        : for instance, compilation platform is not set up -> 
+'''
+#**************#**************#**************#**************
+
 ##############################################################################################
 ##############################################################################################
 ##################. function for main page ################################################
@@ -236,7 +244,8 @@ def param_upload(request):
                 src_file=filename,target_os=param['target_os'],
                 compiler=param['compiler'],version=param['version'],
                 flag=ele,init_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
-                exename=getExename(filename,ele,task_num))
+                exename=getExename(filename,ele,task_num),
+                status="ongoing")
             new_task.save()
 
 
@@ -411,6 +420,8 @@ def check_status(request):
     context['tasks'] = obj
     seq = 0
     for ele in context['tasks']:
+        if ele.status != "success":
+            ele.ifenable = "disabled"
         ele.seq = seq
         seq+=1
         if ele.target_os == 'Windows':
@@ -419,16 +430,12 @@ def check_status(request):
             delimit = "/"
         ele.flag = ele.flag.replace("_", " ")
         if not ele.exename:
-            ele.status = "running"
             ele.err = "-"
             ele.exename = "-"
         else:
             ele.exename = ele.exename.split(delimit)[-1]
             if not ele.err:
-                ele.status = 'success'
                 ele.err = '-'
-            else:
-                ele.status = 'fail'
     context['search_result'] = "-- Showing "+str(obj.count())+" results of user request."
     return render(request, 'secuTool/test.html',context)
 
@@ -445,13 +452,22 @@ def terminate(request):
         ## 
         return HttpResponse()
     else:
-        obj = Task.objects.filter(task_id=task_id)[0]
+        subtasks = Task.objects.filter(task_id=task_id)
+        obj = subtasks[0]
         compiler_info = Compiler_conf.objects.get(target_os=obj.target_os,compiler=obj.compiler,version=obj.version)
         address = compiler_info.ip+":"+compiler_info.port+"/terminate"
         response = requests.post(address, data={"task_id":task_id})
         response = {}
         response['task_id'] =task_id
-        return HttpResponse(json.dumps(response))
+        for ele in subtasks:
+            if ele.status == "ongoing":
+                ele.status = "terminated"
+            ele.save()
+        finished, log_report = form_log_report(subtasks)
+        response['total'] = subtasks.count()
+        response['finished'] = finished
+        response['log_report'] = log_report
+        return HttpResponse(json.dumps(response),content_type="application/json") # mark ongoing to be terminated(reform whole table)
 
 
 
@@ -467,6 +483,11 @@ def rcv_platform_result(request):
     task.out = request.POST['out']
     task.err = request.POST['err']
     task.finish_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+    # if task.status == "terminated":
+    if task.err != "" and task.err != "-" and task.err != None:
+        task.status = "fail"
+    else:
+        task.status = "success"
     print(request.POST['out'], request.POST['err'])
     print('update from platform finished')
     task.save()
@@ -524,27 +545,7 @@ def trace_task_by_id(request):
     obj = Task.objects.filter(task_id=task_id)
     response = {}
     response['total'] = obj.count()
-    finished = 0
-    log_report = []
-    for ele in obj:
-        # get os type, define delimit
-        if ele.target_os == 'Windows':
-            delimit = "\\"
-        else:
-            delimit = "/"
-        new_log = {}
-        new_log['exename'] = ele.exename#.split(delimit)[-1]
-        if ele.finish_tmstmp == "" or ele.finish_tmstmp == None: #ongoing
-            new_log['err'] = "-"
-            new_log['status'] = "ongoing"
-        else:
-            finished += 1
-            new_log['status'] = "success" if ele.err == "" or ele.err == "-" else "fail"
-            new_log['err'] = "-" if ele.err == "" else ele.err
-
-
-        log_report.append(new_log)
-
+    finished, log_report = form_log_report(obj)
     response['finished'] = finished
     response['task_id'] = task_id
     response['log_report'] = log_report
