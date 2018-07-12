@@ -437,7 +437,21 @@ def check_status(request):
 ##############################################################################################
 ##################. function for ajax tracking/ update########################################
 ##############################################################################################
-
+@transaction.atomic
+@csrf_exempt
+def terminate(request):
+    task_id = request.POST['task_id']
+    if enable_test:
+        ## 
+        return HttpResponse()
+    else:
+        obj = Task.objects.filter(task_id=task_id)[0]
+        compiler_info = Compiler_conf.objects.get(target_os=obj['target_os'],compiler=obj['compiler'],version=obj['version'])
+        address = compiler_info.ip+":"+compiler_info.port+"/terminate"
+        response = requests.post(address, data={"task_id":task_id})
+        response = {}
+        response['task_id'] =task_id
+        return HttpResponse(json.dumps(response))
 
 
 

@@ -117,8 +117,8 @@ if __name__ == "__main__":
 
     print(cur_id)
     compile(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4],sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
-    # finished_task = CompilationPid.objects.get(pid=cur_id)
-    # finished.delete()
+    finished_task = CompilationPid.objects.get(pid=cur_id)
+    finished.delete()
 
     # do_compilation(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
 

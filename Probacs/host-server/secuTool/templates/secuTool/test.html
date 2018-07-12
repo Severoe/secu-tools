@@ -388,6 +388,7 @@
               <!-- download button -->
               <br>
               <button class="btn btn-light" id="download_wrapper" onclick="download_tar()"> download </button>
+              <button class="btn btn-light" id="download_wrapper" onclick="terminate()"> terminate </button>
               <form enctype="multipart/form-data" id="download_full" action="{% url 'download_tar' %}" method='post' style="display: none;">
                 <input type="hidden" name="downloadtaskid" value="">
                 <input type="submit" value="Download Directory" class="submit-edition"> {% csrf_token %}

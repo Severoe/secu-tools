@@ -110,6 +110,14 @@ def execute(request):
 
 
 
+@csrf_exempt
+def terminate_sub(request):
+	task_id = request.POST['task_id']
+	pid = CompilationPid.objects.get(taskid=task_id)
+	os.kill(pid, signal.SIGTERM)
+	print(pid)
+	return HttpResponse()
+
 
 # create zip file containing exe and log, then send to host
 # delete zip file after sending to host
@@ -129,6 +137,10 @@ def sendBackExe(folder,hostserver):
 	response = requests.post(url, files = files,data={'taskid': folder})
 	print("response received from host")
 	return response,new_name
+
+
+
+
 
 # test only, not fully deployed
 def retJson(request):

@@ -203,11 +203,31 @@ function download_search() {
 }
 
 
-
+function terminate(){
+    var finished = $('#task_finished').text().trim()
+    var total = $('#task_total').text().trim()
+    if(finished === total || finished_status) { //if already finished, we canot terminate
+        return
+    }
+    var job_id = $('#ongoing-task').text().trim()
+    var finished = 
+    $.ajax({
+        type: 'POST',
+        url: "/terminate",
+        dataType: "json",
+        data: {
+            task_id: job_id,
+        },
+        success: function (response) {
+            console.log(response)
+            finished_status = true
+        }
+    });
+}
 
 
 function onload_wrapper() {
-        calendar()
+    calendar()
     getOS()
     trace_job()
 
