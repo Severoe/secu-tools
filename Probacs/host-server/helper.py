@@ -283,6 +283,36 @@ def parse_taskMeta(ele, iscur):
     return tmp
 
 ############################################################################
+##################. helper function for tracking ############################
+############################################################################
+def form_log_report(obj):
+    finished = 0
+    log_report = []
+    for ele in obj:
+        # get os type, define delimit
+        if ele.target_os == 'Windows':
+            delimit = "\\"
+        else:
+            delimit = "/"
+        new_log = {}
+        new_log['exename'] = ele.exename#.split(delimit)[-1]
+        new_log['status'] = ele.status
+        if ele.status == "ongoing":
+            new_log['err'] = "-"
+        else:
+            finished+=1
+            new_log['err'] = "-" if ele.err == "" else ele.err
+        # if ele.finish_tmstmp == "" or ele.finish_tmstmp == None: #ongoing
+        #     new_log['err'] = "-"
+        #     new_log['status'] = "ongoing"
+        # else:
+        #     finished += 1
+        #     new_log['status'] = "success" if ele.err == "" or ele.err == "-" else "fail"
+        #     new_log['err'] = "-" if ele.err == "" else ele.err
+        log_report.append(new_log)
+    return finished, log_report
+
+############################################################################
 ##################. helper function for database ##################
 ############################################################################
 def printRcd(rcd):

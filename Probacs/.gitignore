@@ -29,3 +29,4 @@ db.sqlite3
 # compilation files
 /host-server/Compilation_tasks/*
 /platform-server/Compilation_tasks/*
+/host-server/secuTool/migrations/*

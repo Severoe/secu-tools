@@ -28,19 +28,21 @@ class Profile_conf(models.Model):
     flag = models.TextField()
 
 class Task(models.Model):
-    task_id = models.CharField(max_length=200)
-    username = models.CharField(max_length=200)
-    tag = models.TextField(null=True,blank=True)
-    src_file = models.CharField(max_length=200) # file name<hello.c>
-    target_os = models.CharField(max_length=60)
-    compiler = models.CharField(max_length=60)
-    version = models.CharField(max_length=60)
-    flag = models.TextField() #flag used for one specific compilation task
-    exename = models.TextField(null=True,blank=True)
-    out = models.TextField(null=True,blank=True)
-    err = models.TextField(null=True,blank=True)
-    init_tmstmp = models.TextField()
-    finish_tmstmp = models.TextField(null=True,blank=True)
+	task_id = models.CharField(max_length=200)
+	username = models.CharField(max_length=200)
+	tag = models.TextField(null=True,blank=True)
+	src_file = models.CharField(max_length=200) # file name<hello.c>
+	target_os = models.CharField(max_length=60)
+	compiler = models.CharField(max_length=60)
+	version = models.CharField(max_length=60)
+	flag = models.TextField() #flag used for one specific compilation task
+	exename = models.TextField(null=True,blank=True)
+	out = models.TextField(null=True,blank=True)
+	err = models.TextField(null=True,blank=True)
+	init_tmstmp = models.TextField()
+	finish_tmstmp = models.TextField(null=True,blank=True)
+	status = models.TextField(null=True,blank=True)
+
 
 class TaskMeta(models.Model):
     task_id = models.CharField(max_length=200)
@@ -52,6 +54,7 @@ class TaskMeta(models.Model):
     compiler_full = models.TextField()
     compilation_num = models.IntegerField(null=True,blank=True)
     created_date = models.DateTimeField()
+
 
 
 
