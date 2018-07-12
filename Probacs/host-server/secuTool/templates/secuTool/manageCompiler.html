@@ -37,7 +37,7 @@
   <header onclick="main_page()">
     <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
   </header>
-  
+  <div style="display:none" id='json_profiles'>{{json_profiles}}</div>
   <div class="container">
     <div class="col">
       <div class="row-sm-5">
@@ -51,7 +51,7 @@
               <th>Version</th>
               <th>IP</th>
               <th>Port</th>
-              <th>HTTP path</th>
+              <th>Flags</th>
               <th></th>
             </tr>
           </thead>
@@ -64,7 +64,7 @@
               <td class="version">{{ele.version}}</td>
               <td class='ip'>{{ele.ip}}</td>
               <td class="port">{{ele.port}}</td>
-              <td class="http_path">{{ele.http_path}}</td>
+              <td class="flag">{{ele.flag}}</td>
               <td>
                 <button class="btn btn-light btn-sm" onclick="editCompiler('{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}')">edit</button>
                 <form action="/deleteCompiler" method="post" enctype="multipart/form-data">
@@ -87,15 +87,19 @@
           <h4>Please modify the profile</h4>
           <br>
           <h6>Target_os:</h6>
-          <textarea rows="1" cols="20" id="target_os" name="target_os" required></textarea>
+          <select name="target_os" id="target_os" onChange="getCompiler(this.value, '');" required>
+          </select>
+          <div style="display:none" id='os_selected'></div>
           <br>
           <br>
           <h6>Compiler:</h6>
-          <textarea rows="1" cols="20" id="compiler" name="compiler" required></textarea>
+          <select name="compiler" id="compiler" onchange="getVersion(this.value, '');" required>
+          </select>
           <br>
           <br>
           <h6>Version:</h6>
-          <textarea rows="1" cols="20" id="version" name="version" required></textarea>
+          <select name="version" id="version" required>
+          </select>
           <br>
           <br>
           <h6>IP:</h6>
@@ -106,12 +110,16 @@
           <textarea rows="1" cols="20" id="port" name="port" required></textarea>
           <br>
           <br>
+          <h6>Flags:</h6>
+          <textarea rows="5" id="flag" name="flag" required></textarea>
+          <br>
+          <br>
           <h6>HTTP path:</h6>
           <textarea rows="1" cols="20" id="http_path" name="http_path"></textarea>
           <br>
           <br>
           <h6>Invoke format:</h6>
-          <textarea id="invoke_format" name="invoke_format"></textarea>
+          <textarea rows="3" cols="50" id="invoke_format" name="invoke_format"></textarea>
           <br>
           <br>
           <input id="old_target_os" type="hidden" value="" name="old_target_os" />

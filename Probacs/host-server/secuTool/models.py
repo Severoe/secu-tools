@@ -9,48 +9,49 @@ MAX_UPLOAD_SIZE = 2500000
 
 
 class Compiler_conf(models.Model):
-	target_os = models.CharField(max_length=60)
-	compiler = models.CharField(max_length=60)
-	version = models.CharField(max_length=60)
-	ip = models.CharField(max_length=60)
-	port = models.CharField(max_length=20)
-	http_path = models.CharField(max_length=60)
-	invoke_format = models.TextField()
+    target_os = models.CharField(max_length=60)
+    compiler = models.CharField(max_length=60)
+    version = models.CharField(max_length=60)
+    ip = models.CharField(max_length=60)
+    port = models.CharField(max_length=20)
+    http_path = models.CharField(max_length=60)
+    invoke_format = models.TextField()
+    flag = models.TextField()
 
 class Profile_conf(models.Model):
-	uploader = models.CharField(max_length=200)
-	upload_time = models.DateTimeField()
-	name = models.CharField(max_length=200)
-	target_os = models.CharField(max_length=60)
-	compiler = models.CharField(max_length=60)
-	version = models.CharField(max_length=60)
-	flag = models.TextField()
-	
+    uploader = models.CharField(max_length=200)
+    upload_time = models.DateTimeField()
+    name = models.CharField(max_length=200)
+    target_os = models.CharField(max_length=60)
+    compiler = models.CharField(max_length=60)
+    version = models.CharField(max_length=60)
+    flag = models.TextField()
+
 class Task(models.Model):
-	task_id = models.CharField(max_length=200)
-	username = models.CharField(max_length=200)
-	tag = models.TextField(null=True,blank=True)
-	src_file = models.CharField(max_length=200) # file name<hello.c>
-	target_os = models.CharField(max_length=60)
-	compiler = models.CharField(max_length=60)
-	version = models.CharField(max_length=60)
-	flag = models.TextField() #flag used for one specific compilation task
-	exename = models.TextField(null=True,blank=True)
-	out = models.TextField(null=True,blank=True)
-	err = models.TextField(null=True,blank=True)
-	init_tmstmp = models.TextField()
-	finish_tmstmp = models.TextField(null=True,blank=True)
+    task_id = models.CharField(max_length=200)
+    username = models.CharField(max_length=200)
+    tag = models.TextField(null=True,blank=True)
+    src_file = models.CharField(max_length=200) # file name<hello.c>
+    target_os = models.CharField(max_length=60)
+    compiler = models.CharField(max_length=60)
+    version = models.CharField(max_length=60)
+    flag = models.TextField() #flag used for one specific compilation task
+    exename = models.TextField(null=True,blank=True)
+    out = models.TextField(null=True,blank=True)
+    err = models.TextField(null=True,blank=True)
+    init_tmstmp = models.TextField()
+    finish_tmstmp = models.TextField(null=True,blank=True)
 
 class TaskMeta(models.Model):
-	task_id = models.CharField(max_length=200)
-	username = models.CharField(max_length=200)
-	tag = models.TextField(null=True,blank=True)
-	src_filename = models.CharField(max_length=200)
-	profiles = models.TextField()
-	target_os = models.TextField()
-	compiler_full = models.TextField()
-	compilation_num = models.IntegerField(null=True,blank=True)
-	created_date = models.DateTimeField()
+    task_id = models.CharField(max_length=200)
+    username = models.CharField(max_length=200)
+    tag = models.TextField(null=True,blank=True)
+    src_filename = models.CharField(max_length=200)
+    profiles = models.TextField()
+    target_os = models.TextField()
+    compiler_full = models.TextField()
+    compilation_num = models.IntegerField(null=True,blank=True)
+    created_date = models.DateTimeField()
 
 
 
@@ -66,10 +67,9 @@ class ProfileUser(models.Model):
 
 
 class Tasks(models.Model):
-	taskFolder = models.CharField(max_length=200)
-	totalCompilation = models.IntegerField()
-	finishedCompilation = models.IntegerField()
-	status = models.IntegerField()
-	def __unicode__(self):
-		return 'id=' + str(self.id) + ',bio="' + self.status + '"'
-
+    taskFolder = models.CharField(max_length=200)
+    totalCompilation = models.IntegerField()
+    finishedCompilation = models.IntegerField()
+    status = models.IntegerField()
+    def __unicode__(self):
+        return 'id=' + str(self.id) + ',bio="' + self.status + '"'
