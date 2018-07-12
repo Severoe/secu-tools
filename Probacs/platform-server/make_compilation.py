@@ -5,7 +5,7 @@ import os, sys, time, requests
 from subprocess import Popen, PIPE
 import django
 django.setup()
-from winServer.models import *
+from pfServer.models import *
 
 hostserver = ""
 
