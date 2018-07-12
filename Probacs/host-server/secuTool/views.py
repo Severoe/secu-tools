@@ -446,7 +446,7 @@ def terminate(request):
         return HttpResponse()
     else:
         obj = Task.objects.filter(task_id=task_id)[0]
-        compiler_info = Compiler_conf.objects.get(target_os=obj['target_os'],compiler=obj['compiler'],version=obj['version'])
+        compiler_info = Compiler_conf.objects.get(target_os=obj.target_os,compiler=obj.compiler,version=obj.version)
         address = compiler_info.ip+":"+compiler_info.port+"/terminate"
         response = requests.post(address, data={"task_id":task_id})
         response = {}
