@@ -170,6 +170,7 @@ function download_search() {
 function onload_wrapper() {
     getOS()
     trace_job()
+    calendar()
 }
 
 window.onload = onload_wrapper;
@@ -187,9 +188,7 @@ function download_tar(){
     $('#download_full').submit()
 }
 
-// $(document).ready(function(){ 
-//       $( "#dateafter" ).datepicker(); 
-// });
-
-
-
+function calendar(){ 
+      $( "#dateafter" ).datepicker();
+      $( "#datebefore" ).datepicker();  
+};
