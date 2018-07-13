@@ -119,6 +119,7 @@ def preview(request):
     return render(request, 'secuTool/preview.html',context)
 
 @transaction.atomic
+@csrf_exempt
 def cmdline_preview(request):
     message, res = register_tasks(request)
     response = {}
@@ -127,7 +128,6 @@ def cmdline_preview(request):
         return HttpResponse(json.dumps(response),content_type="application/json")
     response['rows'] = res["rows"]
     response['taskid'] = res["taskName"]
-    # response['json_flags'] = json.dumps(res["flag_list"])
     return HttpResponse(json.dumps(response),content_type="application/json")
 
 ##############################################################################################
