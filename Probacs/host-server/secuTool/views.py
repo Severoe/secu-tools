@@ -132,7 +132,6 @@ def cmdline_preview(request):
         return HttpResponse(json.dumps(response),content_type="application/json")
     response['rows'] = res["rows"]
     response['taskid'] = res["taskName"]
-    # response['json_flags'] = json.dumps(res["flag_list"])
     return HttpResponse(json.dumps(response),content_type="application/json")
 
 ##############################################################################################
