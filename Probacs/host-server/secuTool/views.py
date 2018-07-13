@@ -125,14 +125,13 @@ def preview(request):
     if message:
         return render(request, 'secuTool/test.html', {"message":message})
     rows = []
+    flag_list = []
     seq = 1
     for param in params:
         # permute flags combination  from diff flags
-        # print(param)
         jsonDec = json.decoder.JSONDecoder()
         flag_from_profile = []
         for profile_name in param['profile']:
-            # print(profile_name)
             p_tmp = Profile_conf.objects.get(name=profile_name,
                                                 target_os=param['target_os'],
                                                 compiler=param['compiler'],
@@ -155,12 +154,16 @@ def preview(request):
                             'flag':", ".join(flag.split(" ")),
                             'seq':seq})
             seq += 1
+
+        c_tmp = Compiler_conf.objects.get(target_os=param['target_os'],
+                                compiler=param['compiler'],
+                                version=param['version'])
+        flag_list += jsonDec.decode(c_tmp.flag)
+    
     context = {}
     context['rows'] = rows
-    # for row in rows:
-    print(rows)
     context['taskid'] = taskName
-    context['json_flags'] = json.dumps(['-Wall', '-Wextra', '-O1', '/WX', '/Od'])
+    context['json_flags'] = json.dumps(flag_list)
     return render(request, 'secuTool/preview.html',context)
 
 
