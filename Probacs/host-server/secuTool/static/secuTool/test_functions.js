@@ -216,11 +216,10 @@ function download_search() {
     }
 }
 
-
 function terminate(){
     var finished = $('#task_finished').text().trim()
     var total = $('#task_total').text().trim()
-    if(finished === total || finished_status) { //if already finished, we canot terminate
+    if (finished === total || finished_status) { //if already finished, we cannot terminate
         return
     }
     var job_id = $('#ongoing-task').text().trim()
