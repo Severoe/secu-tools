@@ -70,6 +70,8 @@ urlpatterns = [
     url(r'^cmdline_preview$', views.cmdline_preview, name='cmdline_preview'),
     url(r'^cmdline_compile$', views.cmdline_compile, name='cmdline_compile'),
     url(r'^cmdline_download$', views.cmdline_download, name='cmdline_download'),
+    url(r'^cmdline_terminate$', views.cmdline_terminate, name='cmdline_terminate'),
+    
 
 
 

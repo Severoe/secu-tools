@@ -1,7 +1,8 @@
-import sys,json, time
+import sys,json, time, os
 import requests
+from configparser import ConfigParser
 
-host_ip = "http://localhost:7789"
+host_ip = None#"http://localhost:7789"
 jsonDec = json.decoder.JSONDecoder()
 destination = "./"
 #**************#**************#**************#**************
@@ -11,6 +12,9 @@ destination = "./"
 '''
 #**************#**************#**************#**************
 def handin_task(srcfile, taskfile):
+	'''
+	send sourcefile and taskfile to host server, reveice compilation preview info
+	'''
 	files =  {'srcFile': open(srcfile, 'rb'), 'taskFile': open(taskfile, 'rb')}
 	response = requests.post(host_ip+"/cmdline_preview", files=files)
 	confirm_compile(response.content)
@@ -30,7 +34,7 @@ def confirm_compile(data):
 
 def trace_task(task_id):
 	'''
-	tracing tasks by task_id
+	tracing tasks by task_id, receive log report for this task id
 	''' 
 	interval = 1
 	keep_going = True
@@ -47,9 +51,20 @@ def trace_task(task_id):
 		
 
 def download_tasks(task_id, destination):
+	'''
+	download task archive from host, save to destination
+	'''
 	response = requests.post(host_ip+"/cmdline_download", data={"task_id":task_id})
 	with open(destination+"archive_"+str(task_id)+".tgz", 'wb') as w:
 	    w.write(response.content)
+
+def terminate(task_id):
+	'''
+	midway termination for specific task
+	'''
+	response = requests.post(host_ip+"/cmdline_terminate", data={"task_id":task_id})
+	res = jsonDec.decode(response.content.decode("utf-8"))
+	print(res)
 
 
 
@@ -75,6 +90,14 @@ if __name__ == '__main__':
 	2. terminate the task by id
 	3. search the task by id
 	'''
+	## READ HOST IP ADDRESS FROM CONFIG.INI
+	config = ConfigParser()
+	BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+	config.read(os.path.join(BASE_DIR, 'config.ini'))
+	# print(BASE_DIR)
+	host_ip = config.get("Localtest", "Local_ip")
+	# print(host_ip)
+
 	if len(sys.argv) < 2:
 		print(sys.argv)
 		sys.stderr.write("input not valid\n") #might be more specific
@@ -88,7 +111,12 @@ if __name__ == '__main__':
 			exit(-1)
 		handin_task(sys.argv[2],sys.argv[3])
 
-	
+	if sys.argv[1] == "terminate":
+		if len(sys.argv) != 3:
+			sys.stderr.write("need specify task_id to terminate\n") #might be more specific
+			sys.stderr.flush()
+			exit(-1)
+		terminate(sys.argv[2])
 
 	# ifCompile = input("Ready to compile? (Y/N): ")
 	# if (ifCompile is 'Y' or ifCompile is 'y'):

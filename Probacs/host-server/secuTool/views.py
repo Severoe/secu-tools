@@ -448,17 +448,7 @@ def download_search(request):
 def terminate(request):
     task_id = request.POST['task_id']
     subtasks = Task.objects.filter(task_id=task_id)
-    if enable_test:
-        ##
-        ongoing_process = CompilationPid.objects.get(taskid=task_id)
-        pid = ongoing_process.pid
-        os.kill(pid, signal.SIGTERM)
-        # ongoing_process.delete()
-    else:
-        obj = subtasks[0]
-        compiler_info = Compiler_conf.objects.get(target_os=obj.target_os,compiler=obj.compiler,version=obj.version)
-        address = compiler_info.ip+":"+compiler_info.port+"/terminate"
-        response = requests.post(address, data={"task_id":task_id})
+    terminate_process(task_id, subtasks, enable_test)
 
     response = {}
     response['task_id'] =task_id
@@ -471,8 +461,22 @@ def terminate(request):
     response['finished'] = finished
     response['log_report'] = log_report
         
-    return HttpResponse(json.dumps(response),content_type="application/json") # mark ongoing to be terminated(reform whole table)
+    return HttpResponse(json.dumps(response),content_type="application/json") 
 
+@csrf_exempt
+def cmdline_terminate(request):
+    response = {}
+    task_id = request.POST['task_id']
+    subtasks = Task.objects.filter(task_id=task_id)
+    terminate_process(task_id, subtasks,enable_test)
+    response['task_id'] =task_id
+    for ele in subtasks:
+        if ele.status == "ongoing":
+            ele.status = "terminated"
+        ele.save()
+    finished, log_report = form_log_report(subtasks)
+    response['log_report'] = log_report
+    return HttpResponse(json.dumps(response),content_type="application/json")
 
 @transaction.atomic
 @csrf_exempt

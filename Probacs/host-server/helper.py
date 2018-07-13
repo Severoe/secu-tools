@@ -1,7 +1,7 @@
 from django.db.models import Q
 import requests
 from probacs_parser import parseTaskFile
-import os, tempfile, zipfile,tarfile, time,json
+import os, tempfile, zipfile,tarfile, time,json,signal
 from subprocess import Popen, PIPE
 from datetime import datetime
 import django
@@ -83,10 +83,6 @@ def register_tasks(request):
         flag_list += jsonDec.decode(c_tmp.flag)
 
     return None, {"rows":rows,"flag_list":flag_list,"taskName":taskName}
-
-
-# def construct_params()
-
 
 def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip):
     '''
@@ -299,14 +295,9 @@ def construct_querySet(request):
     return empty_count, query_dict, flags, compilers, context
 
 
-
-
 ############################################################################
 ##################. helper function for compilation ##################
 ############################################################################
-
-
-
 
 def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, on_complete, self_ip):
     """
@@ -392,6 +383,22 @@ def on_complete(task_info, self_ip):
     '''
     response = requests.post(url=self_ip+"/rcv_compilation",data = task_info)
     return
+
+############################################################################
+##################. helper function for termination ##################
+############################################################################
+def terminate_process(task_id,subtasks, enable_test):
+    if enable_test: 
+        ##
+        ongoing_process = CompilationPid.objects.get(taskid=task_id)
+        pid = ongoing_process.pid
+        os.kill(pid, signal.SIGTERM)
+        # ongoing_process.delete()
+    else:
+        obj = subtasks[0]
+        compiler_info = Compiler_conf.objects.get(target_os=obj.target_os,compiler=obj.compiler,version=obj.version)
+        address = compiler_info.ip+":"+compiler_info.port+"/terminate"
+        response = requests.post(address, data={"task_id":task_id})
 
 
 ############################################################################
