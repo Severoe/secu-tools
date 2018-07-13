@@ -19,7 +19,7 @@ tempDir = 'temp/'
 def register_tasks(request):
     '''
     parse files from request, update taskMeta//records in database
-    generate flag combinations, update task records in database
+    generate flag combinations,
     send back preview information
     '''
     src_filename = request.FILES['srcFile'].name  # llok into tar bar
@@ -83,6 +83,71 @@ def register_tasks(request):
         flag_list += jsonDec.decode(c_tmp.flag)
 
     return None, {"rows":rows,"flag_list":flag_list,"taskName":taskName}
+
+
+# def construct_params()
+
+
+def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip):
+    '''
+    receive subtask params, update task databse, calling compilations
+    '''
+    print(task_params)
+    task_num = 0
+    for param in task_params:
+        task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
+        version=param['version'])
+        task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
+
+        #############################
+        # add entries into task database
+        for ele in param['flag'].split(","):
+            task_num += 1
+            new_task = Task(task_id=task_name,username=param['username'],
+                tag=param['tags'],
+                src_file=filename,target_os=param['target_os'],
+                compiler=param['compiler'],version=param['version'],
+                flag=ele,init_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
+                exename=getExename(filename,ele,task_num),
+                status="ongoing")
+            new_task.save()
+
+        #############################
+        # calling compilation tasks
+        #############################
+        if enable_test:
+            outputDir = taskFolder+"/"+"secu_compile"
+            data = {
+            'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
+            'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag']}
+            import os
+            pid = os.fork()
+            if pid == 0:
+                compile(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, param['flag'],on_complete, self_ip)
+                #new thread
+                print("finished compile")
+                os._exit(0)
+            else:
+                #parent process, simply return to client
+                cur_id = pid
+                # print(cur_id)
+                new_task = CompilationPid(pid = cur_id,taskid=task_name)
+                new_task.save()
+                print("asyn call encountered")
+        # if not compiling on linux host, send params to another function, interacting with specific platform server
+        else:
+            ## if compile on same machine but diff port, using self_ip
+            self_ip_addr = self_ip.split(":")
+            if task_compiler.ip == self_ip_addr[0]+":"+self_ip_addr[1]:
+                param['host_ip'] = self_ip
+            else:
+                param['host_ip'] = host_ip_gateway
+            print(param['host_ip'])
+            upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
+    return task_num
+
+
+
 
 def process_files(request, taskName, compiler_divided):
     """
@@ -237,10 +302,13 @@ def construct_querySet(request):
 
 
 ############################################################################
-##################. helper function for local compilation ##################
+##################. helper function for compilation ##################
 ############################################################################
 
-def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, on_complete):
+
+
+
+def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, on_complete, self_ip):
     """
     task_id: string, task id of this job
     target_os: string, target os for this task
@@ -311,13 +379,19 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
         task_info['err'] = err
         task_info['exename'] = exename
         task_info['flag'] = flag
-        on_complete(task_info)
+        on_complete(task_info, self_ip)
 
 
     log_file.close()
     print("compilation done!")
     return
 
+def on_complete(task_info, self_ip):
+    '''
+    called when each time self compilation finished
+    '''
+    response = requests.post(url=self_ip+"/rcv_compilation",data = task_info)
+    return
 
 
 ############################################################################
