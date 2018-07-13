@@ -337,6 +337,22 @@ def wrap_dir(request):
     return response
 
 @csrf_exempt
+def cmdline_download(request):
+    taskFolder = request.POST['task_id']
+    print("taskFolder: "+taskFolder )
+    new_name = "archive_"+taskFolder+".tgz"
+    current_rootDir = rootDir+taskFolder+'/'
+    with tarfile.open(current_rootDir+new_name, "w:gz") as tar:
+        tar.add(current_rootDir+'secu_compile', arcname=os.path.basename(current_rootDir+'secu_compile'))
+
+    compressed_dir = open(current_rootDir+new_name,'rb')
+    response = HttpResponse(compressed_dir,content_type='application/tgz')
+    response['Content-Disposition'] = 'attachment; filename='+new_name
+    # os.system("rm "+taskFolder+'/'+new_name)
+    return response
+
+
+@csrf_exempt
 def download_search(request):
     ## remains earcgh params when privide dowload
     obj = dict(request.POST)

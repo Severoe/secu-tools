@@ -3,6 +3,7 @@ import requests
 
 host_ip = "http://localhost:7789"
 jsonDec = json.decoder.JSONDecoder()
+destination = "./"
 #**************#**************#**************#**************
 #**************    develop log#**************#**************
 '''
@@ -14,7 +15,6 @@ def handin_task(srcfile, taskfile):
 	response = requests.post(host_ip+"/cmdline_preview", files=files)
 	confirm_compile(response.content)
 
-
 def confirm_compile(data):
 	'''
 	compile by specifying task_id
@@ -25,6 +25,8 @@ def confirm_compile(data):
 	task_id = jsonDec.decode(response.content.decode("utf-8"))
 	print(task_id)
 	trace_task(task_id['taskid'])
+	download_tasks(task_id['taskid'],destination)
+
 
 def trace_task(task_id):
 	'''
@@ -43,6 +45,15 @@ def trace_task(task_id):
 		if res['finished'] == res['total']:
 			keep_going = False
 		
+
+def download_tasks(task_id, destination):
+	response = requests.post(host_ip+"/cmdline_download", data={"task_id":task_id})
+	with open(destination+"archive_"+str(task_id)+".tgz", 'wb') as w:
+	    w.write(response.content)
+
+
+
+
 	# files =  {'srcFile': open(srcfile, 'rb'), 'taskFile': open(taskfile, 'rb')}
 	# response = requests.post(host_ip+"/cmdline_preview", files=files)
 	# task = jsonDec.decode(response.content.decode("utf-8"))
@@ -75,8 +86,9 @@ if __name__ == '__main__':
 			sys.stderr.write("need specify sourcefile and taskfile\n") #might be more specific
 			sys.stderr.flush()
 			exit(-1)
+		handin_task(sys.argv[2],sys.argv[3])
 
-	handin_task(sys.argv[2],sys.argv[3])
+	
 
 	# ifCompile = input("Ready to compile? (Y/N): ")
 	# if (ifCompile is 'Y' or ifCompile is 'y'):
