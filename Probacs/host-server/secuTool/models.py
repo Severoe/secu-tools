@@ -69,6 +69,14 @@ class ProfileUser(models.Model):
 
 
 
+class CompilationPid(models.Model):
+    pid = models.IntegerField()
+    taskid = models.CharField(max_length=200)
+
+
+
+
+
 class Tasks(models.Model):
     taskFolder = models.CharField(max_length=200)
     totalCompilation = models.IntegerField()

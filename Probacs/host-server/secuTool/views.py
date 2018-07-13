@@ -1,4 +1,4 @@
-import os, tempfile, zipfile, tarfile, time, json
+import os, tempfile, zipfile, tarfile, time, json,signal
 from subprocess import Popen, PIPE
 from django.utils import timezone
 from datetime import datetime
@@ -40,6 +40,10 @@ tempDir = 'temp/'
 '''
     1. need to handle failure case
         : for instance, compilation platform is not set up -> 
+    2. delete process id after terminated or finished?
+        - inside localtest terminate function
+        - inside platform server terminate_sub function
+    3. 
 '''
 #**************#**************#**************#**************
 
@@ -269,6 +273,10 @@ def param_upload(request):
                 os._exit(0)
             else:
                 #parent process, simply return to client
+                cur_id = pid
+                # print(cur_id)
+                new_task = CompilationPid(pid = cur_id,taskid=task_name)
+                new_task.save()
                 print("asyn call encountered")
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
@@ -464,29 +472,34 @@ def download_search(request):
     response['Content-Disposition'] = 'attachment; filename='+new_name
     return response
 
-
+@csrf_exempt
 def terminate(request):
     task_id = request.POST['task_id']
+    subtasks = Task.objects.filter(task_id=task_id)
     if enable_test:
         ##
-        return HttpResponse()
+        ongoing_process = CompilationPid.objects.get(taskid=task_id)
+        pid = ongoing_process.pid
+        os.kill(pid, signal.SIGTERM)
+        # ongoing_process.delete()
     else:
-        subtasks = Task.objects.filter(task_id=task_id)
         obj = subtasks[0]
         compiler_info = Compiler_conf.objects.get(target_os=obj.target_os,compiler=obj.compiler,version=obj.version)
         address = compiler_info.ip+":"+compiler_info.port+"/terminate"
         response = requests.post(address, data={"task_id":task_id})
-        response = {}
-        response['task_id'] =task_id
-        for ele in subtasks:
-            if ele.status == "ongoing":
-                ele.status = "terminated"
-            ele.save()
-        finished, log_report = form_log_report(subtasks)
-        response['total'] = subtasks.count()
-        response['finished'] = finished
-        response['log_report'] = log_report
-        return HttpResponse(json.dumps(response),content_type="application/json") # mark ongoing to be terminated(reform whole table)
+
+    response = {}
+    response['task_id'] =task_id
+    for ele in subtasks:
+        if ele.status == "ongoing":
+            ele.status = "terminated"
+        ele.save()
+    finished, log_report = form_log_report(subtasks)
+    response['total'] = subtasks.count()
+    response['finished'] = finished
+    response['log_report'] = log_report
+        
+    return HttpResponse(json.dumps(response),content_type="application/json") # mark ongoing to be terminated(reform whole table)
 
 
 @transaction.atomic

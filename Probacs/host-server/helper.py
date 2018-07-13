@@ -5,6 +5,7 @@ import os, tempfile, zipfile,tarfile, time,json
 from subprocess import Popen, PIPE
 from datetime import datetime
 
+from secuTool.models import *
 
 ## global variables
 rootDir = 'Compilation_tasks/'
@@ -187,9 +188,6 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
         'dest_folder', 'exename', 'out', 'err'
         '''
     """
-    #test:
-    # tmp = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'])
-    #print(tmp.exename)
     invoke_format = invoke_format.replace("_", " ")
     flag_list = flags.replace("_", " ").split(",")
 
