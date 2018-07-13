@@ -43,7 +43,8 @@ tempDir = 'temp/'
     2. delete process id after terminated or finished?
         - inside localtest terminate function
         - inside platform server terminate_sub function
-    3. 
+    3. upload_to_platform, potential concerns
+        - os.fork() if platform does not exist?
 '''
 #**************#**************#**************#**************
 
@@ -121,6 +122,9 @@ def preview(request):
 @transaction.atomic
 @csrf_exempt
 def cmdline_preview(request):
+    '''
+    cmdline view function for generating preview parameterss
+    '''
     message, res = register_tasks(request)
     response = {}
     if message:
@@ -142,7 +146,6 @@ def param_upload(request):
     get updated compilation parameters from user, write db with new subtasks, deliver compilation tasks to
     platforms in asyn calls
     '''
-    print(request.POST)
     task_name = request.POST['taskid']
     task_num = request.POST['taskCount']
     task_params = []
@@ -195,59 +198,60 @@ def param_upload(request):
     #form request format from obj for each task
     #####################
     # print(task_params)
-    task_num = 0
-    for param in task_params:
-        task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
-        version=param['version'])
-        task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
+    task_num = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name,self_ip)
 
-        #############################
-        # add entries into task database
-        for ele in param['flag'].split(","):
-            task_num += 1
-            new_task = Task(task_id=task_name,username=param['username'],
-                tag=param['tags'],
-                src_file=filename,target_os=param['target_os'],
-                compiler=param['compiler'],version=param['version'],
-                flag=ele,init_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
-                exename=getExename(filename,ele,task_num),
-                status="ongoing")
-            new_task.save()
+    cur_taskMeta.compilation_num = task_num
+    cur_taskMeta.save()
+    response = {}
+    response['taskid'] = task_name
+    return HttpResponse(json.dumps(response),content_type="application/json")
 
 
-        #############################
-        # calling compilation tasks
-        #############################
-        if enable_test:
-            outputDir = taskFolder+"/"+"secu_compile"
-            data = {
-            'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
-            'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag']}
-            import os
-            pid = os.fork()
-            if pid == 0:
-                compile(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, param['flag'],on_complete)
-                #new thread
-                print("finished compile")
-                os._exit(0)
-            else:
-                #parent process, simply return to client
-                cur_id = pid
-                # print(cur_id)
-                new_task = CompilationPid(pid = cur_id,taskid=task_name)
-                new_task.save()
-                print("asyn call encountered")
-        # if not compiling on linux host, send params to another function, interacting with specific platform server
+@csrf_exempt
+@transaction.atomic
+def cmdline_compile(request):
+    '''
+    form task_params
+    '''
+    jsonDec = json.decoder.JSONDecoder()
+    req = jsonDec.decode(request.POST['content'])
+    ## form general parameters
+    task_name = req['taskid']
+    ##form task_param object
+    task_p = req['rows']
+    print(task_p)
+    task_params = []
+    compilerDict = {}
+    for ele in task_p:
+        if ele['compiler'] in compilerDict.keys():
+            ## already has same target compilation
+            obj = task_params[compilerDict[ele['compiler']]]
+            flaglist = ele['flag'].split(",")
+            new_flag = "_".join([i.strip() for i in flaglist])
+            obj['flag'] +=","+new_flag
         else:
-            ## if compile on same machine but diff port, using self_ip
-            self_ip_addr = self_ip.split(":")
-            if task_compiler.ip == self_ip_addr[0]+":"+self_ip_addr[1]:
-                param['host_ip'] = self_ip
-            else:
-                param['host_ip'] = host_ip_gateway
-            print(param['host_ip'])
-            upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
+            obj = {}
+            obj['target_os'] = ele['target_os']
+            compiler_full = ele['compiler'].split(" ")
+            obj['compiler'] = compiler_full[0]
+            obj['version'] = compiler_full[1]
+            compilerDict[ele['compiler']] = len(task_params)
+            obj['tags'] = ele['tag']
+            obj['username'] = ele['username']
+            obj['profiles'] = ele['profiles']
+            flaglist = ele['flag'].split(",")
+            obj['flag'] = "_".join([i.strip() for i in flaglist])
+            task_params.append(obj)
+    print(task_params)
 
+    cur_taskMeta = TaskMeta.objects.get(task_id=task_name)
+    filename = cur_taskMeta.src_filename
+    taskFolder = rootDir+task_name
+    codeFolder = taskFolder+"/"+"src"
+    srcPath = codeFolder+"/"+filename
+    # print(params)
+    task_num = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip)
+    
     cur_taskMeta.compilation_num = task_num
     cur_taskMeta.save()
     response = {}
@@ -282,13 +286,6 @@ def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFold
         os._exit(0)
     else:
         return
-
-def on_complete(task_info):
-    '''
-    called when each time self compilation finished
-    '''
-    response = requests.post(url=self_ip+"/rcv_compilation",data = task_info)
-    return
 
 
 ##############################################################################################
