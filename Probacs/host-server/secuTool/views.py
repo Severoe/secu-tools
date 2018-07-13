@@ -377,7 +377,7 @@ def download_search(request):
     new_name = "archive_searchReqest.tgz"
     with tarfile.open(new_name, "w:gz") as tar:
         for ele in obj['exe_pair']:
-            taskFolder,exename = ele.split("$%$") 
+            taskFolder,exename = ele.split("$%$")
             exe_path = rootDir+taskFolder+"/secu_compile/"+exename
             tar.add(exe_path, arcname=os.path.join(taskFolder,exename))
     compressed_dir = open(new_name,'rb')
@@ -398,7 +398,7 @@ def search_panel(request):
     return render(request, 'secuTool/test.html',context)
 
 @transaction.atomic
-def check_status(request):    
+def check_status(request):
     '''
     called when search request encountered
     '''
@@ -465,7 +465,7 @@ def download_search(request):
 def terminate(request):
     task_id = request.POST['task_id']
     if enable_test:
-        ## 
+        ##
         return HttpResponse()
     else:
         subtasks = Task.objects.filter(task_id=task_id)
@@ -719,9 +719,24 @@ def getProfile(request):
 @csrf_exempt
 def updateCompiler(request):
     if request.POST['submit'] == 'save':    #update existing one
-        compiler = Compiler_conf.objects.get(target_os=request.POST['old_target_os'],
+        old_compiler = Compiler_conf.objects.get(target_os=request.POST['old_target_os'],
                                     compiler=request.POST['old_compiler'],
                                     version=request.POST['old_version'])
+
+        compiler = Compiler_conf.objects.filter(target_os=request.POST['target_os'],
+                                    compiler=request.POST['compiler'],
+                                    version=request.POST['version'])
+
+        if (compiler.count() != 0 and compiler[0] != old_compiler):
+            return render(
+                request, "secuTool/test.html", {
+                    'message':
+                    'A compiler with the same OS/name/version already exists',
+                    'nav2':
+                    'active show'
+                })
+
+        compiler = old_compiler
         for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
             setattr(compiler, key, request.POST[key])
 
@@ -730,13 +745,22 @@ def updateCompiler(request):
         setattr(compiler, 'flag', json.dumps(new_flag))
 
         compiler.save()
-        return render(request, "secuTool/test.html", {'message':'Compiler successfully updated', 'nav2': 'active show'})
-    else:           #save as new
+        return render(request, "secuTool/test.html", {
+            'message': 'Compiler successfully updated',
+            'nav2': 'active show'
+        })
+    else:  #save as new
         compiler = Compiler_conf.objects.filter(target_os=request.POST['target_os'],
                                                 compiler=request.POST['compiler'],
                                                 version=request.POST['version'])
         if compiler.count() != 0:
-            return render(request, "secuTool/test.html", {"message": "A compiler with the same OS/name/version already exists",'nav2': 'active show'})
+            return render(
+                request, "secuTool/test.html", {
+                    "message":
+                    "A compiler with the same OS/name/version already exists",
+                    'nav2':
+                    'active show'
+                })
 
         d = {}
         for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
@@ -748,17 +772,35 @@ def updateCompiler(request):
 
         new_compiler = Compiler_conf(**d)
         new_compiler.save()
-        return render(request, "secuTool/test.html", {'message':'New compiler successfully saved', 'nav2': 'active show'})
+        return render(request, "secuTool/test.html", {
+            'message': 'New compiler successfully saved',
+            'nav2': 'active show'
+        })
 
 
 @csrf_exempt
 def updateProfile(request):
     if request.POST['submit'] == 'save':    #update existing one
-        profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
+        old_profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
                                     compiler=request.POST['old_compiler'],
                                     version=request.POST['old_version'],
                                     name=request.POST['old_name'])
 
+        profile = Profile_conf.objects.filter(target_os=request.POST['target_os'],
+                                    compiler=request.POST['compiler'],
+                                    version=request.POST['version'],
+                                    name=request.POST['name'])
+
+        if (profile.count() != 0 and profile[0] != old_profile):
+            return render(
+                request, "secuTool/test.html", {
+                    'message':
+                    'A profile with the same OS/compiler/version/name already exists',
+                    'nav2':
+                    'active show'
+                })
+
+        profile = old_profile
         for key in ['target_os', 'compiler', 'version', 'name']:
             setattr(profile, key, request.POST[key])
 
@@ -767,8 +809,11 @@ def updateProfile(request):
         setattr(profile, 'flag', json.dumps(new_flag))
 
         profile.save()
-        return render(request, "secuTool/test.html", {'message':'Profile successfully updated', 'nav2': 'active show'})
-    else:       #save as new
+        return render(request, "secuTool/test.html", {
+            'message': 'Profile successfully updated',
+            'nav2': 'active show'
+        })
+    else:  #save as new
         profile = Profile_conf.objects.filter(target_os=request.POST['target_os'],
                                                 compiler=request.POST['compiler'],
                                                 version=request.POST['version'],
@@ -790,7 +835,10 @@ def updateProfile(request):
 
         new_profile = Profile_conf(**d)
         new_profile.save()
-        return render(request, "secuTool/test.html", {'message':'New profile successfully saved', 'nav2': 'active show'})
+        return render(request, "secuTool/test.html", {
+            'message': 'New profile successfully saved',
+            'nav2': 'active show'
+        })
 
 
 @csrf_exempt
