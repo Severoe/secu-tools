@@ -90,7 +90,7 @@ def parseCompilerFile(filename):
             line_no += 1
             line = file.readline()
             if not line or line.strip() == "":
-                break;
+                break
 
             if ':' not in str(line):
                 msg = "Malformatted line %d: no ':' found"%line_no
