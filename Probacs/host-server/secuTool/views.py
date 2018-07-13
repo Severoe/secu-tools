@@ -102,74 +102,33 @@ def peek_profile(request):
 ##################. function for preview page ################################################
 ##############################################################################################
 
+@transaction.atomic
 def preview(request):
-    # print(request.POST)
     context = {}
-    src_filename = request.FILES['srcFile'].name  # llok into tar bar
-    compiler_divided = {}
-    if "compiler" in request.POST:
-        compiler_divided['compiler'], compiler_divided['version'] = request.POST['compiler'].split(" ")
-
-    task_created_time = datetime.now()
-    taskName = task_created_time.strftime("%Y-%m-%d-%H-%M-%S")
-    message, params = process_files(request, taskName,  compiler_divided)
-    # print(params)
     #######################################
-    ## register task metadata table
+    ## register task metadata, tasks, generate preview parameters
     #######################################
-    target_os_list = [param['target_os'] for param in params]
-    compiler_full_list = [param['compiler']+" "+param['version'] for param in params]
-
-    new_taskMeta = TaskMeta(task_id=taskName,username=params[0]['username'],tag=params[0]['tag'],
-        src_filename=src_filename,target_os=", ".join(target_os_list),
-        compiler_full=", ".join(compiler_full_list),profiles = ", ".join(params[0]['profile']),
-        created_date=task_created_time)
-    new_taskMeta.save()
-
+    message, res = register_tasks(request)
     if message:
         return render(request, 'secuTool/test.html', {"message":message})
-    rows = []
-    flag_list = []
-    seq = 1
-    for param in params:
-        # permute flags combination  from diff flags
-        jsonDec = json.decoder.JSONDecoder()
-        flag_from_profile = []
-        for profile_name in param['profile']:
-            p_tmp = Profile_conf.objects.get(name=profile_name,
-                                                target_os=param['target_os'],
-                                                compiler=param['compiler'],
-                                                version=param['version'])
-            flag_from_profile.append(jsonDec.decode(p_tmp.flag))
-        compile_combination = [[]]
-        for x in flag_from_profile:
-            compile_combination = [i + [y] for y in x for i in compile_combination]
 
-        # each element in compile_combination is a space-separated flag list
-        compile_combination = [" ".join(x) for x in compile_combination]
-        profiles = ",".join(param['profile'])
-
-        for flag in compile_combination:
-            rows.append({'target_os':param['target_os'],
-                            'compiler':param['compiler']+" "+param['version'],
-                            'username':param['username'],
-                            'profiles':", ".join(profiles.split(",")),
-                            'tag':param['tag'],
-                            'flag':", ".join(flag.split(" ")),
-                            'seq':seq})
-            seq += 1
-
-        c_tmp = Compiler_conf.objects.get(target_os=param['target_os'],
-                                compiler=param['compiler'],
-                                version=param['version'])
-        flag_list += jsonDec.decode(c_tmp.flag)
-    
     context = {}
-    context['rows'] = rows
-    context['taskid'] = taskName
-    context['json_flags'] = json.dumps(flag_list)
+    context['rows'] = res["rows"]
+    context['taskid'] = res["taskName"]
+    context['json_flags'] = json.dumps(res["flag_list"])
     return render(request, 'secuTool/preview.html',context)
 
+@transaction.atomic
+def cmdline_preview(request):
+    message, res = register_tasks(request)
+    response = {}
+    if message:
+        response['message'] = message
+        return HttpResponse(json.dumps(response),content_type="application/json")
+    response['rows'] = res["rows"]
+    response['taskid'] = res["taskName"]
+    # response['json_flags'] = json.dumps(res["flag_list"])
+    return HttpResponse(json.dumps(response),content_type="application/json")
 
 ##############################################################################################
 ##############################################################################################
