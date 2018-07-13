@@ -21,7 +21,7 @@ def handin_task(srcfile, taskfile):
 if __name__ == '__main__':
     '''
 	1. compile with src and task file 
-		- python /asda/asdasd/probacs.py compile src.c task.txt.   $compile?(y/n)
+		- python ../../probacs.py compile src.c task.txt
 			- return task_id, preview_page
 			- if compile, tracking progress
 			- download
@@ -34,18 +34,18 @@ if __name__ == '__main__':
         sys.stderr.flush()
         exit(-1)
 
-if sys.argv[1] == "compile":
-    if len(sys.argv) != 4:
-        sys.stderr.write("need specify sourcefile and taskfile\n") # might be more specific
-        sys.stderr.flush()
-        exit(-1)
+    if sys.argv[1] == "compile":
+        if len(sys.argv) != 4:
+            sys.stderr.write("need specify sourcefile and taskfile\n") # might be more specific
+            sys.stderr.flush()
+            exit(-1)
 
-    handin_task(sys.argv[2],sys.argv[3])
-    ifCompile = input("Ready to compile? (Y/N): ")
-    if (ifCompile is 'Y' or ifCompile is 'y'):
-        print("AA")
-    else:
-        exit(-1)
+        handin_task(sys.argv[2],sys.argv[3])
+        ifCompile = input("Ready to compile? (Y/N): ")
+        if (ifCompile is 'Y' or ifCompile is 'y'):
+            print("AA")
+        else:
+            exit(-1)
 
 	# items = list(range(0, 57))
 	# l = len(items)
@@ -55,7 +55,7 @@ if sys.argv[1] == "compile":
 	# 	printProgressBar(
 	# 		i + 1, l, prefix='Progress:', suffix='Complete', length=50)
 
-	# def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+	# def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '*'):
 	# 	percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
 	# 	filledLength = int(length * iteration // total)
 	# 	bar = fill * filledLength + '-' * (length - filledLength)
