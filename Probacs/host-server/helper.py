@@ -4,7 +4,8 @@ from probacs_parser import parseTaskFile
 import os, tempfile, zipfile,tarfile, time,json
 from subprocess import Popen, PIPE
 from datetime import datetime
-
+import django
+django.setup()
 from secuTool.models import *
 
 ## global variables
@@ -15,6 +16,74 @@ tempDir = 'temp/'
 ############################################################################
 ##################. helper function for preview ############################
 ############################################################################
+def register_tasks(request):
+    '''
+    parse files from request, update taskMeta//records in database
+    generate flag combinations, update task records in database
+    send back preview information
+    '''
+    src_filename = request.FILES['srcFile'].name  # llok into tar bar
+    compiler_divided = {}
+    if "compiler" in request.POST:
+        compiler_divided['compiler'], compiler_divided['version'] = request.POST['compiler'].split(" ")
+
+    task_created_time = datetime.now()
+    taskName = task_created_time.strftime("%Y-%m-%d-%H-%M-%S")
+    message, params = process_files(request, taskName,  compiler_divided)
+    if message:
+        return message, None
+    #######################################
+    ## register task metadata table
+    #######################################
+    target_os_list = [param['target_os'] for param in params]
+    compiler_full_list = [param['compiler']+" "+param['version'] for param in params]
+
+    new_taskMeta = TaskMeta(task_id=taskName,username=params[0]['username'],tag=params[0]['tag'],
+        src_filename=src_filename,target_os=", ".join(target_os_list),
+        compiler_full=", ".join(compiler_full_list),profiles = ", ".join(params[0]['profile']),
+        created_date=task_created_time)
+    new_taskMeta.save()
+    #######################################
+    ## register subtasks into task table
+    #######################################
+    rows = []
+    flag_list = []
+    seq = 1
+    for param in params:
+        # permute flags combination  from diff flags
+        jsonDec = json.decoder.JSONDecoder()
+        flag_from_profile = []
+        for profile_name in param['profile']:
+            p_tmp = Profile_conf.objects.get(name=profile_name,
+                                                target_os=param['target_os'],
+                                                compiler=param['compiler'],
+                                                version=param['version'])
+            flag_from_profile.append(jsonDec.decode(p_tmp.flag))
+        compile_combination = [[]]
+        for x in flag_from_profile:
+            compile_combination = [i + [y] for y in x for i in compile_combination]
+
+        # each element in compile_combination is a space-separated flag list
+        compile_combination = [" ".join(x) for x in compile_combination]
+        profiles = ",".join(param['profile'])
+
+        for flag in compile_combination:
+            rows.append({'target_os':param['target_os'],
+                            'compiler':param['compiler']+" "+param['version'],
+                            'username':param['username'],
+                            'profiles':", ".join(profiles.split(",")),
+                            'tag':param['tag'],
+                            'flag':", ".join(flag.split(" ")),
+                            'seq':seq})
+            seq += 1
+
+        c_tmp = Compiler_conf.objects.get(target_os=param['target_os'],
+                                compiler=param['compiler'],
+                                version=param['version'])
+        flag_list += jsonDec.decode(c_tmp.flag)
+
+    return None, {"rows":rows,"flag_list":flag_list,"taskName":taskName}
+
 def process_files(request, taskName, compiler_divided):
     """
     save and extract source code, and parse task file (or task form)
