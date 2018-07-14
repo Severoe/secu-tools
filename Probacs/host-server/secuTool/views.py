@@ -123,7 +123,7 @@ def preview(request):
 @csrf_exempt
 def cmdline_preview(request):
     '''
-    cmdline view function for generating preview parameterss
+    cmdline view function for generating preview parameters
     '''
     message, res = register_tasks(request)
     response = {}

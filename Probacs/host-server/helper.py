@@ -8,6 +8,7 @@ import django
 django.setup()
 from secuTool.models import *
 
+
 ## global variables
 rootDir = 'Compilation_tasks/'
 tempDir = 'temp/'
@@ -29,7 +30,7 @@ def register_tasks(request):
 
     task_created_time = datetime.now()
     taskName = task_created_time.strftime("%Y-%m-%d-%H-%M-%S")
-    message, params = process_files(request, taskName,  compiler_divided)
+    message, params = process_files(request, taskName, compiler_divided)
     if message:
         return message, None
     #######################################
@@ -83,6 +84,7 @@ def register_tasks(request):
         flag_list += jsonDec.decode(c_tmp.flag)
 
     return None, {"rows":rows,"flag_list":flag_list,"taskName":taskName}
+
 
 def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip):
     '''
@@ -141,8 +143,6 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
             print(param['host_ip'])
             upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
     return task_num
-
-
 
 
 def process_files(request, taskName, compiler_divided):
@@ -206,8 +206,7 @@ def construct_querySet(request):
 	parse search request, form regular queryset, compiler filter and flags flter
 	return those three and a empty count
 	'''
-    # 2018-07-02 16:08
-    empty_count = 0;
+    empty_count = 0
     flags = None
     compilers = None
     query_dict = {}
@@ -277,7 +276,6 @@ def construct_querySet(request):
     if 'date_after' not in request.POST or request.POST['date_after']=="":
         empty_count += 1
     else:
-        # f = "%Y-%m-%d %H:%M"
         f = "%m/%d/%Y"
         context['date_after'] = request.POST['date_after']
         date_obj = datetime.strptime(request.POST['date_after'], f).strftime("%Y-%m-%d %H-%M-%S")
@@ -286,7 +284,6 @@ def construct_querySet(request):
     if 'date_before' not in request.POST or request.POST['date_before']=="":
         empty_count += 1
     else:
-        # f = "%Y-%m-%d %H:%M"
         f = "%m/%d/%Y"
         context['date_before'] = request.POST['date_before']
         date_obj = datetime.strptime(request.POST['date_before'], f).strftime("%Y-%m-%d %H-%M-%S")
@@ -360,7 +357,6 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
         logline = "%s\t%s"%(exename, flag)
 
         command = invoke_format.replace("flags", flag).replace("source", src_path).replace("exename", exename).split(" ")
-        # print(command)
         compilation = Popen(command, stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
         log_file.write("%s, %s, %s\n"%(logline, out, err))
@@ -377,6 +373,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
     print("compilation done!")
     return
 
+
 def on_complete(task_info, self_ip):
     '''
     called when each time self compilation finished
@@ -389,7 +386,6 @@ def on_complete(task_info, self_ip):
 ############################################################################
 def terminate_process(task_id,subtasks, enable_test):
     if enable_test: 
-        ##
         ongoing_process = CompilationPid.objects.get(taskid=task_id)
         pid = ongoing_process.pid
         os.kill(pid, signal.SIGTERM)
@@ -412,7 +408,6 @@ def getExename(filename,ele,num):
     return ".".join(filename.split(".")[:-1])+"_"+str(num)+"_"+ele
 
 
-
 def parse_taskMeta(ele, iscur):
     '''
     parse taskMeta object to be valid object in django template
@@ -429,6 +424,7 @@ def parse_taskMeta(ele, iscur):
     if iscur:
         tmp['current_task']="background: yellow;"
     return tmp
+
 
 ############################################################################
 ##################. helper function for tracking ############################
@@ -460,6 +456,7 @@ def form_log_report(obj):
         log_report.append(new_log)
     return finished, log_report
 
+
 ############################################################################
 ##################. helper function for database ##################
 ############################################################################
@@ -479,7 +476,3 @@ def printRcd(rcd):
     print("out: "+ str(rcd.out))
 
     return
-
-
-
-
