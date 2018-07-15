@@ -188,7 +188,7 @@ if __name__ == '__main__':
 			print("Showing " + str(len(res)) + " result of user request.")
 			print("{:<25} {:<10} {:<30} {:<10} {:<15} {:<25} {:<10}".format('task_id', 'username', 'tag', 'target_os', 'compiler', 'flag', 'status'))
 			for i in range(len(res)):
-				task = res[0]['fields']
+				task = res[i]['fields']
 				print(
 					"{:<25} {:<10} {:<30} {:<10} {:<15} {:<25} {:<10}".format(
 						task['task_id'], task['username'], task['tag'], task['target_os'],
