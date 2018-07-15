@@ -17,6 +17,8 @@
   <link rel="stylesheet" href="{% static 'secuTool/calendar/jquery-ui.min.css'%}">
   <script src="{% static 'secuTool/calendar/jquery.js'%}"></script>
   <script src="{% static 'secuTool/calendar/jquery-ui.min.js'%}"></script>
+  <script src="{% static 'secuTool/calendar/jquery.timepicker.min.js'%}"></script>
+  <script src="{% static 'secuTool/calendar/jquery.timepicker.min.cs'%}"></script>
   
   <style>
     header, footer {
@@ -251,6 +253,8 @@
                   <th>Tags</th>
                   <th>Date after</th>
                   <th>Date before</th>
+                  <th>Time after</th>
+                  <th>Time before</th>
                 </tr>
                 <tr>
                   <td>
@@ -273,6 +277,12 @@
                   </td>
                   <td>
                     <input style="width:100px;" type="text" name='date_before' id='datebefore' value="{{date_before}}">
+                  </td>
+                  <td>
+                    <input style="width:100px;" type="text" name='time_after' id='timeafter' value="{{time_after}}">
+                  </td>
+                  <td>
+                    <input style="width:100px;" type="text" name='time_before' id='timebefore' value="{{time_before}}">
                   </td>
                 </tr>
               </table>

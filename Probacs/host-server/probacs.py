@@ -138,6 +138,43 @@ if __name__ == '__main__':
 	3. download the task by id
 	4. terminate the task by id
 	'''
+	## READ HOST IP ADDRESS FROM CONFIG.INI
+	config = ConfigParser()
+	BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+	config.read(os.path.join(BASE_DIR, 'config.ini'))
+	host_ip = config.get("Localtest", "Local_ip")
+
+
+	if len(sys.argv) < 2:
+		print(sys.argv)
+		sys.stderr.write("input not valid\n")
+		sys.stderr.flush()
+		exit(-1)
+
+	if sys.argv[1] == "compile":
+		if len(sys.argv) != 4:
+			sys.stderr.write("need specify sourcefile and taskfile\n")
+			sys.stderr.flush()
+			exit(-1)
+
+		response = handin_task(sys.argv[2], sys.argv[3])
+		ifCompile = input("Ready to compile? (Y/N): ")
+		if (ifCompile is 'Y' or ifCompile is 'y'):
+			confirm_compile(response.content)
+		else:
+			exit(-1)
+	
+	if sys.argv[1] == "terminate":
+		if len(sys.argv) != 3:
+			sys.stderr.write("need specify task_id to terminate\n") #might be more specific
+			sys.stderr.flush()
+			exit(-1)
+		terminate(sys.argv[2])
+
+
+
+
+=======
     ## READ HOST IP ADDRESS FROM CONFIG.INI
     config = ConfigParser()
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
