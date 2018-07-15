@@ -215,7 +215,6 @@ def param_upload(request):
 
 
 @csrf_exempt
-@transaction.atomic
 def cmdline_compile(request):
     '''
     form task_params
@@ -257,7 +256,7 @@ def cmdline_compile(request):
     codeFolder = taskFolder+"/"+"src"
     srcPath = codeFolder+"/"+filename
     # print(params)
-    task_num = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip)
+    task_num, isalive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip)
     
     cur_taskMeta.compilation_num = task_num
     cur_taskMeta.save()
@@ -475,7 +474,7 @@ def cmdline_terminate(request):
     response['log_report'] = log_report
     return HttpResponse(json.dumps(response),content_type="application/json")
 
-@transaction.atomic
+# @transaction.atomic
 @csrf_exempt
 def rcv_platform_result(request):
     '''

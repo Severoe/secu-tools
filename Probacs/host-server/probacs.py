@@ -6,7 +6,14 @@ host_ip = None
 jsonDec = json.decoder.JSONDecoder()
 destination = "./"
 
+#**************#**************#**************#**************
+#**************    develop log#**************#**************
+'''
+	1. terminate , if pid does not exist(already finished// no such task)
+	2. terminate summary, add "terminate"
 
+'''
+#**************#**************#**************#**************
 def handin_task(srcfile, taskfile):
 	'''
 	send sourcefile and taskfile to host server, reveice compilation preview info

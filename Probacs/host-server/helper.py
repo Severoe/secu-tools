@@ -422,9 +422,10 @@ def on_complete(task_info, self_ip):
 ############################################################################
 def terminate_process(task_id,subtasks, enable_test):
     if enable_test: 
-        ongoing_process = CompilationPid.objects.get(taskid=task_id)
-        pid = ongoing_process.pid
-        os.kill(pid, signal.SIGTERM)
+        ongoing_process = CompilationPid.objects.filter(taskid=task_id)
+        for ele in ongoing_process:
+            pid = ele.pid
+            os.kill(pid, signal.SIGTERM)
         # ongoing_process.delete()
     else:
         obj = subtasks[0]
