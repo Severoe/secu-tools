@@ -2,10 +2,19 @@
 
 
 #SUBMITTING NEW JOB
+command=$1
 
-SOURCEFILE=$1
-TASKFILE=$2
+if [$command=="compile"]; then echo "HEY" 
+	## compilr
+elif [$command=="search" then echo "HELLO"
+	##search
+elif [$command=="download"  then echo "!@"
+	##download
+elif [$command=="track" then ech0 "ERF"
+# SOURCEFILE=$1
+# TASKFILE=$2
 
+fi
 
 
 
@@ -28,3 +37,5 @@ a) DATEAFTER==$OPTARG;;
 b) DATEBEFORE==$OPTARG;;
 esac
 done
+
+#DOWNLOAD
