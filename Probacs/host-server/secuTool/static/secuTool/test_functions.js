@@ -261,6 +261,9 @@ function download_tar(){
 }
 
 function calendar(){ 
-      $( "#dateafter" ).datepicker();
-      $( "#datebefore" ).datepicker();  
+      $( "#dateafter" ).bootstrapMaterialDatePicker();  //datepicker();
+      $( "#datebefore" ).datepicker();
+      $( "#timeafter" ).timepicker({});
+      $( "#timebefore" ).timepicker({}); 
+
 }

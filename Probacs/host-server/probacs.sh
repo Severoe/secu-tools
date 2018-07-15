@@ -6,11 +6,11 @@ command=$1
 
 if [$command=="compile"]; then echo "HEY" 
 	## compilr
-elif [$command=="search" then echo "HELLO"
+elif [$command=="search"]; then echo "HELLO"
 	##search
-elif [$command=="download"  then echo "!@"
+elif [$command=="download"];  then echo "!@"
 	##download
-elif [$command=="track" then ech0 "ERF"
+elif [$command=="track"]; then ech0 "ERF"
 # SOURCEFILE=$1
 # TASKFILE=$2
 
