@@ -27,7 +27,7 @@ enable_test = settings.ENABLE_LOCALTEST
 print(enable_test)
 self_ip = settings.LOCAL_IP
 print(self_ip)
-winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
+# winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
 rootDir = 'Compilation_tasks/'
 tempDir = 'temp/'
@@ -38,13 +38,16 @@ tempDir = 'temp/'
 #**************#**************#**************#**************
 #**************    develop log#**************#**************
 '''
-    1. need to handle failure case
-        : for instance, compilation platform is not set up -> 
+    1. command for popen when compiling is not valid
+        - wrap try//err ?
     2. delete process id after terminated or finished?
         - inside localtest terminate function
         - inside platform server terminate_sub function
-    3. upload_to_platform, potential concerns
-        - os.fork() if platform does not exist?
+    3. report back for finishing subtasks   \   
+        - os.fork()?
+    4. receiving files from platform server, might overwrite secu_compile folder
+        - adding suffix?
+
 '''
 #**************#**************#**************#**************
 
@@ -198,11 +201,15 @@ def param_upload(request):
     #form request format from obj for each task
     #####################
     # print(task_params)
-    task_num = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name,self_ip)
-
+    response = {}
+    task_num, server_alive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name,self_ip)
+    print(server_alive)
+    if not server_alive:
+        response['message'] = "platform server is not responding !"
+        return HttpResponse(json.dumps(response),content_type="application/json")
     cur_taskMeta.compilation_num = task_num
     cur_taskMeta.save()
-    response = {}
+    
     response['taskid'] = task_name
     return HttpResponse(json.dumps(response),content_type="application/json")
 
@@ -285,7 +292,7 @@ def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFold
         response = requests.post(ip, files=files,data=data)
         os._exit(0)
     else:
-        return
+        return 
 
 
 ##############################################################################################
