@@ -82,6 +82,7 @@ def printProgressBar(finished, total, length = 50, fill = '*'):
     if finished == total:
         print()
 
+
 def search(cmd_arg):
 	print(cmd_arg)
 	if len(cmd_arg)%2 == 1:
@@ -132,9 +133,10 @@ if __name__ == '__main__':
 		- python ../../probacs.py compile src.c task.txt
 			- return task_id, preview_page
 			- if compile, tracking progress
-			- download
-	2. terminate the task by id
-	3. search the task by id
+			- if download, specify the task id and destination
+	2. search the task by id
+	3. download the task by id
+	4. terminate the task by id
 	'''
     ## READ HOST IP ADDRESS FROM CONFIG.INI
     config = ConfigParser()
@@ -176,16 +178,12 @@ if __name__ == '__main__':
             exit(-1)
 
     # Function 2: search
-	if sys.argv[1] == "search":
+	if opt.operation == "search":
 		if len(sys.argv) < 4:
 			sys.stderr.write("show usage of search\n") #might be more specific
 			sys.stderr.flush()
 			exit(-1)
 		search(sys.argv[2:])
-
-
-
-
 
     # Function 3: download
     if opt.operation == "download":
