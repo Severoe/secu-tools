@@ -394,35 +394,25 @@ def check_status(request):
         return render(request, 'secuTool/test.html',context)
 
     print(query_dict)
-    obj = Task.objects.filter(**query_dict)
-    if flags != None:
-        obj = obj.filter(flags)
-    if compilers != None:
-        obj = obj.filter(compilers)
+    context, obj = form_search_response(query_dict,flags,compilers,context)
 
-    context['tasks'] = obj
-    seq = 0
-    for ele in context['tasks']:
-        if ele.status != "success":
-            ele.ifenable = "disabled"
-        ele.seq = seq
-        seq+=1
-        if ele.target_os == 'Windows':
-            delimit = "\\"
-        else:
-            delimit = "/"
-        ele.flag = ele.flag.replace("_", " ")
-        if not ele.exename:
-            ele.err = "-"
-            ele.exename = "-"
-        else:
-            ele.exename = ele.exename.split(delimit)[-1]
-            if not ele.err:
-                ele.err = '-'
     context['search_result'] = "-- Showing "+str(obj.count())+" results of user request."
     return render(request, 'secuTool/test.html',context)
 
+@transaction.atomic
+@csrf_exempt
+def cmdline_search(request):
+    total_count = 7
+    response = {}
+    empty_count, query_dict, flags, compilers, context = construct_querySet(request)
+    if empty_count == total_count:
+        response['message'] = "Your search has no matched results."
+        return HttpResponse(json.dumps(response),content_type="application/json")
 
+    context, obj = form_search_response(query_dict,flags,compilers,context)
+    response = serializers.serialize('json',context['tasks'])
+    # response['message'] = "-- Showing "+str(obj.count())+" results of user request."
+    return HttpResponse(response,content_type="application/json")
 ##############################################################################################
 ##############################################################################################
 ##################. function for ajax tracking/ update########################################

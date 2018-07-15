@@ -81,6 +81,49 @@ def printProgressBar(finished, total, length = 50, fill = '*'):
 	if finished == total:
 		print()
 
+def search(cmd_arg):
+	print(cmd_arg)
+	if len(cmd_arg)%2 == 1:
+		## queryset must in pair -> key, value
+		sys.stderr.write("query format is wrong, try again\n")
+		sys.stderr.flush()
+		exit(-1)
+	query_set = {}
+	i = 0
+	while i+1 < len(cmd_arg):
+		if cmd_arg[i] == '-tid':
+			query_set['task_id'] = cmd_arg[i+1]
+		elif cmd_arg[i] == '-u':
+			query_set['username'] = cmd_arg[i+1]
+		elif cmd_arg[i] == '-f':
+			query_set['flags'] = cmd_arg[i+1]
+		elif cmd_arg[i] == '-c':
+			#expect compiler to have input like gcc-4.7
+			query_set['compilers'] = cmd_arg[i+1].replace("-"," ")
+		elif cmd_arg[i] == '-t':
+			query_set['tag'] = cmd_arg[i+1]
+		elif cmd_arg[i] == '-da':
+			#####################################
+			#expect dateformat to be yyyy-m-d-h-m
+			#backend 
+			query_set['date_after'] = cmd_arg[i+1]
+		elif cmd_arg[i] == '-db':
+			query_set['date_before'] = cmd_arg[i+1]
+		else:
+			sys.stderr.write("query format is wrong, try again\n")
+			sys.stderr.flush()
+			exit(-1)
+
+		i += 2
+	print(query_set)
+	response = requests.post(host_ip+"/cmdline_search", data=query_set)
+	res = jsonDec.decode(response.content.decode("utf-8"))
+	print(len(res))
+	print(res)
+
+
+
+
 
 if __name__ == '__main__':
 	'''
@@ -110,7 +153,6 @@ if __name__ == '__main__':
 			sys.stderr.write("need specify sourcefile and taskfile\n")
 			sys.stderr.flush()
 			exit(-1)
-		handin_task(sys.argv[2],sys.argv[3])
 
 		response = handin_task(sys.argv[2], sys.argv[3])
 		ifCompile = input("Ready to compile? (Y/N): ")
@@ -125,3 +167,15 @@ if __name__ == '__main__':
 			sys.stderr.flush()
 			exit(-1)
 		terminate(sys.argv[2])
+
+
+	if sys.argv[1] == "search":
+		if len(sys.argv) < 4:
+			sys.stderr.write("show usage of search\n") #might be more specific
+			sys.stderr.flush()
+			exit(-1)
+		search(sys.argv[2:])
+
+
+
+

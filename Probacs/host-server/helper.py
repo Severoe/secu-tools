@@ -291,6 +291,37 @@ def construct_querySet(request):
 
     return empty_count, query_dict, flags, compilers, context
 
+def form_search_response(query_dict,flags,compilers,context):
+    obj = Task.objects.filter(**query_dict)
+    if flags != None:
+        obj = obj.filter(flags)
+    if compilers != None:
+        obj = obj.filter(compilers)
+
+    context['tasks'] = obj
+    seq = 0
+    for ele in context['tasks']:
+        if ele.status != "success":
+            ele.ifenable = "disabled"
+        ele.seq = seq
+        seq+=1
+        if ele.target_os == 'Windows':
+            delimit = "\\"
+        else:
+            delimit = "/"
+        ele.flag = ele.flag.replace("_", " ")
+        if not ele.exename:
+            ele.err = "-"
+            ele.exename = "-"
+        else:
+            ele.exename = ele.exename.split(delimit)[-1]
+            if not ele.err:
+                ele.err = '-'
+
+    return context, obj
+
+
+
 
 ############################################################################
 ##################. helper function for compilation ##################
