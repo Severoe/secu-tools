@@ -3,18 +3,11 @@ import requests
 from configparser import ConfigParser
 
 host_ip = None
-jsonDec = json.decoder.JSONDecoder()
-destination = "./"
 cur_status = None
 task_id_global = "0"
-#**************#**************#**************#**************
-#**************    develop log#**************#**************
-'''
-	1. terminate , if pid does not exist(already finished// no such task)
-	2. terminate summary, add "terminate"
+jsonDec = json.decoder.JSONDecoder()
 
-'''
-#**************#**************#**************#**************
+
 def handin_task(srcfile, taskfile):
 	'''
 	send sourcefile and taskfile to host server, reveice compilation preview info
@@ -58,12 +51,15 @@ def trace_task(task_id):
 		if res['finished'] == res['total']:
 			success = 0
 			fail = 0
+			terminated = 0
 			for log in res['log_report']:
 				if log['status'] == "success":
 					success += 1
 				elif log['status'] == "fail":
 					fail += 1
-			print("There are " + str(res['total']) + " jobs in this task, " + str(success) + " success, " + str(fail) + " fail")
+				elif log['status'] == "terminated":
+					terminated += 1
+			print("There are " + str(res['total']) + " jobs in this task, " + str(success) + " success, " + str(fail) + " fail" + str(terminated) + " terminated")
 			keep_going = False
 	task_id_global = None
 
@@ -111,8 +107,8 @@ def download_tasks(task_id, destination):
 	'''
 	download task archive from host, save to destination
 	'''
-	response = requests.post(host_ip+"/cmdline_download", data={"task_id":task_id})
-	with open(destination+"archive_"+str(task_id)+".tgz", 'wb') as w:
+	response = requests.post(host_ip + "/cmdline_download", data={"task_id": task_id})
+	with open(destination + "/archive_" + str(task_id) + ".tgz", 'wb') as w:
 		w.write(response.content)
 
 
@@ -133,6 +129,7 @@ def printProgressBar(finished, total, length = 50, fill = '*'):
 	if finished == total:
 		print()
 
+
 def show_usage():
 	sys.stderr.write('Probacs: Profile Based Auto Compilation System\n')
 	sys.stderr.write('Provided functionalities: compile/search/download/teminate\n')
@@ -144,12 +141,9 @@ def show_usage():
 	exit(-1)
 
 
-
-
 def signal_handler(sig, frame):
 	global task_id_global
 	if task_id_global != "0":
-		# print("ongoing task id: "+task_id_global+" is already terminated.")
 		terminate(task_id_global)
 		response = requests.get(host_ip+"/trace_task", params={"task_id":task_id_global})
 		res = jsonDec.decode(response.content.decode("utf-8"))
@@ -167,6 +161,7 @@ def signal_handler(sig, frame):
 			print("\nThere are " + str(res['total']) + " jobs in this task, " + str(success) + " success, " + str(fail) + " fail, " + str(terminated) + " terminated")
 	print("Goodbye !")
 	sys.exit(0)
+
 
 if __name__ == '__main__':
 	'''
@@ -186,8 +181,6 @@ if __name__ == '__main__':
 	host_ip = config.get("Localtest", "Local_ip")
 
 	signal.signal(signal.SIGINT, signal_handler)
-	# print('Press Ctrl+C')
-	# signal.pause()
 
 	if len(sys.argv) < 2:
 		show_usage()
@@ -213,6 +206,11 @@ if __name__ == '__main__':
 		ifDownload = input("Do you want to download the executables? (Y/N): ")
 		if ifDownload is 'Y' or ifDownload is 'y':
 			destination = input("Please specify the path (Default './') : ")
+			pdb.set_trace()
+			if not destination:
+				destination = os.path.dirname(os.path.abspath(__file__))
+			else:
+				destination = os.path.expanduser(destination)
 			download_tasks(task_id, destination)
 			print("Download completed.")
 		else:
@@ -237,8 +235,8 @@ if __name__ == '__main__':
 			for i in range(len(res)):
 				task = res[i]['fields']
 				print(
-					"{:<25} {:<10} {:<30} {:<10} {:<15} {:<25} {:<10}".format(
-						task['task_id'], task['username'], task['tag'], task['target_os'],
+				 "{:<25} {:<10} {:<30} {:<10} {:<15} {:<25} {:<10}".format(
+				  task['task_id'], task['username'], task['tag'], task['target_os'],
 				task['compiler'] + " " + task['version'], task['flag'], task['status']))
 
 
@@ -267,8 +265,6 @@ if __name__ == '__main__':
 		terminate(sys.argv[2])
 		print("The task is terminated.")
 
+
 	else:
 		show_usage()
-
-
-
