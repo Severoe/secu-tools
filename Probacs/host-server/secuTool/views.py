@@ -466,6 +466,8 @@ def cmdline_terminate(request):
     response = {}
     task_id = request.POST['task_id']
     subtasks = Task.objects.filter(task_id=task_id)
+    if subtasks.count() == 0:
+        
     terminate_process(task_id, subtasks,enable_test)
     response['task_id'] =task_id
     for ele in subtasks:

@@ -1,11 +1,12 @@
-import os, sys, json, time
+import os, sys, json, time, signal
 import requests
 from configparser import ConfigParser
 
 host_ip = None
 jsonDec = json.decoder.JSONDecoder()
 destination = "./"
-
+cur_status = None
+task_id_global = "0"
 #**************#**************#**************#**************
 #**************    develop log#**************#**************
 '''
@@ -36,6 +37,8 @@ def confirm_compile(data):
 	'''
 	response = requests.post(host_ip+"/cmdline_compile", data={"content":data})
 	task_id = jsonDec.decode(response.content.decode("utf-8"))
+	global task_id_global
+	task_id_global = task_id['taskid']
 	trace_task(task_id['taskid'])
 	return task_id['taskid']
 
@@ -44,6 +47,7 @@ def trace_task(task_id):
 	'''
 	tracing tasks by task_id, receive log report for this task id
 	'''
+	global task_id_global
 	interval = 1
 	keep_going = True
 	while keep_going:
@@ -61,6 +65,7 @@ def trace_task(task_id):
 					fail += 1
 			print("There are " + str(res['total']) + " jobs in this task, " + str(success) + " success, " + str(fail) + " fail")
 			keep_going = False
+	task_id_global = None
 
 
 def search(cmd_arg):
@@ -95,7 +100,7 @@ def search(cmd_arg):
 			exit(-1)
 
 		i += 2
-	print(query_set)
+	# print(query_set)
 	response = requests.post(host_ip + "/cmdline_search", data=query_set)
 	res = jsonDec.decode(response.content.decode("utf-8"))
 	return res
@@ -116,6 +121,7 @@ def terminate(task_id):
 	'''
 	response = requests.post(host_ip+"/cmdline_terminate", data={"task_id":task_id})
 	res = jsonDec.decode(response.content.decode("utf-8"))
+	task_id_global=None
 
 
 def printProgressBar(finished, total, length = 50, fill = '*'):
@@ -126,6 +132,40 @@ def printProgressBar(finished, total, length = 50, fill = '*'):
 	if finished == total:
 		print()
 
+def show_usage():
+	sys.stderr.write('Probacs: Profile Based Auto Compilation System\n')
+	sys.stderr.write('Provided functionalities: compile/search/download/teminate\n')
+	sys.stderr.write("eg: python probacs.py compile sourcefile taskfile\n")
+	sys.stderr.write("eg: python probacs.py search -tid/-u/-t/-c/-f keys\n")
+	sys.stderr.write("eg: python probacs.py download task_id ./dest\n")
+	sys.stderr.write("eg: python probacs.py terminate task_id\n")
+	sys.stderr.flush()
+	exit(-1)
+
+
+
+
+def signal_handler(sig, frame):
+	global task_id_global
+	if task_id_global != "0":
+		# print("ongoing task id: "+task_id_global+" is already terminated.")
+		terminate(task_id_global)
+		response = requests.get(host_ip+"/trace_task", params={"task_id":task_id_global})
+		res = jsonDec.decode(response.content.decode("utf-8"))
+		if res['finished'] == res['total']:
+			success = 0
+			fail = 0
+			terminated = 0
+			for log in res['log_report']:
+				if log['status'] == "success":
+					success += 1
+				elif log['status'] == "fail":
+					fail += 1
+				elif log['status'] == "terminated":
+					terminated += 1
+			print("\nThere are " + str(res['total']) + " jobs in this task, " + str(success) + " success, " + str(fail) + " fail, " + str(terminated) + " terminated")
+	print("Goodbye !")
+	sys.exit(0)
 
 if __name__ == '__main__':
 	'''
@@ -144,19 +184,16 @@ if __name__ == '__main__':
 	config.read(os.path.join(BASE_DIR, 'config.ini'))
 	host_ip = config.get("Localtest", "Local_ip")
 
-	if len(sys.argv) < 2:
-		sys.stderr.write('Probacs: Profile Based Auto Compilation System\n')
-		sys.stderr.write('Provided functionalities: compile/search/download/teminate\n')
-		sys.stderr.write("eg: python probacs.py compile sourcefile taskfile\n")
-		sys.stderr.write("eg: python probacs.py search -tid/-u/-t/-c/-f keys\n")
-		sys.stderr.write("eg: python probacs.py download task_id ./dest\n")
-		sys.stderr.write("eg: python probacs.py terminate task_id\n")
-		sys.stderr.flush()
-		exit(-1)
+	signal.signal(signal.SIGINT, signal_handler)
+	# print('Press Ctrl+C')
+	# signal.pause()
 
+	if len(sys.argv) < 2:
+		show_usage()
 
 	# Function 1: compile
 	if sys.argv[1] == "compile":
+		cur_status = "compile"
 		if len(sys.argv) != 4:
 			sys.stderr.write("Please specify the source file and task file.\n")
 			sys.stderr.write("eg: python probacs.py compile sourcefile taskfile\n")
@@ -183,6 +220,7 @@ if __name__ == '__main__':
 
 	# Function 2: search
 	elif sys.argv[1] == "search":
+		cur_status = "search"
 		if len(sys.argv) < 4:
 			sys.stderr.write("Please specify the keywords to search.\n")
 			sys.stderr.write("keywords format: task id -tid, compiler -c (eg: gcc-4.0), flags -f, username -u, tag -t\n")
@@ -204,6 +242,7 @@ if __name__ == '__main__':
 
 	# Function 3: download
 	elif sys.argv[1] == "download":
+		cur_status = "download"
 		if len(sys.argv) != 4:
 			sys.stderr.write("Please specify the task id and the destination to download.\n")
 			sys.stderr.write("eg: python probacs.py download task_id ./dest\n")
@@ -216,6 +255,7 @@ if __name__ == '__main__':
 
 	# Function 4: terminate
 	elif sys.argv[1] == "terminate":
+		cur_status = "terminate"
 		if len(sys.argv) != 3:
 			sys.stderr.write("Please specify the task id to terminate.\n")
 			sys.stderr.write("eg: python probacs.py terminate task_id\n")
@@ -226,11 +266,7 @@ if __name__ == '__main__':
 		print("The task is terminated.")
 
 	else:
-		sys.stderr.write('Probacs: Profile Based Auto Compilation System\n')
-		sys.stderr.write(
-			'Provided functionalities: compile/search/download/teminate\n')
-		sys.stderr.write("eg: python probacs.py compile sourcefile taskfile\n")
-		sys.stderr.write("eg: python probacs.py search -tid/-u/-t/-c/-f keys\n")
-		sys.stderr.write("eg: python probacs.py download task_id ./dest\n")
-		sys.stderr.write("eg: python probacs.py terminate task_id\n")
-		exit(-1)
+		show_usage()
+
+
+
