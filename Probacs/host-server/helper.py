@@ -7,6 +7,7 @@ from datetime import datetime
 import django
 django.setup()
 from secuTool.models import *
+from secuTool.views import *
 
 
 ## global variables
