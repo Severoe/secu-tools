@@ -265,35 +265,6 @@ def cmdline_compile(request):
     return HttpResponse(json.dumps(response),content_type="application/json")
 
 
-def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFolder,mainSrcName):
-    '''
-    flags is compressed string used for make_compilation.py
-    compiler_invoke is a string used for cmd line compilation
-    codeFolder is the code directory path, need compress then send along
-    '''
-    #################################
-    # form code archive for code folder
-    #################################
-    tarPath = taskFolder+'/'+'src.tar'
-    print("inside upload "+codeFolder)
-    os.system('cd '+taskFolder+' && tar cvf src.tar src/')
-    #send request to specific platform servers
-    runEnv = None
-    if '&&' in compiler_invoke:
-        runEnv = compiler_invoke.split('&&')[0]
-        compiler_invoke = compiler_invoke.split('&&')[1]
-    data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': param['flag'],
-    'env':runEnv,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'host_ip':param['host_ip']}
-    print(data)
-    files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
-    pid = os.fork()
-    if pid == 0:
-        response = requests.post(ip, files=files,data=data)
-        os._exit(0)
-    else:
-        return 
-
-
 ##############################################################################################
 ##############################################################################################
 ##################. function for saving compilation results && download request ##############
