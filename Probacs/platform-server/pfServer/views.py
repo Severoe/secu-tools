@@ -141,7 +141,8 @@ def sendBackExe(folder,hostserver):
 	return response,new_name
 
 
-
+def check_alive(request):
+	return HttpResponse()
 
 
 # test only, not fully deployed

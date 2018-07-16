@@ -96,7 +96,12 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
         task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
         version=param['version'])
         task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
-
+            ## check server accessibility
+        if not enable_test:
+            try:
+                response = requests.get(task_http+"/heartbeat", timeout=10)
+            except:
+                return 0,False
         #############################
         # add entries into task database
         for ele in param['flag'].split(","):
@@ -142,7 +147,7 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
                 param['host_ip'] = host_ip_gateway
             print(param['host_ip'])
             upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
-    return task_num
+    return task_num,True
 
 
 def process_files(request, taskName, compiler_divided):
@@ -417,9 +422,10 @@ def on_complete(task_info, self_ip):
 ############################################################################
 def terminate_process(task_id,subtasks, enable_test):
     if enable_test: 
-        ongoing_process = CompilationPid.objects.get(taskid=task_id)
-        pid = ongoing_process.pid
-        os.kill(pid, signal.SIGTERM)
+        ongoing_process = CompilationPid.objects.filter(taskid=task_id)
+        for ele in ongoing_process:
+            pid = ele.pid
+            os.kill(pid, signal.SIGTERM)
         # ongoing_process.delete()
     else:
         obj = subtasks[0]
