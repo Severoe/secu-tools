@@ -1,10 +1,10 @@
 import os, sys, json, time
+import pdb
 import requests
 from configparser import ConfigParser
 
 host_ip = None
 jsonDec = json.decoder.JSONDecoder()
-destination = "./"
 
 
 def handin_task(srcfile, taskfile):
@@ -47,12 +47,16 @@ def trace_task(task_id):
 		if res['finished'] == res['total']:
 			success = 0
 			fail = 0
+			terminated = 0
 			for log in res['log_report']:
 				if log['status'] == "success":
 					success += 1
 				elif log['status'] == "fail":
 					fail += 1
-			print("There are " + str(res['total']) + " jobs in this task, " + str(success) + " success, " + str(fail) + " fail")
+				elif log['status'] == "terminated":
+					terminated += 1
+			print("There are " + str(res['total']) + " jobs in this task, " +
+				str(success) + " success, " + str(fail) + " fail" + str(terminated) + " terminated")
 			keep_going = False
 
 
@@ -98,8 +102,8 @@ def download_tasks(task_id, destination):
 	'''
 	download task archive from host, save to destination
 	'''
-	response = requests.post(host_ip+"/cmdline_download", data={"task_id":task_id})
-	with open(destination+"archive_"+str(task_id)+".tgz", 'wb') as w:
+	response = requests.post(host_ip + "/cmdline_download", data={"task_id": task_id})
+	with open(destination + "/archive_" + str(task_id) + ".tgz", 'wb') as w:
 		w.write(response.content)
 
 
@@ -168,6 +172,11 @@ if __name__ == '__main__':
 		ifDownload = input("Do you want to download the executables? (Y/N): ")
 		if ifDownload is 'Y' or ifDownload is 'y':
 			destination = input("Please specify the path (Default './') : ")
+			pdb.set_trace()
+			if not destination:
+				destination = os.path.dirname(os.path.abspath(__file__))
+			else:
+				destination = os.path.expanduser(destination)
 			download_tasks(task_id, destination)
 			print("Download completed.")
 		else:
@@ -190,8 +199,8 @@ if __name__ == '__main__':
 			for i in range(len(res)):
 				task = res[i]['fields']
 				print(
-					"{:<25} {:<10} {:<30} {:<10} {:<15} {:<25} {:<10}".format(
-						task['task_id'], task['username'], task['tag'], task['target_os'],
+				 "{:<25} {:<10} {:<30} {:<10} {:<15} {:<25} {:<10}".format(
+				  task['task_id'], task['username'], task['tag'], task['target_os'],
 				task['compiler'] + " " + task['version'], task['flag'], task['status']))
 
 
@@ -218,10 +227,11 @@ if __name__ == '__main__':
 		terminate(sys.argv[2])
 		print("The task is terminated.")
 
+
 	else:
 		sys.stderr.write('Probacs: Profile Based Auto Compilation System\n')
 		sys.stderr.write(
-			'Provided functionalities: compile/search/download/teminate\n')
+		 'Provided functionalities: compile/search/download/teminate\n')
 		sys.stderr.write("eg: python probacs.py compile sourcefile taskfile\n")
 		sys.stderr.write("eg: python probacs.py search -tid/-u/-t/-c/-f keys\n")
 		sys.stderr.write("eg: python probacs.py download task_id ./dest\n")
