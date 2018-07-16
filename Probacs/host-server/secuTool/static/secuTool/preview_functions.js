@@ -173,8 +173,12 @@ function compile() {
 			tasks: param,
 		},
 		success: function (response) {
-			console.log(response.taskid)
-			$('#redirect').click()
+			if("message" in response) {
+				alert(response.message);
+			}else{
+				console.log(response.taskid)
+				$('#redirect').click()
+			}
 		}
 	});
 }
