@@ -237,6 +237,12 @@ function terminate(){
         }
     });
 }
+function showallsearch(){
+    $('#all_search').attr({ "value": "* *" })
+    $('#if_all').attr({ "value": "true" })
+    $('#search-form').submit()
+    $('#all_search').attr({ "value": "" })
+}
 
 function onload_wrapper() {
     calendar()

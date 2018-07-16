@@ -403,6 +403,8 @@ def check_status(request):
     context, obj = form_search_response(query_dict,flags,compilers,context)
 
     context['search_result'] = "-- Showing "+str(obj.count())+" results of user request."
+    if request.POST['if_all'] == 'true': #if showing all jobs, delete search message
+        context['compilers'] = ''
     return render(request, 'secuTool/test.html',context)
 
 @transaction.atomic

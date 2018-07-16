@@ -243,7 +243,8 @@
             <br>
             <p>* Leaving field blank means no search requirement for this field.</p>
             <p>* Separate data inside each field by comma.</p>
-            <form action="{% url 'check_status' %}" method='post'>
+            <button class="btn btn-light" onclick = "showallsearch()"> show all</button>
+            <form action="{% url 'check_status' %}" method='post' id="search-form">
               <table>
                 <tr>
                   <th>Task id</th>
@@ -261,7 +262,7 @@
                     <input style="width:100px;" type="text" name='task_id' value="{{task_id}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='compilers' value="{{compilers}}">
+                    <input style="width:100px;" type="text" name='compilers' value="{{compilers}}" id="all_search">
                   </td>
                   <td>
                     <input style="width:100px;" type="text" name='flags' value="{{flags}}">
@@ -287,12 +288,14 @@
                 </tr>
               </table>
               <br>
+              <input type="hidden" name='if_all' id='if_all' value="">
               <input type="submit" value="submit" class="submit-edition"> {% csrf_token %}
               <br>
-              <div style="margin-top: 10px;padding-bottom: 10px;">{{search_result}}</div>
+              
               <br>
 
             </form>
+            <div style="margin-top: 10px;padding-bottom: 10px;">{{search_result}}</div>
             {% if tasks %} 
               <button class="btn btn-light" onclick="selectall()">select all</button>
               <button class="btn btn-light" onclick="deselectall()">deselect all</button>
