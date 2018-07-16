@@ -86,7 +86,7 @@ def register_tasks(request):
     return None, {"rows":rows,"flag_list":flag_list,"taskName":taskName}
 
 
-def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip):
+def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip, host_ip_gateway):
     '''
     receive subtask params, update task databse, calling compilations
     '''
@@ -427,7 +427,7 @@ def terminate_process(task_id,subtasks, enable_test):
             pid = ele.pid
             os.kill(pid, signal.SIGTERM)
         # ongoing_process.delete()
-        
+
     else:
         obj = subtasks[0]
         compiler_info = Compiler_conf.objects.get(target_os=obj.target_os,compiler=obj.compiler,version=obj.version)

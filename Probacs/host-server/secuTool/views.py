@@ -202,7 +202,7 @@ def param_upload(request):
     #####################
     # print(task_params)
     response = {}
-    task_num, server_alive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name,self_ip)
+    task_num, server_alive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name,self_ip,host_ip_gateway)
     print(server_alive)
     if not server_alive:
         response['message'] = "platform server is not responding !"
