@@ -101,7 +101,7 @@ def execute(request):
 		os.system("del /f "+src_dir +" /Q") 
 		os.system("del /f *.tgz")
 	else:
-		os.system("rm -rf "+src_dir)
+		# os.system("rm -rf "+src_dir)
 		os.system("rm *.obj")
 		os.system("rm *.tgz")
 	response = HttpResponse()
