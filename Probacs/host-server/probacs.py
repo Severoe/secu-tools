@@ -69,38 +69,39 @@ def trace_task(task_id):
 
 
 def search(cmd_arg):
-	if len(cmd_arg) % 2 == 1:
+	if len(cmd_arg) % 2 == 1 and cmd_arg[0] != "-all":
 		# queryset must in pair -> key, value
 		sys.stderr.write("The query format is wrong, try again.\n")
 		sys.stderr.flush()
 		exit(-1)
 	query_set = {}
 	i = 0
-	while i + 1 < len(cmd_arg):
-		if cmd_arg[i] == '-tid':
-			query_set['task_id'] = cmd_arg[i + 1]
-		elif cmd_arg[i] == '-u':
-			query_set['username'] = cmd_arg[i + 1]
-		elif cmd_arg[i] == '-f':
-			query_set['flags'] = cmd_arg[i + 1]
-		elif cmd_arg[i] == '-c':
-			query_set['compilers'] = cmd_arg[i + 1].replace("-", " ")
-		elif cmd_arg[i] == '-t':
-			query_set['tag'] = cmd_arg[i + 1]
-		elif cmd_arg[i] == '-da':
-			#####################################
-			#expect dateformat to be yyyy-m-d-h-m
-			#backend
-			query_set['date_after'] = cmd_arg[i + 1]
-		elif cmd_arg[i] == '-db':
-			query_set['date_before'] = cmd_arg[i + 1]
-		else:
-			sys.stderr.write("The query format is wrong, try again\n")
-			sys.stderr.flush()
-			exit(-1)
-
-		i += 2
-	# print(query_set)
+	if cmd_arg[i] == '-all':
+		query_set['compilers'] = "* *"
+	else:
+		while i + 1 < len(cmd_arg):
+			if cmd_arg[i] == '-tid':
+				query_set['task_id'] = cmd_arg[i + 1]
+			elif cmd_arg[i] == '-u':
+				query_set['username'] = cmd_arg[i + 1]
+			elif cmd_arg[i] == '-f':
+				query_set['flags'] = cmd_arg[i + 1]
+			elif cmd_arg[i] == '-c':
+				query_set['compilers'] = cmd_arg[i + 1].replace("-", " ")
+			elif cmd_arg[i] == '-t':
+				query_set['tag'] = cmd_arg[i + 1]
+			elif cmd_arg[i] == '-da':
+				#####################################
+				#expect dateformat to be yyyy-m-d-h-m
+				#backend
+				query_set['date_after'] = cmd_arg[i + 1]
+			elif cmd_arg[i] == '-db':
+				query_set['date_before'] = cmd_arg[i + 1]
+			else:
+				sys.stderr.write("The query format is wrong, try again\n")
+				sys.stderr.flush()
+				exit(-1)
+			i += 2
 	response = requests.post(host_ip + "/cmdline_search", data=query_set)
 	res = jsonDec.decode(response.content.decode("utf-8"))
 	return res
@@ -221,12 +222,13 @@ if __name__ == '__main__':
 	# Function 2: search
 	elif sys.argv[1] == "search":
 		cur_status = "search"
-		if len(sys.argv) < 4:
+		if len(sys.argv) < 3:
 			sys.stderr.write("Please specify the keywords to search.\n")
 			sys.stderr.write("keywords format: task id -tid, compiler -c (eg: gcc-4.0), flags -f, username -u, tag -t\n")
 			sys.stderr.flush()
 			exit(-1)
 		res = search(sys.argv[2:])
+		# print(res)
 		if not res:
 			print("Showing 0 result of user request.")
 		else:

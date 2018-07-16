@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 import requests
 from django.conf import settings
-from probacs_parser import parseTaskFile
+from probacs_parser import *
 from django.core import serializers
 from io import BytesIO
 import zipfile,io,base64
@@ -466,10 +466,8 @@ def cmdline_terminate(request):
     response = {}
     task_id = request.POST['task_id']
     subtasks = Task.objects.filter(task_id=task_id)
-    if subtasks.count() == 0:
-        
     terminate_process(task_id, subtasks,enable_test)
-    response['task_id'] =task_id
+    response['task_id'] = task_id
     for ele in subtasks:
         if ele.status == "ongoing":
             ele.status = "terminated"
@@ -606,7 +604,7 @@ def addProfile(request):
     if message:
         return render(request, 'secuTool/test.html', {"message":message, "nav2":"active show"})
 
-    old_profile = Profile_conf.filter(target_os=profile['target_os'],
+    old_profile = Profile_conf.objects.filter(target_os=profile['target_os'],
                             compiler=profile['compiler'],
                             version=profile['version'],
                             name=profile['name'])
@@ -668,7 +666,7 @@ def manageCompiler(request):
             'version': version,
             'ip': compiler['ip'],
             'port': compiler['port'],
-            'flag': ", ".join(json.loads(compiler['flag'])),
+            'flag': "" if not compiler['flag'] else ", ".join(json.loads(compiler['flag'])),
         }
         rows.append(c_dict.copy())
         if target_os not in compiler_dict:
