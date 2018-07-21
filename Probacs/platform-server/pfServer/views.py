@@ -1,11 +1,10 @@
-
 import os, tempfile, zipfile,tarfile, time,sys, signal
 from datetime import datetime
 from wsgiref.util import FileWrapper
 from django.shortcuts import render
 # from pfServer.forms import *
 from pfServer.models import *
-from django.core.files import File 
+from django.core.files import File
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import requests    #need pip install requests
@@ -18,9 +17,9 @@ rootDir = 'Compilation_tasks'
 hostserver = "" #ip/port of the host server on virtualbox
 os_name = os.name
 if os_name == 'nt':
-    delimit = "\\"
+	delimit = "\\"
 else:
-    delimit = "/"
+	delimit = "/"
 
 
 @csrf_exempt
@@ -77,12 +76,12 @@ def execute(request):
 		# 	request.POST['flags'],hostserver], shell=True)
 		# print(proc.pid)
 		os.system("python3 make_compilation.py "+taskFolder+" "+
-			request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
-			srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
+		 request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
+		 srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
 	else:
 		os.system(cl+"&& python3 make_compilation.py "+taskFolder+" "+
-			request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
-			srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
+		 request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
+		 srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
 		# proc = Popen([cl,"&&","python","make_compilation.py",taskFolder,request.POST['target_os'],
 		# 	request.POST['compiler'],request.POST['version'],srcpath,compileDir,request.POST['command'],
 		# 	request.POST['flags'],hostserver], shell=True)
@@ -96,11 +95,14 @@ def execute(request):
 	# 		break
 
 	##### change suffix to enable multi-platform executables
-	suffix = request.POST['target_os']+"_"
+	suffix = request.POST['target_os'] + "_" + request.POST['compiler'] + "_" + request.POST['version']
+	invalidChars = '\/:*?"<>|'
+	for ch in invalidChars:
+		suffix = suffix.replace(ch, '')
 	responseFromHost,tmpzip = sendBackExe(taskFolder, hostserver,suffix) # test purpose, replace hellomake later
 	##clear environment
 	if os_name == 'nt':
-		os.system("del /f "+src_dir +" /Q") 
+		os.system("del /f "+src_dir +" /Q")
 		os.system("del /f *.tgz")
 	else:
 		# os.system("rm -rf "+src_dir)
