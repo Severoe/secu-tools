@@ -1,11 +1,8 @@
 target_os:Linux
 compiler:gcc
-version:8.0
-ip:54.245.162.213
-port:8000
-http_path:
-invoke_format:gcc_flags_source_-o_exename
-
-
-
-
+version:test
+ip:127.0.0.1
+port:80
+flag: -test, -haha, -just_a_flag
+http_path:/compile
+invoke_format:gcc_srcname_exename_flag
