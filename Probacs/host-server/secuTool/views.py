@@ -553,7 +553,8 @@ def addCompiler(request):
                                     ip=compiler['ip'],
                                     port=compiler['port'],
                                     http_path=compiler['http_path'],
-                                    invoke_format=compiler['invoke_format'])
+                                    invoke_format=compiler['invoke_format'],
+                                    flag=json.dumps(compiler['flag']))
     new_compiler.save()
 
     context = {"message":"New compiler added successfully",
