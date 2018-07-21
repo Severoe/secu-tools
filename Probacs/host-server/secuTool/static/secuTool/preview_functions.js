@@ -196,7 +196,7 @@ function display_flags() {
 }
 
 function main_page() {
-	window.location.href = '/test';
+	window.location.href = '/';
 }
 
 function onload_wrapper() {

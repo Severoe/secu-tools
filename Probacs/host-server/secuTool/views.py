@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 import requests
 from django.conf import settings
-from probacs_parser import parseTaskFile
+from probacs_parser import *
 from django.core import serializers
 from io import BytesIO
 import zipfile,io,base64
@@ -202,7 +202,7 @@ def param_upload(request):
     #####################
     # print(task_params)
     response = {}
-    task_num, server_alive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name,self_ip)
+    task_num, server_alive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name,self_ip,host_ip_gateway)
     print(server_alive)
     if not server_alive:
         response['message'] = "platform server is not responding !"
@@ -263,35 +263,6 @@ def cmdline_compile(request):
     response = {}
     response['taskid'] = task_name
     return HttpResponse(json.dumps(response),content_type="application/json")
-
-
-def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFolder,mainSrcName):
-    '''
-    flags is compressed string used for make_compilation.py
-    compiler_invoke is a string used for cmd line compilation
-    codeFolder is the code directory path, need compress then send along
-    '''
-    #################################
-    # form code archive for code folder
-    #################################
-    tarPath = taskFolder+'/'+'src.tar'
-    print("inside upload "+codeFolder)
-    os.system('cd '+taskFolder+' && tar cvf src.tar src/')
-    #send request to specific platform servers
-    runEnv = None
-    if '&&' in compiler_invoke:
-        runEnv = compiler_invoke.split('&&')[0]
-        compiler_invoke = compiler_invoke.split('&&')[1]
-    data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': param['flag'],
-    'env':runEnv,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'host_ip':param['host_ip']}
-    print(data)
-    files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
-    pid = os.fork()
-    if pid == 0:
-        response = requests.post(ip, files=files,data=data)
-        os._exit(0)
-    else:
-        return 
 
 
 ##############################################################################################
@@ -467,7 +438,7 @@ def cmdline_terminate(request):
     task_id = request.POST['task_id']
     subtasks = Task.objects.filter(task_id=task_id)
     terminate_process(task_id, subtasks,enable_test)
-    response['task_id'] =task_id
+    response['task_id'] = task_id
     for ele in subtasks:
         if ele.status == "ongoing":
             ele.status = "terminated"
@@ -604,7 +575,7 @@ def addProfile(request):
     if message:
         return render(request, 'secuTool/test.html', {"message":message, "nav2":"active show"})
 
-    old_profile = Profile_conf.filter(target_os=profile['target_os'],
+    old_profile = Profile_conf.objects.filter(target_os=profile['target_os'],
                             compiler=profile['compiler'],
                             version=profile['version'],
                             name=profile['name'])
@@ -666,7 +637,7 @@ def manageCompiler(request):
             'version': version,
             'ip': compiler['ip'],
             'port': compiler['port'],
-            'flag': ", ".join(json.loads(compiler['flag'])),
+            'flag': "" if not compiler['flag'] else ", ".join(json.loads(compiler['flag'])),
         }
         rows.append(c_dict.copy())
         if target_os not in compiler_dict:

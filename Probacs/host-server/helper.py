@@ -7,6 +7,7 @@ from datetime import datetime
 import django
 django.setup()
 from secuTool.models import *
+from secuTool.views import *
 
 
 ## global variables
@@ -86,7 +87,7 @@ def register_tasks(request):
     return None, {"rows":rows,"flag_list":flag_list,"taskName":taskName}
 
 
-def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip):
+def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip, host_ip_gateway):
     '''
     receive subtask params, update task databse, calling compilations
     '''
@@ -149,6 +150,33 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
             upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
     return task_num,True
 
+def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFolder,mainSrcName):
+    '''
+    flags is compressed string used for make_compilation.py
+    compiler_invoke is a string used for cmd line compilation
+    codeFolder is the code directory path, need compress then send along
+    '''
+    #################################
+    # form code archive for code folder
+    #################################
+    tarPath = taskFolder+'/'+'src.tar'
+    print("inside upload "+codeFolder)
+    os.system('cd '+taskFolder+' && tar cvf src.tar src/')
+    #send request to specific platform servers
+    runEnv = None
+    if '&&' in compiler_invoke:
+        runEnv = compiler_invoke.split('&&')[0]
+        compiler_invoke = compiler_invoke.split('&&')[1]
+    data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': param['flag'],
+    'env':runEnv,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'host_ip':param['host_ip']}
+    print(data)
+    files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
+    pid = os.fork()
+    if pid == 0:
+        response = requests.post(ip, files=files,data=data)
+        os._exit(0)
+    else:
+        return 
 
 def process_files(request, taskName, compiler_divided):
     """
@@ -427,6 +455,7 @@ def terminate_process(task_id,subtasks, enable_test):
             pid = ele.pid
             os.kill(pid, signal.SIGTERM)
         # ongoing_process.delete()
+
     else:
         obj = subtasks[0]
         compiler_info = Compiler_conf.objects.get(target_os=obj.target_os,compiler=obj.compiler,version=obj.version)

@@ -76,11 +76,11 @@ def execute(request):
 		# 	request.POST['compiler'],request.POST['version'],srcpath,compileDir,request.POST['command'],
 		# 	request.POST['flags'],hostserver], shell=True)
 		# print(proc.pid)
-		os.system("python make_compilation.py "+taskFolder+" "+
+		os.system("python3 make_compilation.py "+taskFolder+" "+
 			request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
 			srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
 	else:
-		os.system(cl+"&& python make_compilation.py "+taskFolder+" "+
+		os.system(cl+"&& python3 make_compilation.py "+taskFolder+" "+
 			request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
 			srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
 		# proc = Popen([cl,"&&","python","make_compilation.py",taskFolder,request.POST['target_os'],
@@ -95,13 +95,15 @@ def execute(request):
 	# 	if poll != None:
 	# 		break
 
-	responseFromHost,tmpzip = sendBackExe(taskFolder, hostserver) # test purpose, replace hellomake later
+	##### change suffix to enable multi-platform executables
+	suffix = request.POST['target_os']+"_"
+	responseFromHost,tmpzip = sendBackExe(taskFolder, hostserver,suffix) # test purpose, replace hellomake later
 	##clear environment
 	if os_name == 'nt':
 		os.system("del /f "+src_dir +" /Q") 
 		os.system("del /f *.tgz")
 	else:
-		os.system("rm -rf "+src_dir)
+		# os.system("rm -rf "+src_dir)
 		os.system("rm *.obj")
 		os.system("rm *.tgz")
 	response = HttpResponse()
@@ -123,12 +125,12 @@ def terminate_sub(request):
 
 # create zip file containing exe and log, then send to host
 # delete zip file after sending to host
-def sendBackExe(folder,hostserver):
+def sendBackExe(folder,hostserver,suffix):
 	#create a zip file first
 	print("send back exe")
 	timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 	new_name = "exe_"+timestr+".tgz"
-	exe_folderPath = rootDir+delimit+folder+delimit+'secu_compile_platform'
+	exe_folderPath = rootDir+delimit+folder+delimit+'secu_compile_platform_'+suffix
 	with tarfile.open(new_name, "w:gz") as tar:
 		tar.add(exe_folderPath, arcname=os.path.basename(exe_folderPath))
 	compressed_dir = open(new_name,'rb')
