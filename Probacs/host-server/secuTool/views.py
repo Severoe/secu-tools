@@ -678,6 +678,9 @@ def getProfile(request):
     res["upload_time"] = profile.upload_time.strftime("%Y-%m-%d %H:%M:%S")
     return HttpResponse(json.dumps(res), content_type="application/json")
 
+#TODO: duplicate detection in the case of 'save', should detect if the new model has the same key as one existing compiler
+# better done though database key settings (construct unique compound key on the database, catch error, rather than doing the
+# logic inside code)
 @csrf_exempt
 def updateCompiler(request):
     if request.POST['submit'] == 'save':    #update existing one
