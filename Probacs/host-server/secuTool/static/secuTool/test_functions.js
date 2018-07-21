@@ -76,8 +76,6 @@ function form_status_report(response){
     total = response.total
     if(finished === total) {
         finished_status = true
-        // $('#download_wrapper').css('display','block')
-        // clearInterval(event_id)
     }
     percent = finished*100/total
     report = "<span id='task_finished'>"+ finished.toString()+"</span> / "+"<span id='task_total'>"+total.toString()+"</span>"+" compilation finished for job id: "+response.task_id
@@ -267,9 +265,13 @@ function download_tar(){
 }
 
 function calendar(){ 
-      $( "#dateafter" ).datepicker();
-      $( "#datebefore" ).datepicker();
-      $( "#timeafter" ).timepicker({'appendTo': '#timeafter' });
-      $( "#timebefore" ).timepicker({}); 
-
+    $("#dateafter").datepicker();
+    $("#datebefore").datepicker();
+    var options = "<option value='' disabled selected>Select</option>"
+    time_list = ["0:00", "4:00", "8:00", "12:00", "16:00", "20:00", "23:59"]
+    for (time in time_list) {
+        options += "<option>" + time_list[time] + "</option>"
+    }
+    $("#timeafter").append(options)
+    $("#timebefore").append(options)
 }

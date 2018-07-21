@@ -13,15 +13,9 @@
     crossorigin="anonymous"></script>
   <script src="{% static 'secuTool/trace_job.js'%}"></script>
   <script src="{% static 'secuTool/test_functions.js'%}"></script>
-
   <link rel="stylesheet" href="{% static 'secuTool/calendar/jquery-ui.min.css'%}">
   <script src="{% static 'secuTool/calendar/jquery.js'%}"></script>
   <script src="{% static 'secuTool/calendar/jquery-ui.min.js'%}"></script>
-  <script src="{% static 'secuTool/calendar/jquery.timepicker.min.js'%}"></script>
-  <script src="{% static 'secuTool/calendar/jquery.timepicker.min.css'%}"></script>
-
-
-  
   <style>
     header, footer {
       color: white;
@@ -68,16 +62,18 @@
       margin-bottom: 100px;
       margin-left: 350px;
     }
-    /*button class*/
+
     .row-button {
       width: 10px !important;
       height: 15px!important;
       border-radius: 3px;
       outline: none;
     }
+
     .chosen {
       background-color: darkblue;
     }
+
     .peek_text {
       border: 2px solid #ccc;
       width: 300px;
@@ -97,9 +93,6 @@
       width: 0%;
       background: black;
       height: 20px;
-    }
-    #download_wrapper{
-      /*display: none;*/
     }
   </style>
 </head>
@@ -282,10 +275,10 @@
                     <input style="width:100px;" type="text" name='date_before' id='datebefore' value="{{date_before}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='time_after' id='timeafter' value="{{time_after}}">
+                    <select style="width:100px;" name="timeafter" id="timeafter"></select>
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='time_before' id='timebefore' value="{{time_before}}">
+                    <select style="width:100px;" name="timebefore" id="timebefore"></select>
                   </td>
                 </tr>
               </table>
@@ -293,9 +286,7 @@
               <input type="hidden" name='if_all' id='if_all' value="">
               <input type="submit" value="submit" class="submit-edition"> {% csrf_token %}
               <br>
-              
               <br>
-
             </form>
             <div style="margin-top: 10px;padding-bottom: 10px;">{{search_result}}</div>
             {% if tasks %} 
@@ -337,13 +328,10 @@
                 </table>
             {% endif %}
               <br><br>
-
               <button class="btn btn-light" onclick="download_search()"> Download Directory </button>
               <form enctype="multipart/form-data" action="{% url 'download_search' %}" id="search_dld" method='post' style="display: none;">
-                <!-- <input type="hidden" name="taskid" value={linux_taskFolder}}> -->
                 <input type="submit" value="Download Directory" class="btn btn-light"> {% csrf_token %}
               </form>
-
           </div>
         </div>
       </div>
@@ -376,7 +364,6 @@
                 <tr style="{{ele.current_task}}">
                   <td>
                     <button class="task_tracing" id="task_{{ele.taskname}}" onclick="setCurrentJob('{{ele.taskname}}')" style="{{ele.current_task}}">{{ele.taskname}}</button>
-
                   </td>
                   <td class="task_os">{{ele.target_os}}</td>
                   <td class="task_compiler">{{ele.compiler}}</td>
@@ -399,7 +386,6 @@
                   <div id="bar-growth"> </div>
                 </div>
               </div>
-              <!-- download button -->
               <br>
               <button class="btn btn-light" id="download_wrapper" onclick="download_tar()"> download </button>
               <button class="btn btn-light" id="download_wrapper" onclick="terminate()"> terminate </button>
