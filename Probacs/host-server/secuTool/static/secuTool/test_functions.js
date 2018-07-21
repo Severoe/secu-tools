@@ -269,7 +269,7 @@ function download_tar(){
 function calendar(){ 
       $( "#dateafter" ).datepicker();
       $( "#datebefore" ).datepicker();
-      $( "#timeafter" ).timepicker({});
+      $( "#timeafter" ).timepicker({'appendTo': '#timeafter' });
       $( "#timebefore" ).timepicker({}); 
 
 }
