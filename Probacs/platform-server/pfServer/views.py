@@ -132,7 +132,7 @@ def sendBackExe(folder,hostserver,suffix):
 	print("send back exe")
 	timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 	new_name = "exe_"+timestr+".tgz"
-	exe_folderPath = rootDir+delimit+folder+delimit+'secu_compile_platform_'+suffix
+	exe_folderPath = rootDir+delimit+folder+delimit+'secu_compile_platform'#_'+suffix
 	with tarfile.open(new_name, "w:gz") as tar:
 		tar.add(exe_folderPath, arcname=os.path.basename(exe_folderPath))
 	compressed_dir = open(new_name,'rb')
