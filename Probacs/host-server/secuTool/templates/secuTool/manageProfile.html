@@ -37,7 +37,7 @@
   <header onclick="main_page()">
     <h1 style="background-color:purple;">Profile Based Auto Compilation System</h1>
   </header>
-
+  <div style="display:none" id='json_profiles'>{{json_profiles}}</div>
   <div class="container">
     <div class="col">
       <div class="row-sm-5">
@@ -51,7 +51,7 @@
               <th>Version</th>
               <th>Name</th>
               <th>Flags</th>
-              <th>Date</th>
+              <th>Date Created</th>
               <th></th>
             </tr>
           </thead>
@@ -59,13 +59,13 @@
           <tbody id="preview-list">
             {% for ele in rows %}
             <tr>
-              <td class="os" width="10%">{{ele.target_os}}</td>
-              <td class="compiler" width="15%">{{ele.compiler}}</td>
-              <td class="version" width="10%">{{ele.version}}</td>
-              <td class="name" width="15%">{{ele.name}}</td>
-              <td class="flag" width="25%">{{ele.flag}}</td>
-              <td class="date" width="15%">{{ele.date}}</td>
-              <td width="15%">
+              <td class="os">{{ele.target_os}}</td>
+              <td class="compiler">{{ele.compiler}}</td>
+              <td class="version">{{ele.version}}</td>
+              <td class="name">{{ele.name}}</td>
+              <td class="flag">{{ele.flag}}</td>
+              <td class="date">{{ele.date}}</td>
+              <td>
                 <button class="btn btn-light btn-sm" onclick="editProfile('{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}', '{{ele.name}}')">edit</button>
                 <form action="/deleteProfile" method="post" enctype="multipart/form-data">
                   <input type="hidden" value={{ele.target_os}} name="target_os" />
@@ -88,15 +88,19 @@
           <h4>Please modify the profile</h4>
           <br>
           <h6>Target_os:</h6>
-          <textarea rows="1" cols="20" id="target_os" name="target_os" required></textarea>
+          <select name="target_os" id="target_os" onChange="getCompiler(this.value, '');" required>
+          </select>
+          <div style="display:none" id='os_selected'></div>
           <br>
           <br>
           <h6>Compiler:</h6>
-          <textarea rows="1" cols="20" id="compiler" name="compiler" required></textarea>
+          <select name="compiler" id="compiler" onchange="getVersion(this.value, '');" required>
+          </select>
           <br>
           <br>
           <h6>Version:</h6>
-          <textarea rows="1" cols="20" id="version" name="version" required></textarea>
+          <select name="version" id="version" required>
+          </select>
           <br>
           <br>
           <h6>Name:</h6>
@@ -107,7 +111,7 @@
           <textarea id="flag" name="flag" required></textarea>
           <br>
           <br>
-          <h6>Uploader:<h7><span style="color:red">(Cannot be modified unless save as new)</span></h7></h6>
+          <h6>Uploader:<span style="color:red">(Cannot be modified unless save as new)</span></h6>
           <textarea rows="1" cols="20" id="uploader" name="uploader" required></textarea>
           <br>
           <br>

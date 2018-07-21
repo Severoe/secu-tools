@@ -1,4 +1,4 @@
-import os, tempfile, zipfile,tarfile, time,json
+import os, tempfile, zipfile, tarfile, time, json,signal
 from subprocess import Popen, PIPE
 from django.utils import timezone
 from datetime import datetime
@@ -12,152 +12,135 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 import requests
 from django.conf import settings
-from probacs_parser import parseTaskFile
+from probacs_parser import *
 from django.core import serializers
 from io import BytesIO
 import zipfile,io,base64
 from django.db.models import Q
+from helper import *
 # Create your views here.
 ################################
 # global variables
 # winurl = 'http://172.16.165.132:8000'
-# self_ip =
 host_ip_gateway = settings.GATEWAY
 enable_test = settings.ENABLE_LOCALTEST
 print(enable_test)
 self_ip = settings.LOCAL_IP
 print(self_ip)
-winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
+# winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
 rootDir = 'Compilation_tasks/'
 tempDir = 'temp/'
 # the datastructure  is stored in settings
 ################################
 
+
+#**************#**************#**************#**************
+#**************    develop log#**************#**************
+'''
+    1. command for popen when compiling is not valid
+        - wrap try//err ?
+    2. delete process id after terminated or finished?
+        - inside localtest terminate function
+        - inside platform server terminate_sub function
+    3. report back for finishing subtasks   \   
+        - os.fork()?
+    4. receiving files from platform server, might overwrite secu_compile folder
+        - adding suffix?
+
+'''
+#**************#**************#**************#**************
+
+##############################################################################################
+##############################################################################################
+##################. function for main page ################################################
+##############################################################################################
 def home(request):
     context = {}
     context['form'] = ProfileUserForm()
-    return render(request,'secuTool/index.html',context)
+    context['nav1'] = "active show"
+    profiles = Profile_conf.objects.values()
+    profile_dict = {}
+    for profile in profiles:
+        target_os, compiler, name = profile["target_os"], profile["compiler"] + " " + profile["version"], profile["name"]
+        if target_os not in profile_dict:
+            profile_dict[target_os] = {}
+        if compiler not in profile_dict[target_os]:
+            profile_dict[target_os][compiler] = []
+        profile_dict[target_os][compiler].append(name)
+
+    context['json_profiles'] = json.dumps(profile_dict)
+    # context['status'] = statuses
+    return render(request, 'secuTool/test.html',context)
+
+@csrf_exempt
+def peek_profile(request):
+    target_os = request.POST['target_os']
+    compiler, version = request.POST['compiler'].split(' ')
+    name = request.POST['name']
+
+    profile = Profile_conf.objects.filter(name=name,
+                                        target_os=target_os,
+                                        compiler=compiler,
+                                        version=version)
+
+    num = profile.count()
+    if num > 1:
+        res = {"message":"Multiple profiles found with given information"}
+    elif num < 1:
+        res = {"message":"No profile matching given information"}
+    else:
+        res = {"target_os": profile[0].target_os,
+                "compiler": profile[0].compiler,
+                "version": profile[0].version,
+                "name": profile[0].name,
+                "uploader": profile[0].uploader,
+                "upload_time": profile[0].upload_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                "flag": profile[0].flag}
+
+    return HttpResponse(json.dumps(res), content_type="application/json")
 
 
+##############################################################################################
+##############################################################################################
+##################. function for preview page ################################################
+##############################################################################################
+
+@transaction.atomic
 def preview(request):
-    # print(request.POST)
     context = {}
-    src_filename = request.FILES['srcFile'].name  # llok into tar bar
-    compiler_divided = {}
-    if "compiler" in request.POST:
-        compiler_divided['compiler'], compiler_divided['version'] = request.POST['compiler'].split(" ")
-
-    task_created_time = datetime.now()
-    taskName = task_created_time.strftime("%Y-%m-%d-%H-%M-%S")
-    message, params = process_files(request, taskName,  compiler_divided)
-    # print(params)
     #######################################
-    ## register task metadata table
+    ## register task metadata, tasks, generate preview parameters
     #######################################
-    target_os_list = [param['target_os'] for param in params]
-    compiler_full_list = [param['compiler']+" "+param['version'] for param in params]
-
-    new_taskMeta = TaskMeta(task_id=taskName,username=params[0]['username'],tag=params[0]['tag'],
-        src_filename=src_filename,target_os=", ".join(target_os_list),
-        compiler_full=", ".join(compiler_full_list),profiles = ", ".join(params[0]['profile']), 
-        created_date=task_created_time)
-    new_taskMeta.save()
-
+    message, res = register_tasks(request)
     if message:
         return render(request, 'secuTool/test.html', {"message":message})
-    rows = []
-    seq = 1
-    for param in params:
-        # permute flags combination  from diff flags
-        # print(param)
-        jsonDec = json.decoder.JSONDecoder()
-        flag_from_profile = []
-        for profile_name in param['profile']:
-            # print(profile_name)
-            p_tmp = Profile_conf.objects.get(name=profile_name,
-                                                target_os=param['target_os'],
-                                                compiler=param['compiler'],
-                                                version=param['version'])
-            flag_from_profile.append(jsonDec.decode(p_tmp.flag))
-        compile_combination = [[]]
-        for x in flag_from_profile:
-            compile_combination = [i + [y] for y in x for i in compile_combination]
 
-        # each element in compile_combination is a space-separated flag list
-        compile_combination = [" ".join(x) for x in compile_combination]
-        profiles = ",".join(param['profile'])
-
-        for flag in compile_combination:
-            rows.append({'target_os':param['target_os'],
-                            'compiler':param['compiler']+" "+param['version'],
-                            'username':param['username'],
-                            'profiles':", ".join(profiles.split(",")),
-                            'tag':param['tag'],
-                            'flag':", ".join(flag.split(" ")),
-                            'seq':seq})
-            seq += 1
     context = {}
-    context['rows'] = rows
-    # for row in rows:
-    print(rows)
-    context['taskid'] = taskName
-    context['json_flags'] = json.dumps(['-Wall', '-Wextra', '-O1', '/WX', '/Od'])
+    context['rows'] = res["rows"]
+    context['taskid'] = res["taskName"]
+    context['json_flags'] = json.dumps(res["flag_list"])
     return render(request, 'secuTool/preview.html',context)
 
+@transaction.atomic
+@csrf_exempt
+def cmdline_preview(request):
+    '''
+    cmdline view function for generating preview parameters
+    '''
+    message, res = register_tasks(request)
+    response = {}
+    if message:
+        response['message'] = message
+        return HttpResponse(json.dumps(response),content_type="application/json")
+    response['rows'] = res["rows"]
+    response['taskid'] = res["taskName"]
+    return HttpResponse(json.dumps(response),content_type="application/json")
 
-def process_files(request, taskName, compiler_divided):
-    """
-    save and extract source code, and parse task file (or task form)
-    :type request: http request obbject
-    :type taskName: str, name of this task
-    :rtype: tuple
-        tuple[0] = message
-        tuple[1] = list of dictionary, each element is the information of a task
-    """
-    taskFolder = rootDir + taskName
-    srcFolder = taskFolder + "/src"
-    os.mkdir(taskFolder)
-    os.mkdir(srcFolder)
-
-    srcPath = srcFolder + "/" + request.FILES['srcFile'].name
-    with open(srcPath, 'wb+') as dest:
-        for chunk in request.FILES['srcFile'].chunks():
-            dest.write(chunk)
-
-    cmd = None
-    if request.FILES['srcFile'].content_type == 'application/x-tar':
-        cmd = ['tar', 'xf', srcPath, '-C', srcFolder]
-    elif request.FILES['srcFile'].content_type == 'application/gzip':
-        cmd = ['tar', 'xzf', srcPath, '-C', srcFolder]
-    elif request.FILES['srcFile'].content_type == 'application/zip':
-        cmd = ['unzip', srcPath, '-d', srcFolder]
-
-    if cmd:
-        extract = Popen(cmd, stdout=PIPE, stderr=PIPE)
-        _, err = extract.communicate()
-        if err:
-            return 'error occured when extracting file. \n%s'%err, None
-
-    # user specified task through UI, not file, then save it to disk
-    if 'taskFile' not in request.FILES:
-        with open(taskFolder + "/task.txt", 'w') as dest:
-            for key in ['compiler', 'version']:
-                dest.write(key + ":" + compiler_divided[key] + "\n")
-            for key in ['target_os', 'username']:
-                dest.write(key + ":" + request.POST[key] + "\n")
-            for key in ['profile']:
-                # print(dict(request.POST))
-                dest.write(key + ":" + ",".join(dict(request.POST)[key]) + "\n")
-            if 'tag' in request.POST:
-                dest.write('tag:' + request.POST['tag'] + "\n")
-    else:
-        with open(taskFolder + '/task.txt', 'wb+') as dest:
-            for chunk in request.FILES['taskFile'].chunks():
-                dest.write(chunk)
-
-    return parseTaskFile(taskFolder + '/task.txt')
-
+##############################################################################################
+##############################################################################################
+##################. function for compilation redirect ########################################
+##############################################################################################
 
 @csrf_exempt
 @transaction.atomic
@@ -166,7 +149,6 @@ def param_upload(request):
     get updated compilation parameters from user, write db with new subtasks, deliver compilation tasks to
     platforms in asyn calls
     '''
-    print(request.POST)
     task_name = request.POST['taskid']
     task_num = request.POST['taskCount']
     task_params = []
@@ -219,54 +201,63 @@ def param_upload(request):
     #form request format from obj for each task
     #####################
     # print(task_params)
-    task_num = 0
-    for param in task_params:
-        task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
-        version=param['version'])
-        task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
+    response = {}
+    task_num, server_alive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name,self_ip,host_ip_gateway)
+    print(server_alive)
+    if not server_alive:
+        response['message'] = "platform server is not responding !"
+        return HttpResponse(json.dumps(response),content_type="application/json")
+    cur_taskMeta.compilation_num = task_num
+    cur_taskMeta.save()
+    
+    response['taskid'] = task_name
+    return HttpResponse(json.dumps(response),content_type="application/json")
 
-        #############################
-        # add entries into task database
-        for ele in param['flag'].split(","):
-            task_num += 1
-            new_task = Task(task_id=task_name,username=param['username'],
-                tag=None if not 'tag' in param else param['tag'],
-                src_file=filename,target_os=param['target_os'],
-                compiler=param['compiler'],version=param['version'],
-                flag=ele,init_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
-                exename=getExename(filename,ele,task_num))
-            new_task.save()
-            
 
-        #############################
-        # calling compilation tasks
-        #############################
-        if enable_test:
-            outputDir = taskFolder+"/"+"secu_compile"
-            data = {
-            'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
-            'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag']}
-            import os
-            pid = os.fork()
-            if pid == 0:
-                compile(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, param['flag'],on_complete)
-                #new thread
-                print("finished compile")
-                os._exit(0)
-            else:
-                #parent process, simply return to client
-                print("asyn call encountered")
-        # if not compiling on linux host, send params to another function, interacting with specific platform server
+@csrf_exempt
+def cmdline_compile(request):
+    '''
+    form task_params
+    '''
+    jsonDec = json.decoder.JSONDecoder()
+    req = jsonDec.decode(request.POST['content'])
+    ## form general parameters
+    task_name = req['taskid']
+    ##form task_param object
+    task_p = req['rows']
+    print(task_p)
+    task_params = []
+    compilerDict = {}
+    for ele in task_p:
+        if ele['compiler'] in compilerDict.keys():
+            ## already has same target compilation
+            obj = task_params[compilerDict[ele['compiler']]]
+            flaglist = ele['flag'].split(",")
+            new_flag = "_".join([i.strip() for i in flaglist])
+            obj['flag'] +=","+new_flag
         else:
-            ## if compile on same machine but diff port, using self_ip
-            self_ip_addr = self_ip.split(":")
-            if task_compiler.ip == self_ip_addr[0]+":"+self_ip_addr[1]:
-                param['host_ip'] = self_ip
-            else:
-                param['host_ip'] = host_ip_gateway
-            print(param['host_ip'])
-            upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
+            obj = {}
+            obj['target_os'] = ele['target_os']
+            compiler_full = ele['compiler'].split(" ")
+            obj['compiler'] = compiler_full[0]
+            obj['version'] = compiler_full[1]
+            compilerDict[ele['compiler']] = len(task_params)
+            obj['tags'] = ele['tag']
+            obj['username'] = ele['username']
+            obj['profiles'] = ele['profiles']
+            flaglist = ele['flag'].split(",")
+            obj['flag'] = "_".join([i.strip() for i in flaglist])
+            task_params.append(obj)
+    print(task_params)
 
+    cur_taskMeta = TaskMeta.objects.get(task_id=task_name)
+    filename = cur_taskMeta.src_filename
+    taskFolder = rootDir+task_name
+    codeFolder = taskFolder+"/"+"src"
+    srcPath = codeFolder+"/"+filename
+    # print(params)
+    task_num, isalive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip)
+    
     cur_taskMeta.compilation_num = task_num
     cur_taskMeta.save()
     response = {}
@@ -274,38 +265,11 @@ def param_upload(request):
     return HttpResponse(json.dumps(response),content_type="application/json")
 
 
+##############################################################################################
+##############################################################################################
+##################. function for saving compilation results && download request ##############
+##############################################################################################
 
-def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFolder,mainSrcName):
-    '''
-    flags is compressed string used for make_compilation.py
-    compiler_invoke is a string used for cmd line compilation
-    codeFolder is the code directory path, need compress then send along
-    '''
-    #################################
-    # form code archive for code folder
-    #################################
-    tarPath = taskFolder+'/'+'src.tar'
-    print("inside upload "+codeFolder)
-    os.system('cd '+taskFolder+' && tar cvf src.tar src/')
-    #send request to specific platform servers
-    runEnv = None
-    if '&&' in compiler_invoke:
-        runEnv = compiler_invoke.split('&&')[0]
-        compiler_invoke = compiler_invoke.split('&&')[1]
-    data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': param['flag'],
-    'env':runEnv,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'host_ip':param['host_ip']}
-    print(data)
-    files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
-    pid = os.fork()
-    if pid == 0:
-        response = requests.post(ip, files=files,data=data)
-        os._exit(0)
-    else:
-        return
-
-
-
-#receive compiled task from win, need to save file at taskFolder
 @csrf_exempt
 def saveExe(request):
     taskFolder = request.POST['taskid']
@@ -327,9 +291,10 @@ def saveExe(request):
 
     return response
 
-
-#download files based on whole task level
 def wrap_dir(request):
+    '''
+    download files based on whole task level
+    '''
     taskFolder = request.POST['downloadtaskid']
     if taskFolder == None or taskFolder == "" or TaskMeta.objects.filter(task_id=taskFolder).count() == 0:
         message = "there is no corresponding tasks"
@@ -348,136 +313,141 @@ def wrap_dir(request):
     # os.system("rm "+taskFolder+'/'+new_name)
     return response
 
-@transaction.atomic
-def check_status(request):
-    ##KWARGS
+@csrf_exempt
+def cmdline_download(request):
+    taskFolder = request.POST['task_id']
+    print("taskFolder: "+taskFolder )
+    new_name = "archive_"+taskFolder+".tgz"
+    current_rootDir = rootDir+taskFolder+'/'
+    with tarfile.open(current_rootDir+new_name, "w:gz") as tar:
+        tar.add(current_rootDir+'secu_compile', arcname=os.path.basename(current_rootDir+'secu_compile'))
+
+    compressed_dir = open(current_rootDir+new_name,'rb')
+    response = HttpResponse(compressed_dir,content_type='application/tgz')
+    response['Content-Disposition'] = 'attachment; filename='+new_name
+    # os.system("rm "+taskFolder+'/'+new_name)
+    return response
+
+
+@csrf_exempt
+def download_search(request):
+    ## remains earcgh params when privide dowload
+    obj = dict(request.POST)
+    print(obj['exe_pair'])
+    new_name = "archive_searchReqest.tgz"
+    with tarfile.open(new_name, "w:gz") as tar:
+        for ele in obj['exe_pair']:
+            taskFolder,exename = ele.split("$%$")
+            exe_path = rootDir+taskFolder+"/secu_compile/"+exename
+            tar.add(exe_path, arcname=os.path.join(taskFolder,exename))
+    compressed_dir = open(new_name,'rb')
+    response = HttpResponse(compressed_dir,content_type='application/tgz')
+    response['Content-Disposition'] = 'attachment; filename='+new_name
+    return response
+
+
+##############################################################################################
+##############################################################################################
+##################. function for search page #################################################
+##############################################################################################
+
+
+def search_panel(request):
     context = {}
     context['nav3'] = "active show"
-    flags = None
-    compilers = None
-    obj = Task.objects.all()
-    empty_count = 0
+    return render(request, 'secuTool/test.html',context)
+
+@transaction.atomic
+def check_status(request):
+    '''
+    called when search request encountered
+    '''
     total_count = 7
-    query_dict = {}
-
-    # 2018-07-02 16:08
-    if 'task_id' not in request.POST or request.POST['task_id']=="":
-        empty_count += 1
-    else:
-        context['task_id'] = request.POST['task_id']
-        query_dict["task_id__in"] = request.POST['task_id'].split(",")
-        query_dict['task_id__in'] = [ele.strip() for ele in query_dict['task_id__in']]
-
-    if 'flags' not in request.POST or request.POST['flags']=="":
-        flags = None
-        empty_count += 1
-    else:
-        context['flags'] = request.POST['flags']
-        flags_filter = Q()
-        for flag in request.POST['flags'].split(","):
-            flags_filter |= Q(flag__icontains = flag.strip())
-        flags = flags_filter
-
-    if 'username' not in request.POST or request.POST['username']=="":
-        empty_count += 1
-    else:
-        context['username'] = request.POST['username']
-        query_dict['username__in'] = request.POST['username'].split(",")
-        query_dict['username__in'] = [ele.strip() for ele in query_dict['username__in']]
-
-    if 'compilers' not in request.POST or request.POST['compilers']=="":
-        empty_count += 1
-    else:
-        context['compilers'] = request.POST['compilers']
-        compiler_dict = {}
-        for ele in request.POST['compilers'].split(","):
-            divide = ele.strip().split(" ")
-            query_key = divide[0].lower()
-            query_val = divide[1]
-            if query_val == "*":
-                compiler_dict[query_key]= None
-            else:
-                if query_key in compiler_dict.keys() and compiler_dict[query_key] != None:
-                    compiler_dict[query_key].append(query_val)
-                elif query_key not in compiler_dict.keys():
-                    compiler_dict[query_key] = [query_val]
-        print(compiler_dict)
-        compiler_filter = Q()
-        for key, val in compiler_dict.items():
-            if key == "*":
-                if val == None:
-                    compiler_filter |= Q(compiler__icontains="")
-                else:
-                    compiler_filter |= Q(version__in=val)
-            elif val == None:
-                compiler_filter |= Q(compiler__icontains=key)
-            else:
-                compiler_filter |= Q(compiler__icontains=key, version__in=val)
-        compilers = compiler_filter
-
-    if 'tag' not in request.POST or request.POST['tag']=="":
-        empty_count += 1
-    else:
-        context['tag'] = request.POST['tag']
-        query_dict['tag__in'] = request.POST['tag'].split(",")
-        query_dict['tag__in'] = [ele.strip() for ele in query_dict['tag__in']]
-
-    if 'date_after' not in request.POST or request.POST['date_after']=="":
-        empty_count += 1
-    else:
-        f = "%Y-%m-%d %H:%M"
-        context['date_after'] = request.POST['date_after']
-        date_obj = datetime.strptime(request.POST['date_after'], f).strftime("%Y-%m-%d %H-%M-%S")
-        query_dict['init_tmstmp__gte'] = date_obj
-
-    if 'date_before' not in request.POST or request.POST['date_before']=="":
-        empty_count += 1
-    else:
-        f = "%Y-%m-%d %H:%M"
-        context['date_before'] = request.POST['date_before']
-        date_obj = datetime.strptime(request.POST['date_before'], f).strftime("%Y-%m-%d %H-%M-%S")
-        query_dict['init_tmstmp__lte'] = date_obj
-
+    empty_count, query_dict, flags, compilers, context = construct_querySet(request)
+    context['nav3'] = "active show"
 
     if empty_count == total_count:
         context['search_result'] = "-- Showing 0 result of user request."
         return render(request, 'secuTool/test.html',context)
 
-    # query_dict['profiles'] = None if request.POST['profiles']==None else request.POST['profiles'].split(",")
     print(query_dict)
-    obj = Task.objects.filter(**query_dict)
-    if flags != None:
-        obj = obj.filter(flags)
-    if compilers != None:
-        obj = obj.filter(compilers)
+    context, obj = form_search_response(query_dict,flags,compilers,context)
 
-    context['tasks'] = obj
-    for ele in context['tasks']:
-        if ele.target_os == 'Windows':
-            delimit = "\\"
-        else:
-            delimit = "/"
-        ele.flag = ele.flag.replace("_", " ")
-        if not ele.exename:
-            ele.status = "running"
-            ele.err = "-"
-            ele.exename = "-"
-        else:
-            ele.exename = ele.exename.split(delimit)[-1]
-            if not ele.err:
-                ele.status = 'success'
-                ele.err = '-'
-            else:
-                ele.status = 'fail'
-
-        # context['task_id'] = request.POST['task_id']
     context['search_result'] = "-- Showing "+str(obj.count())+" results of user request."
+    if request.POST['if_all'] == 'true': #if showing all jobs, delete search message
+        context['compilers'] = ''
     return render(request, 'secuTool/test.html',context)
 
-
-
-
 @transaction.atomic
+@csrf_exempt
+def cmdline_search(request):
+    total_count = 7
+    response = {}
+    empty_count, query_dict, flags, compilers, context = construct_querySet(request)
+    if empty_count == total_count:
+        response['message'] = "Your search has no matched results."
+        return HttpResponse(json.dumps(response),content_type="application/json")
+
+    context, obj = form_search_response(query_dict,flags,compilers,context)
+    response = serializers.serialize('json',context['tasks'])
+    # response['message'] = "-- Showing "+str(obj.count())+" results of user request."
+    return HttpResponse(response,content_type="application/json")
+##############################################################################################
+##############################################################################################
+##################. function for ajax tracking/ update########################################
+##############################################################################################
+@transaction.atomic
+@csrf_exempt
+def download_search(request):
+    ## remains earcgh params when privide dowload
+    obj = dict(request.POST)
+    print(obj['exe_pair'])
+    new_name = "archive_searchReqest.tgz"
+    with tarfile.open(new_name, "w:gz") as tar:
+        for ele in obj['exe_pair']:
+            taskFolder,exename = ele.split("$%$")
+            exe_path = rootDir+taskFolder+"/secu_compile/"+exename
+            tar.add(exe_path, arcname=os.path.join(taskFolder,exename))
+    compressed_dir = open(new_name,'rb')
+    response = HttpResponse(compressed_dir,content_type='application/tgz')
+    response['Content-Disposition'] = 'attachment; filename='+new_name
+    return response
+
+@csrf_exempt
+def terminate(request):
+    task_id = request.POST['task_id']
+    subtasks = Task.objects.filter(task_id=task_id)
+    terminate_process(task_id, subtasks, enable_test)
+
+    response = {}
+    response['task_id'] =task_id
+    for ele in subtasks:
+        if ele.status == "ongoing":
+            ele.status = "terminated"
+        ele.save()
+    finished, log_report = form_log_report(subtasks)
+    response['total'] = subtasks.count()
+    response['finished'] = finished
+    response['log_report'] = log_report
+        
+    return HttpResponse(json.dumps(response),content_type="application/json") 
+
+@csrf_exempt
+def cmdline_terminate(request):
+    response = {}
+    task_id = request.POST['task_id']
+    subtasks = Task.objects.filter(task_id=task_id)
+    terminate_process(task_id, subtasks,enable_test)
+    response['task_id'] = task_id
+    for ele in subtasks:
+        if ele.status == "ongoing":
+            ele.status = "terminated"
+        ele.save()
+    finished, log_report = form_log_report(subtasks)
+    response['log_report'] = log_report
+    return HttpResponse(json.dumps(response),content_type="application/json")
+
+# @transaction.atomic
 @csrf_exempt
 def rcv_platform_result(request):
     '''
@@ -485,15 +455,14 @@ def rcv_platform_result(request):
     '''
     task = Task.objects.get(task_id=request.POST['task_id'],flag=request.POST['flag'].replace(" ","_"),
         target_os=request.POST['target_os'],compiler=request.POST['compiler'],version=request.POST['version'])
-    # print("exename "+str(task.exename))
-    #handle error case
-    # if task == None or task.exename != None:
-    #     print('task already gone or already updated')
-    #     return HttpResponse()
-    # task.exename = request.POST['exename']
     task.out = request.POST['out']
     task.err = request.POST['err']
     task.finish_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+    # if task.status == "terminated":
+    if task.err != "" and task.err != "-" and task.err != None:
+        task.status = "fail"
+    else:
+        task.status = "success"
     print(request.POST['out'], request.POST['err'])
     print('update from platform finished')
     task.save()
@@ -501,113 +470,6 @@ def rcv_platform_result(request):
     # print("exename "+str(task.exename))
     return HttpResponse()
 
-
-def on_complete(task_info):
-    '''
-    called when each time compilation finished
-    '''
-    response = requests.post(url=self_ip+"/rcv_compilation",data = task_info)
-    return
-
-def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, on_complete):
-    """
-    task_id: string, task id of this job
-    target_os: string, target os for this task
-    compiler: string, compiler name
-    version: string, version number of this compiler
-    src_path: string, the source code file path
-    dest_folder: string, folder name where you want the executables and log to be
-    invoke_format: string, how to invoke the compiler, example: cc_flags_source_-o_exename
-    flags: string, combinations of flags to be used, comma seperated
-    on_complete: callback function, takes a dictionary as argument
-    def onComplete(task_info):
-        '''
-        keys = 'task_id', 'target_os', 'compiler', 'version', 'src_path', 'flag'
-        'dest_folder', 'exename', 'out', 'err'
-        '''
-    """
-    #test:
-    # tmp = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'])
-    #print(tmp.exename)
-    invoke_format = invoke_format.replace("_", " ")
-    flag_list = flags.replace("_", " ").split(",")
-
-    task_info = {"task_id": task_id,
-                "target_os": target_os,
-                "compiler": compiler,
-                "version": version,
-                "src_path": src_path,
-                "dest_folder": dest_folder}
-
-    if os.name == 'nt':
-        delimit = "\\"
-    else:
-        delimit = "/"
-
-    name, extension = src_path.split(delimit)[-1].split('.')
-
-    if dest_folder[-1] == delimit:
-        dest_folder = dest_folder[0:-1]
-
-    if os.path.exists(dest_folder) and not os.path.isdir(dest_folder):
-        sys.stderr.write("Output directory already exists!\n")
-        sys.stderr.flush()
-        exit(-1)
-
-    if not os.path.exists(dest_folder):
-        os.mkdir(dest_folder)
-    ##
-    ## what if gcc with diff version ? -> overwritten log file
-    ##
-    dest_folder += delimit
-    log_filename = dest_folder + name + ".log"
-    log_file = open(log_filename, "w")
-
-    print("compilation begins...")
-
-    cnt = 0
-    for flag in flag_list:
-        cnt += 1
-        time.sleep(2)
-        exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
-        logline = "%s\t%s"%(exename, flag)
-
-        command = invoke_format.replace("flags", flag).replace("source", src_path).replace("exename", exename).split(" ")
-        # print(command)
-        compilation = Popen(command, stdout=PIPE, stderr=PIPE)
-        out, err = compilation.communicate()
-        log_file.write("%s, %s, %s\n"%(logline, out, err))
-
-        # execute callback to notice the completion of a single compilation
-        task_info['out'] = out
-        task_info['err'] = err
-        task_info['exename'] = exename
-        task_info['flag'] = flag
-        on_complete(task_info)
-
-
-    log_file.close()
-    print("compilation done!")
-    return
-
-# test funciton
-def test(request):
-    context = {}
-    context['form'] = ProfileUserForm()
-    context['nav1'] = "active show"
-    profiles = Profile_conf.objects.values()
-    profile_dict = {}
-    for profile in profiles:
-        target_os, compiler, name = profile["target_os"], profile["compiler"] + " " + profile["version"], profile["name"]
-        if target_os not in profile_dict:
-            profile_dict[target_os] = {}
-        if compiler not in profile_dict[target_os]:
-            profile_dict[target_os][compiler] = []
-        profile_dict[target_os][compiler].append(name)
-
-    context['json_profiles'] = json.dumps(profile_dict)
-    # context['status'] = statuses
-    return render(request, 'secuTool/test.html',context)
 
 def redirect_trace(request):
     '''
@@ -658,60 +520,16 @@ def trace_task_by_id(request):
     obj = Task.objects.filter(task_id=task_id)
     response = {}
     response['total'] = obj.count()
-    finished = 0
-    log_report = []
-    for ele in obj:
-        # get os type, define delimit
-        if ele.target_os == 'Windows':
-            delimit = "\\"
-        else:
-            delimit = "/"
-        new_log = {}
-        new_log['exename'] = ele.exename#.split(delimit)[-1]
-        if ele.finish_tmstmp == "" or ele.finish_tmstmp == None: #ongoing
-            new_log['err'] = "-"
-            new_log['status'] = "ongoing"
-        else:
-            finished += 1
-            new_log['status'] = "success" if ele.err == "" or ele.err == "-" else "fail"
-            new_log['err'] = "-" if ele.err == "" else ele.err
-
-        
-        log_report.append(new_log)
-
+    finished, log_report = form_log_report(obj)
     response['finished'] = finished
     response['task_id'] = task_id
     response['log_report'] = log_report
     return HttpResponse(json.dumps(response),content_type="application/json")
 
-@csrf_exempt
-def peek_profile(request):
-    target_os = request.POST['target_os']
-    compiler, version = request.POST['compiler'].split(' ')
-    name = request.POST['name']
-
-    profile = Profile_conf.objects.filter(name=name,
-                                        target_os=target_os,
-                                        compiler=compiler,
-                                        version=version)
-
-    num = profile.count()
-    if num > 1:
-        res = {"message":"Multiple profiles found with given information"}
-    elif num < 1:
-        res = {"message":"No profile matching given information"}
-    else:
-        res = {"target_os": profile[0].target_os,
-                "compiler": profile[0].compiler,
-                "version": profile[0].version,
-                "name": profile[0].name,
-                "uploader": profile[0].uploader,
-                "upload_time": profile[0].upload_time.strftime("%Y-%m-%d-%H-%M-%S"),
-                "flag": profile[0].flag}
-
-    return HttpResponse(json.dumps(res), content_type="application/json")
-
-
+##############################################################################################
+##############################################################################################
+##################. function for profile/compiler configuration management ##################
+##############################################################################################
 
 @csrf_exempt
 def addCompiler(request):
@@ -757,7 +575,7 @@ def addProfile(request):
     if message:
         return render(request, 'secuTool/test.html', {"message":message, "nav2":"active show"})
 
-    old_profile = Profile_conf.filter(target_os=profile['target_os'],
+    old_profile = Profile_conf.objects.filter(target_os=profile['target_os'],
                             compiler=profile['compiler'],
                             version=profile['version'],
                             name=profile['name'])
@@ -784,31 +602,53 @@ def manageProfile(request):
     context = {}
     profiles = Profile_conf.objects.values()
     rows = []
+    profile_dict = {}
     for profile in profiles:
-        p_dict = {"target_os": profile["target_os"],
-                    "compiler": profile["compiler"],
-                    "version": profile["version"],
+        target_os, compiler, version = profile["target_os"], profile["compiler"], profile["version"]
+        p_dict = {"target_os": target_os,
+                    "compiler": compiler,
+                    "version": version,
                     "name": profile["name"],
                     "flag": ", ".join(json.loads(profile['flag'])),
                     "date": profile['upload_time'].strftime("%Y-%m-%d %H:%M:%S")
                     }
         rows.append(p_dict.copy())
+        if target_os not in profile_dict:
+            profile_dict[target_os] = {}
+        if compiler not in profile_dict[target_os]:
+            profile_dict[target_os][compiler] = []
+        if version not in profile_dict[target_os][compiler]:
+            profile_dict[target_os][compiler].append(version)
+
     context["rows"] = rows
+    context['json_profiles'] = json.dumps(profile_dict)
     return render(request, "secuTool/manageProfile.html", context)
 
 def manageCompiler(request):
     context = {}
     compilers = Compiler_conf.objects.values()
     rows = []
+    compiler_dict = {}
     for compiler in compilers:
-        c_dict = {"target_os": compiler['target_os'],
-                    'compiler': compiler['compiler'],
-                    'version': compiler['version'],
-                    'ip': compiler['ip'],
-                    'port': compiler['port'],
-                    'http_path': compiler['http_path']}
+        target_os, target_compiler, version = compiler["target_os"], compiler["compiler"], compiler["version"]
+        c_dict = {
+            "target_os": target_os,
+            'compiler': target_compiler,
+            'version': version,
+            'ip': compiler['ip'],
+            'port': compiler['port'],
+            'flag': "" if not compiler['flag'] else ", ".join(json.loads(compiler['flag'])),
+        }
         rows.append(c_dict.copy())
+        if target_os not in compiler_dict:
+            compiler_dict[target_os] = {}
+        if target_compiler not in compiler_dict[target_os]:
+            compiler_dict[target_os][target_compiler] = []
+        if version not in compiler_dict[target_os][target_compiler]:
+            compiler_dict[target_os][target_compiler].append(version)
+
     context['rows'] = rows
+    context['json_profiles'] = json.dumps(compiler_dict)
     return render(request, "secuTool/manageCompiler.html", context)
 
 # ajax function to show content of compiler configuration
@@ -819,7 +659,7 @@ def getCompiler(request):
                                         version=request.POST['version'])
 
     res = {}
-    for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
+    for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'flag', 'http_path', 'invoke_format']:
         res[key] = getattr(compiler, key)
 
     return HttpResponse(json.dumps(res), content_type="application/json ")
@@ -842,39 +682,89 @@ def getProfile(request):
 # logic inside code)
 @csrf_exempt
 def updateCompiler(request):
-    if request.POST['submit'] == 'save':    #update existing
-        compiler = Compiler_conf.objects.get(target_os=request.POST['old_target_os'],
+    if request.POST['submit'] == 'save':    #update existing one
+        old_compiler = Compiler_conf.objects.get(target_os=request.POST['old_target_os'],
                                     compiler=request.POST['old_compiler'],
                                     version=request.POST['old_version'])
+
+        compiler = Compiler_conf.objects.filter(target_os=request.POST['target_os'],
+                                    compiler=request.POST['compiler'],
+                                    version=request.POST['version'])
+
+        if (compiler.count() != 0 and compiler[0] != old_compiler):
+            return render(
+                request, "secuTool/test.html", {
+                    'message':
+                    'A compiler with the same OS/name/version already exists',
+                    'nav2':
+                    'active show'
+                })
+
+        compiler = old_compiler
         for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
             setattr(compiler, key, request.POST[key])
 
+        new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
+        new_flag = list(filter(lambda x: x, new_flag))
+        setattr(compiler, 'flag', json.dumps(new_flag))
+
         compiler.save()
-        return render(request, "secuTool/test.html", {'message':'Compiler successfully updated', 'nav2': 'active show'})
-    else:           #save as new
+        return render(request, "secuTool/test.html", {
+            'message': 'Compiler successfully updated',
+            'nav2': 'active show'
+        })
+    else:  #save as new
         compiler = Compiler_conf.objects.filter(target_os=request.POST['target_os'],
                                                 compiler=request.POST['compiler'],
                                                 version=request.POST['version'])
         if compiler.count() != 0:
-            return render(request, "secuTool/test.html", {"message": "A compiler with the same OS/name/version already exists"})
+            return render(
+                request, "secuTool/test.html", {
+                    "message":
+                    "A compiler with the same OS/name/version already exists",
+                    'nav2':
+                    'active show'
+                })
 
         d = {}
         for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
             d[key] = request.POST[key]
 
+        new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
+        new_flag = list(filter(lambda x: x, new_flag))
+        d['flag'] = json.dumps(new_flag)
+
         new_compiler = Compiler_conf(**d)
         new_compiler.save()
-        return render(request, "secuTool/test.html", {'message':'New compiler successfully saved', 'nav2': 'active show'})
+        return render(request, "secuTool/test.html", {
+            'message': 'New compiler successfully saved',
+            'nav2': 'active show'
+        })
 
 
 @csrf_exempt
 def updateProfile(request):
     if request.POST['submit'] == 'save':    #update existing one
-        profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
+        old_profile = Profile_conf.objects.get(target_os=request.POST['old_target_os'],
                                     compiler=request.POST['old_compiler'],
                                     version=request.POST['old_version'],
                                     name=request.POST['old_name'])
 
+        profile = Profile_conf.objects.filter(target_os=request.POST['target_os'],
+                                    compiler=request.POST['compiler'],
+                                    version=request.POST['version'],
+                                    name=request.POST['name'])
+
+        if (profile.count() != 0 and profile[0] != old_profile):
+            return render(
+                request, "secuTool/test.html", {
+                    'message':
+                    'A profile with the same OS/compiler/version/name already exists',
+                    'nav2':
+                    'active show'
+                })
+
+        profile = old_profile
         for key in ['target_os', 'compiler', 'version', 'name']:
             setattr(profile, key, request.POST[key])
 
@@ -883,15 +773,21 @@ def updateProfile(request):
         setattr(profile, 'flag', json.dumps(new_flag))
 
         profile.save()
-        return render(request, "secuTool/test.html", {'message':'Profile successfully updated', 'nav2': 'active show'})
-
-    else:       #save as new
+        return render(request, "secuTool/test.html", {
+            'message': 'Profile successfully updated',
+            'nav2': 'active show'
+        })
+    else:  #save as new
         profile = Profile_conf.objects.filter(target_os=request.POST['target_os'],
                                                 compiler=request.POST['compiler'],
                                                 version=request.POST['version'],
                                                 name=request.POST['name'])
         if profile.count() != 0:
-            return render(request, "secuTool/test.html", {"message": "A profile with the same OS/compiler/name/version already exists"})
+            return render(
+                request, "secuTool/test.html", {
+                    "message":
+                    "A profile with the same OS/compiler/version/name already exists"
+                })
 
         d = {}
         for key in ['target_os', 'compiler', 'version', 'name', 'uploader']:
@@ -903,7 +799,10 @@ def updateProfile(request):
 
         new_profile = Profile_conf(**d)
         new_profile.save()
-        return render(request, "secuTool/test.html", {'message':'New profile successfully saved', 'nav2': 'active show'})
+        return render(request, "secuTool/test.html", {
+            'message': 'New profile successfully saved',
+            'nav2': 'active show'
+        })
 
 
 @csrf_exempt
@@ -922,207 +821,3 @@ def deleteProfile(request):
                                                 name=request.POST['name'])
     profile_to_delete.delete()
     return render(request, "secuTool/test.html", {'message':'Profile successfully deleted', 'nav2': 'active show'})
-
-###########################################################################
-###########################################################################
-#########           BELOW ARE SOME HELPER/TEST FUNCTIONS       ############
-###########################################################################
-###########################################################################
-def getExename(filename,ele,num):
-    return ".".join(filename.split(".")[:-1])+"_"+str(num)+"_"+ele
-
-def parse_taskMeta(ele, iscur):
-    '''
-    parse taskMeta object to be valid object in django template
-    '''
-    tmp = {}
-    tmp['taskname'] = ele.task_id
-    tmp['target_os'] = ele.target_os
-    tmp['compiler'] = ele.compiler_full
-    tmp['profiles'] = ele.profiles
-    tmp['username'] = ele.username
-    tmp['tag'] = ele.tag
-    tmp['total'] = ele.compilation_num
-    tmp['submittime'] = ".".join(ele.task_id.split("-")[:3])+" "+":".join(ele.task_id.split("-")[3:])
-    if iscur:
-        tmp['current_task']="background: yellow;"
-    return tmp
-
-def tracetest(request):
-    return render(request, 'secuTool/blank.html')
-
-
-
-def trace_test(request):
-    obj = Task.objects.all()
-    response = {}
-    response['total'] = obj.count()
-    finished = 0
-    for ele in obj:
-        # printRcd(ele)
-        # print(ele.exename == None)
-        if ele.exename != None:
-            finished+= 1
-    response['finished'] = finished
-
-    return HttpResponse(json.dumps(response),content_type="application/json")
-
-def trace(request):
-    '''
-    trace job status, INVOKED BY AJAX
-    '''
-    task_id = request.GET['task_id']
-    obj = Task.objects.filter(task_id=task_id)
-    response = {}
-    response['total'] = obj.count()
-    finished = 0
-    for ele in obj:
-        # printRcd(ele)
-        # print(ele.exename == None)
-        if ele.exename != None:
-            finished+= 1
-    response['finished'] = finished
-    response['task_id'] = task_id
-    return HttpResponse(json.dumps(response),content_type="application/json")
-
-
-
-#used for database debugging
-def printRcd(rcd):
-    print("============rcd report")
-
-    if rcd == None:
-        print('rcd not exists')
-        return
-    print("id: "+ str(rcd.task_id))
-    print("flag: "+ str(rcd.flag))
-    print("exename: "+ str(rcd.exename))
-    print("err: "+ str(rcd.err))
-    print("out: "+ str(rcd.out))
-
-    return
-
-
-
-
-
-##########################################
-########## backup functions #############
-
-
-@transaction.atomic
-def rcvSrc(request):
-    timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    #create unique task forder for each task, inside which includes:
-    # srcCode, <profiles>, compiled file & log,
-    # the archive for downloading will be delete
-    taskName = timestr
-    taskFolder = rootDir+timestr
-    codeFolder = taskFolder+"/"+"src"
-    os.system("mkdir "+taskFolder)
-    context = {}
-    srcPath = ''
-    #######################
-    # handle bad submit request (attention, undergoing compilation info may be missing by rendering blank)
-    #######################
-    if 'src' not in request.FILES or 'task_file' not in request.FILES:
-        return redirect(home)
-    #######################
-    #save source files in taskfolder
-    #######################
-    filename = request.FILES['src'].name
-    taskfile = request.FILES['task_file'].name
-    print(request.FILES['src'].content_type)
-    if request.FILES['src'].content_type not in ['application/x-tar','application/gzip','application/zip']:
-        #indicating a single file
-        os.system("mkdir "+codeFolder)
-        srcPath = codeFolder+"/"+filename
-        with open(srcPath,'wb+') as dest:
-            for chunk in request.FILES['src'].chunks():
-                dest.write(chunk)
-    else:
-        #if user upload tar bar, extract and save into srcCode folder
-        #also upload filename to be main filename
-        with open(taskFolder+'/'+filename,'wb+') as dest:
-            for chunk in request.FILES['src'].chunks():
-                dest.write(chunk)
-        os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+src)
-        os.system('mv '+taskFolder+'/'+filename.split('.')[0]+' '+codeFolder)
-        srcPath = codeFolder+"/"+filename
-        # update filename to be the main srcfile name if tast srcfile is a tarball
-    #######################
-    # write task specify file to taskFolder
-    #######################
-    taskPath = taskFolder+"/"+taskfile
-    with open(taskPath,'wb+') as dest:
-        for chunk in request.FILES['task_file'].chunks():
-            dest.write(chunk)
-
-
-    #######################
-    # parse task file
-    #######################
-    p = parseTaskFile(taskPath)
-    print(p)
-    message = p.get("message", None)
-    if message != None:
-        context['form']  = ProfileUserForm()
-        context['message'] = message
-        return render(request, 'secuTool/index.html',context)
-
-    #form request format from parse.py for each task
-    for param in p:
-        task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
-        version=param['version'])
-        task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
-        # permute flags combination  from diff flags
-        jsonDec = json.decoder.JSONDecoder()
-        flag_from_profile = []
-        for profile_name in param['profile']:
-            # print(profile_name)
-            p_tmp = Profile_conf.objects.get(name=profile_name, target_os=param['target_os'],compiler=param['compiler'],
-                version=param['version'])
-            flag_from_profile.append(jsonDec.decode(p_tmp.flag))
-        compile_combination = [[]]
-        for x in flag_from_profile:
-            compile_combination = [i + [y] for y in x for i in compile_combination]
-        compile_combination = [" ".join(x) for x in compile_combination]
-        compile_combination = [x.replace(" ","_") for x in compile_combination]
-        #############################
-        # add entries into task database
-        for ele in compile_combination:
-            new_task = Task(task_id=taskName,username=param['username'],
-                tag=None if not 'tag' in param else param['tag'],
-                src_file=filename,target_os=param['target_os'],
-                compiler=param['compiler'],version=param['version'],flag=ele)
-            new_task.save()
-        final_flags = ",".join(compile_combination)
-        #############################
-        # calling compilation tasks
-        #############################
-        if task_http == self_ip:
-            outputDir = taskFolder+"/"+"secu_compile"
-            data = {
-            'task_id':taskName,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
-            'output':outputDir,'format':task_compiler.invoke_format,'flags':final_flags,
-            }
-            pid = os.fork()
-            if pid == 0:
-                compile(taskName, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, final_flags,on_complete)
-                #new thread
-                # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
-                print("finished compile")
-                os._exit(0)
-            else:
-                #parent process, simply return to client
-                print("asyn call encountered")
-        # if not compiling on linux host, send params to another function, interacting with specific platform server
-        else:
-            upload_to_platform(param,task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
-
-    context['task_id'] = taskName
-    context['message'] = "file is compiling..."
-    context['form'] = ProfileUserForm()
-    context['progress'] = 'block'
-    context['linux_taskFolder'] = taskName
-    return render(request, 'secuTool/index.html', context)

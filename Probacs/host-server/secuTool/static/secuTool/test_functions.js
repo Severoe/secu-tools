@@ -3,6 +3,47 @@ var interval = 1000;
 var finished_status = false
 var text = ""
 
+function addflag(flag) {
+    var id = "#" + flag
+    if ($(id).hasClass("chosen")) {
+        $(id).removeClass("chosen")
+    } else {
+        $(id).addClass("chosen")
+    }
+}
+
+function delflag(flag) {
+    var button_id = '#' + flag + "z"
+    var flag = $(button_id).text().trim()
+    var parent_id = $(button_id).parent().attr("id")
+    var input_id = '#input' + parent_id.substring(parent_id.length - 1, parent_id.length)
+    var cnt = Number($(button_id).parent().children(".cnter").text()) - 1
+    if (cnt === 0) {
+        $(button_id).parent().remove()
+        $(input_id).remove()
+    } else {
+        var form_value = $(input_id).attr("value").replace(flag, "")
+        $(button_id).parent().children(".cnter").text(cnt)
+        $(input_id).attr({ "value": form_value })
+        $(button_id).remove()
+    }
+}
+
+function selectall() {
+    $('.row-button').each(function () {
+        if(!$(this).is(":disabled")) {
+            $(this).addClass('chosen')
+        }
+    })
+}
+
+function deselectall() {
+    $('.row-button').each(function () {
+        if(!$(this).is(":disabled")) {
+            $(this).removeClass('chosen')
+        }
+    })
+}
 function setCurrentJob(job_id){
 	// event_id = setInterval(trace_job, interval);
 	$('#ongoing-task').text(job_id)
@@ -25,46 +66,54 @@ function trace_job() {
         },
         success:  function(response) {
         	console.log(response)
-            finished = response.finished
-            total = response.total
-            if(finished === total) {
-            	finished_status = true
-                // $('#download_wrapper').css('display','block')
-                // clearInterval(event_id)
-            }
-        	percent = finished*100/total
-        	report = "<span id='task_finished'>"+ finished.toString()+"</span> / "+"<span id='task_total'>"+total.toString()+"</span>"+" compilation finished for job id: "+response.task_id
-        	$('#result-trace').css('display','block')
-        	$('#result-report').empty()
-            $('#result-report').append(report)
-        	$('#bar-growth').width(percent.toString()+'%')
-        	// adjost log output
-        	$('#log-report').empty()
-        	for(var i in response.log_report) {
-        		// var d = new Date();
-        		var log = response.log_report[i]
-        		var out_theme = ""
-        		var err_theme = ""
-        		console.log(log)
-        		if(log.err !== "-") {
-        			out_theme = "text-align:left;"
-        		}
-        		if(log.err !== "-") {
-        			err_theme = "text-align:left;"
-        		}
-        		var log_row = "<tr>"+
-                    "<td class='report-row' style='column-width: auto;'>"+log.exename.trim()+"</td>"+
-                    "<td class='report-row' style='column-width: auto;"+out_theme+"'>"+log.status+"</td>"+
-                    "<td class='report-row' style='column-width: auto;"+err_theme+"'>"+log.err+"</td>"+
-					// "<td>" + d.year + d.month + d.day + d.hours + d.minutes + d.seconds + "</td>"
-                    "</tr>"
-                $("#log-report").append(log_row)
-        	}
-        	$('#trace-wrapper').css("display","block");
+            form_status_report(response)        	
         }
     });
     return
 }
+function form_status_report(response){
+    finished = response.finished
+    total = response.total
+    if(finished === total) {
+        finished_status = true
+        // $('#download_wrapper').css('display','block')
+        // clearInterval(event_id)
+    }
+    percent = finished*100/total
+    report = "<span id='task_finished'>"+ finished.toString()+"</span> / "+"<span id='task_total'>"+total.toString()+"</span>"+" compilation finished for job id: "+response.task_id
+    $('#result-trace').css('display','block')
+    $('#result-report').empty()
+    $('#result-report').append(report)
+    $('#bar-growth').width(percent.toString()+'%')
+    // adjost log output
+    $('#log-report').empty()
+    for(var i in response.log_report) {
+        // var d = new Date();
+        var log = response.log_report[i]
+        var out_theme = ""
+        var err_theme = ""
+        console.log(log)
+        if(log.err === null) {
+            log.err = "-"
+        }
+        if(log.err !== "-") {
+            out_theme = "text-align:left;"
+        }
+        if(log.err !== "-") {
+            err_theme = "text-align:left;"
+        }
+        var log_row = "<tr>"+
+            "<td class='report-row' style='column-width: auto;'>"+log.exename.trim()+"</td>"+
+            "<td class='report-row' style='column-width: auto;"+out_theme+"'>"+log.status+"</td>"+
+            "<td class='report-row' style='column-width: auto;"+err_theme+"'>"+log.err+"</td>"+
+            // "<td>" + d.year + d.month + d.day + d.hours + d.minutes + d.seconds + "</td>"
+            "</tr>"
+        $("#log-report").append(log_row)
+    }
+    $('#trace-wrapper').css("display","block");
+}
+
+
 
 function getOS() {
     var json_profiles = $('#json_profiles').text()
@@ -80,7 +129,6 @@ function getOS() {
         options += "<option>" + os_list[os] + "</option>"
     }
     $('#target_os').append(options)
-
 }
 
 function getCompiler(os) {
@@ -149,9 +197,58 @@ function peek(profile) {
     }
 }
 
+// when hit download, append chosen field into form, then trigger form handin
+function download_search() {
+    cnt = 0
+    $('.row-button').each(function () {
+        if($(this).hasClass('chosen')){
+            if($(this).closest('tr').find('td.download_status').text().trim() === "success") {
+                cnt += 1
+                var task_id = $(this).closest('tr').find('td.download_id').text().trim()
+                var exename = $(this).closest('tr').find('td.download_exe').text().trim()
+                var rcd = "<input name='exe_pair' value="+task_id+"$%$"+exename+">"
+                $('#search_dld').prepend(rcd)
+            }
+        }
+    })
+    if(cnt !== 0) {
+        $('#search_dld').submit()
+    }
+}
+
+function terminate(){
+    var finished = $('#task_finished').text().trim()
+    var total = $('#task_total').text().trim()
+    if (finished === total || finished_status) { //if already finished, we cannot terminate
+        return
+    }
+    var job_id = $('#ongoing-task').text().trim()
+    var finished = 
+    $.ajax({
+        type: 'POST',
+        url: "/terminate",
+        dataType: "json",
+        data: {
+            task_id: job_id,
+        },
+        success: function (response) {
+            console.log(response)
+            form_status_report(response)  
+        }
+    });
+}
+function showallsearch(){
+    $('#all_search').attr({ "value": "* *" })
+    $('#if_all').attr({ "value": "true" })
+    $('#search-form').submit()
+    $('#all_search').attr({ "value": "" })
+}
+
 function onload_wrapper() {
+    calendar()
     getOS()
     trace_job()
+
 }
 
 window.onload = onload_wrapper;
@@ -167,4 +264,12 @@ function download_tar(){
     $('input[name="downloadtaskid"]').val(id)
     console.log($('input[name="downloadtaskid"]').val())
     $('#download_full').submit()
+}
+
+function calendar(){ 
+      $( "#dateafter" ).datepicker();
+      $( "#datebefore" ).datepicker();
+      $( "#timeafter" ).timepicker({'appendTo': '#timeafter' });
+      $( "#timebefore" ).timepicker({}); 
+
 }

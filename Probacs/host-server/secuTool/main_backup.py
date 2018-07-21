@@ -1,42 +1,44 @@
+##########################################
+########## backup functions #############
 
 
 @transaction.atomic
 def rcvSrc(request):
     timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     #create unique task forder for each task, inside which includes:
-    # srcCode, <profiles>, compiled file & log, 
-    # the archive for downloading will be delete 
+    # srcCode, <profiles>, compiled file & log,
+    # the archive for downloading will be delete
     taskName = timestr
     taskFolder = rootDir+timestr
-    codeFolder = taskFolder+"/"+"srcCodes"
+    codeFolder = taskFolder+"/"+"src"
     os.system("mkdir "+taskFolder)
     context = {}
     srcPath = ''
     #######################
     # handle bad submit request (attention, undergoing compilation info may be missing by rendering blank)
     #######################
-    if 'srcCodes' not in request.FILES or 'task_file' not in request.FILES:
+    if 'src' not in request.FILES or 'task_file' not in request.FILES:
         return redirect(home)
     #######################
     #save source files in taskfolder
     #######################
-    filename = request.FILES['srcCodes'].name
+    filename = request.FILES['src'].name
     taskfile = request.FILES['task_file'].name
-    print(request.FILES['srcCodes'].content_type)
-    if request.FILES['srcCodes'].content_type not in ['application/x-tar','application/gzip','application/zip']:
+    print(request.FILES['src'].content_type)
+    if request.FILES['src'].content_type not in ['application/x-tar','application/gzip','application/zip']:
         #indicating a single file
         os.system("mkdir "+codeFolder)
         srcPath = codeFolder+"/"+filename
         with open(srcPath,'wb+') as dest:
-            for chunk in request.FILES['srcCodes'].chunks():
+            for chunk in request.FILES['src'].chunks():
                 dest.write(chunk)
     else:
         #if user upload tar bar, extract and save into srcCode folder
         #also upload filename to be main filename
         with open(taskFolder+'/'+filename,'wb+') as dest:
-            for chunk in request.FILES['srcCodes'].chunks():
+            for chunk in request.FILES['src'].chunks():
                 dest.write(chunk)
-        os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+srcCodes)
+        os.system('tar xvzf '+ taskFolder+'/'+filename+" -C "+src)
         os.system('mv '+taskFolder+'/'+filename.split('.')[0]+' '+codeFolder)
         srcPath = codeFolder+"/"+filename
         # update filename to be the main srcfile name if tast srcfile is a tarball
@@ -79,14 +81,14 @@ def rcvSrc(request):
         compile_combination = [" ".join(x) for x in compile_combination]
         compile_combination = [x.replace(" ","_") for x in compile_combination]
         #############################
-        # add entries into task database 
+        # add entries into task database
         for ele in compile_combination:
             new_task = Task(task_id=taskName,username=param['username'],
                 tag=None if not 'tag' in param else param['tag'],
-                src_file=filename,target_os=param['target_os'], 
+                src_file=filename,target_os=param['target_os'],
                 compiler=param['compiler'],version=param['version'],flag=ele)
             new_task.save()
-        final_flags = ",".join(compile_combination) 
+        final_flags = ",".join(compile_combination)
         #############################
         # calling compilation tasks
         #############################
@@ -102,14 +104,14 @@ def rcvSrc(request):
                 #new thread
                 # os.system("python make_compilation.py "+srcPath+" "+ outputDir+" "+task_compiler.invoke_format+" "+final_flags)
                 print("finished compile")
-                os._exit(0)  
+                os._exit(0)
             else:
                 #parent process, simply return to client
                 print("asyn call encountered")
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
             upload_to_platform(param,task_http, task_compiler.invoke_format, final_flags, taskName, taskFolder, codeFolder,filename)
-        
+
     context['task_id'] = taskName
     context['message'] = "file is compiling..."
     context['form'] = ProfileUserForm()
@@ -122,5 +124,38 @@ def rcvSrc(request):
 
 
 
-                        <input type="checkbox" /> max_speed<br/>
-                    <input type="checkbox" /> max_optimization<br/>
+
+
+def trace_test(request):
+    obj = Task.objects.all()
+    response = {}
+    response['total'] = obj.count()
+    finished = 0
+    for ele in obj:
+        # printRcd(ele)
+        # print(ele.exename == None)
+        if ele.exename != None:
+            finished+= 1
+    response['finished'] = finished
+
+    return HttpResponse(json.dumps(response),content_type="application/json")
+
+def trace(request):
+    '''
+    trace job status, INVOKED BY AJAX
+    '''
+    task_id = request.GET['task_id']
+    obj = Task.objects.filter(task_id=task_id)
+    response = {}
+    response['total'] = obj.count()
+    finished = 0
+    for ele in obj:
+        # printRcd(ele)
+        # print(ele.exename == None)
+        if ele.exename != None:
+            finished+= 1
+    response['finished'] = finished
+    response['task_id'] = task_id
+    return HttpResponse(json.dumps(response),content_type="application/json")
+
+

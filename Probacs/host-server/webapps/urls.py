@@ -20,17 +20,21 @@ from secuTool import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.home, name='home'),
-    url(r'^uploadSrc$', views.rcvSrc, name='uploadSrc'),
+    # url(r'^uploadSrc$', views.rcvSrc, name='uploadSrc'),
     url(r'^paramUpload$', views.param_upload, name='paramUpload'),
     # url(r'^uploadWin$', views.upWin, name='uploadWin'),
     url(r'^saveExe$', views.saveExe, name='saveExe'),
     # url(r'^download_file$', views.send_zip, name='download_file'),
-    # url(r'^serve_pdf$', views.serve_pdf, name='serve_pdf'),
     url(r'^download_tar$', views.wrap_dir, name='download_tar'),
 
+    url(r'^search_panel$', views.search_panel, name='search_panel'),
     url(r'^check_status$', views.check_status, name='check_status'),
-    url(r'^test$', views.test, name='test'),
+    url(r'^download_search$', views.download_search, name='download_search'),
+    
+    # url(r'^test$', views.test, name='test'),
     url(r'^redirect_trace$', views.redirect_trace, name='redirect_trace'),
+    url(r'^terminate$', views.terminate, name='terminate'),
+    
     
     url(r'^preview$', views.preview, name='preview'),
     url(r'^rcv_compilation', views.rcv_platform_result, name='rcv_platform_result'),
@@ -56,9 +60,26 @@ urlpatterns = [
     url(r'^deleteCompiler', views.deleteCompiler, name='deleteCompiler'),
 
     
-    url(r'^trace$', views.trace, name='trace'),
-    url(r'^tracetest$', views.tracetest, name='tracetest'),
-    url(r'^trace_test$', views.trace_test, name='trace_test'),
-    url(r'^trace_task$', views.trace_task_by_id, name='trace_task')
-# download_fil
+    # url(r'^trace$', views.trace, name='trace'),
+    # url(r'^tracetest$', views.tracetest, name='tracetest'),
+    # url(r'^trace_test$', views.trace_test, name='trace_test'),
+    url(r'^trace_task$', views.trace_task_by_id, name='trace_task'),
+
+
+    ## commandline interface functions
+    url(r'^cmdline_preview$', views.cmdline_preview, name='cmdline_preview'),
+    url(r'^cmdline_compile$', views.cmdline_compile, name='cmdline_compile'),
+    url(r'^cmdline_download$', views.cmdline_download, name='cmdline_download'),
+    url(r'^cmdline_terminate$', views.cmdline_terminate, name='cmdline_terminate'),
+    url(r'^cmdline_search$', views.cmdline_search, name='cmdline_search'),
+
+    
+    
+
+
+
+
+
+
+
 ]
