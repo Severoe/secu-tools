@@ -43,9 +43,7 @@ tempDir = 'temp/'
     2. delete process id after terminated or finished?
         - inside localtest terminate function
         - inside platform server terminate_sub function
-    3. report back for finishing subtasks   \   
-        - os.fork()?
-    4. receiving files from platform server, might overwrite secu_compile folder
+    3. receiving files from platform server, might overwrite secu_compile folder
         - adding suffix?
 
 '''

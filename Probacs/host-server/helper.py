@@ -8,8 +8,7 @@ import django
 django.setup()
 from secuTool.models import *
 from secuTool.views import *
-
-
+from multiprocessing import Process
 ## global variables
 rootDir = 'Compilation_tasks/'
 tempDir = 'temp/'
@@ -124,20 +123,10 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
             data = {
             'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
             'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag']}
-            import os
-            pid = os.fork()
-            if pid == 0:
-                compile(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, param['flag'],on_complete, self_ip)
-                #new thread
-                print("finished compile")
-                os._exit(0)
-            else:
-                #parent process, simply return to client
-                cur_id = pid
-                # print(cur_id)
-                new_task = CompilationPid(pid = cur_id,taskid=task_name)
-                new_task.save()
-                print("asyn call encountered")
+            
+            p = Process(target = self_test_wrapper,args=(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, param['flag'],on_complete, self_ip))
+            p.start()
+            print("async encountered")
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
             ## if compile on same machine but diff port, using self_ip
@@ -149,6 +138,13 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
             print(param['host_ip'])
             upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
     return task_num,True
+
+def self_test_wrapper(task_name, target_os, compiler, version, srcPath, outputDir, invoke_format, flag,on_complete, self_ip):
+    cur_id = os.getpid()
+    new_task = CompilationPid(pid = cur_id,taskid=task_name)
+    new_task.save()
+    compile(task_name, target_os, compiler, version, srcPath, outputDir, invoke_format, flag,on_complete, self_ip)
+    print("finished pid")
 
 def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFolder,mainSrcName):
     '''
@@ -171,12 +167,13 @@ def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFold
     'env':runEnv,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'host_ip':param['host_ip']}
     print(data)
     files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
-    pid = os.fork()
-    if pid == 0:
-        response = requests.post(ip, files=files,data=data)
-        os._exit(0)
-    else:
-        return 
+
+    p = Process(target = up_to_platform_wrapper,args=(ip,files,data))
+    p.start()
+    return 
+def up_to_platform_wrapper():
+    response = requests.post(ip, files=files,data=data)
+    return
 
 def process_files(request, taskName, compiler_divided):
     """
