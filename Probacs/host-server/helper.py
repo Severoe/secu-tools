@@ -306,16 +306,17 @@ def construct_querySet(request):
     if 'date_after' not in request.POST or request.POST['date_after']=="":
         empty_count += 1
     else:
-        f = "%m/%d/%Y"
-        context['date_after'] = request.POST['date_after']
+        f = "%m/%d/%Y %H:%M"
+        context['date_after'] = request.POST['date_after'].split(" ")[0]
+        print(request.POST['date_after'])
         date_obj = datetime.strptime(request.POST['date_after'], f).strftime("%Y-%m-%d %H-%M-%S")
         query_dict['init_tmstmp__gte'] = date_obj
 
     if 'date_before' not in request.POST or request.POST['date_before']=="":
         empty_count += 1
     else:
-        f = "%m/%d/%Y"
-        context['date_before'] = request.POST['date_before']
+        f = "%m/%d/%Y %H:%M"
+        context['date_before'] = request.POST['date_before'].split(" ")[0]
         date_obj = datetime.strptime(request.POST['date_before'], f).strftime("%Y-%m-%d %H-%M-%S")
         query_dict['init_tmstmp__lte'] = date_obj
 

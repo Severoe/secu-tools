@@ -248,8 +248,8 @@
                   <th>Username</th>
                   <th>Tags</th>
                   <th>Date after</th>
-                  <th>Date before</th>
                   <th>Time after</th>
+                  <th>Date before</th>
                   <th>Time before</th>
                 </tr>
                 <tr>
@@ -269,13 +269,13 @@
                     <input style="width:100px;" type="text" name='tag' value="{{tag}}">
                   </td>
                   <td>
-                    <input style="width:100px;" type="text" name='date_after' id='dateafter' value="{{date_after}}">
-                  </td>
-                  <td>
-                    <input style="width:100px;" type="text" name='date_before' id='datebefore' value="{{date_before}}">
+                    <input style="width:100px;" type="text" id='dateafter' value="{{date_after}}">
                   </td>
                   <td>
                     <select style="width:100px;" name="timeafter" id="timeafter"></select>
+                  </td>
+                  <td>
+                    <input style="width:100px;" type="text" id='datebefore' value="{{date_before}}">
                   </td>
                   <td>
                     <select style="width:100px;" name="timebefore" id="timebefore"></select>
@@ -284,10 +284,15 @@
               </table>
               <br>
               <input type="hidden" name='if_all' id='if_all' value="">
-              <input type="submit" value="submit" class="submit-edition"> {% csrf_token %}
+              <!-- fix this part before submit -->
+              <input type="hidden" name="date_before" id="dbf_submit" value="">
+              <input type="hidden" name="date_after" id="dat_submit" value="">
+
+              {% csrf_token %}
               <br>
               <br>
             </form>
+            <button class="btn btn-light" onclick="submit_search()" style="margin-top: -100px">Submit</button>
             <div style="margin-top: 10px;padding-bottom: 10px;">{{search_result}}</div>
             {% if tasks %} 
               <button class="btn btn-light" onclick="selectall()">select all</button>

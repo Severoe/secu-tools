@@ -242,6 +242,30 @@ function showallsearch(){
     $('#all_search').attr({ "value": "" })
 }
 
+function submit_search(){
+    var date_before = $('#datebefore').val()
+    var date_after = $('#dateafter').val()
+    var timebefore = $('#timebefore').val()
+    var timeafter = $('#timeafter').val()
+    if(date_before !== "" || date_before !== null) {
+        var upload_dbf = date_before
+        if(timebefore === null) {
+            timebefore = "23:59"
+        }
+        upload_dbf += " "+timebefore
+        $('#dbf_submit').attr({"value": upload_dbf})
+    }
+    if(date_after !== "" || date_after !== null) {
+        var upload_aft = date_after
+        if(timeafter === null) {
+            timeafter = "00:00"
+        }
+        upload_aft += " "+timeafter
+        $('#dat_submit').attr({"value": upload_aft})
+    }
+    if(date_before ==="" && date_after==="") return
+    $('#search-form').submit()
+}
 function onload_wrapper() {
     calendar()
     getOS()
