@@ -171,7 +171,7 @@ def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFold
     p = Process(target = up_to_platform_wrapper,args=(ip,files,data))
     p.start()
     return 
-def up_to_platform_wrapper():
+def up_to_platform_wrapper(ip,files,data):
     response = requests.post(ip, files=files,data=data)
     return
 
