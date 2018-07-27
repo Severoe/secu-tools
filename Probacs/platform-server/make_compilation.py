@@ -62,7 +62,7 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     log_file = open(log_filename, "w")
 
     ## check directory level
-    src_dir = dest_folder+delimit+".."+delimit+"src"
+    src_dir = dest_folder+".."+delimit+"src"
     exe_path_prefix = ".."+delimit
     for f in os.listdir(src_dir):
         if os.path.isdir(os.path.join(src_dir, f)):
