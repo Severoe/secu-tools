@@ -51,7 +51,7 @@ def execute(request):
 	############################################
 	# compilation work
 	# srcpath = src_dir+delimit+request.POST['Srcname']
-	print(srcpath)
+	# print(srcpath)
 	compileDir = task_dir+'secu_compile_platform'
 	os.mkdir(compileDir)
 	# compilation start here, store executables and logs
