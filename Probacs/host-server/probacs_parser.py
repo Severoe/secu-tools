@@ -47,7 +47,7 @@ def parseTaskFile(filename):
                 msg = "Duplicate key at line %d: %s already speficied"%(line_no, key)
                 return msg, None
             
-            if key in ["profile", "target_os", "compiler", "version"]:
+            if key in ["profile", "target_os", "compiler", "version", 'command']:
                 value = value.split(",")
                 value = filter(lambda x: x, map(lambda x: x.strip(), value))
                 value = list(value)
@@ -67,17 +67,22 @@ def parseTaskFile(filename):
         msg = "Number of target_os, compiler and version must be the same"
         return msg, None
 
+    if 'command' in d and len(d['target_os']) != len(d['command']):
+        msg = "Number of command, target_os, compiler and version must be the same"
+        return msg, None
 
     ret = []
 
     task = {'profile': d['profile'], 'username': d['username']}
     
-    task['tag'] = d['tag'] if 'tag' in d else ''
+    task['tag'] = d.get('tag', '')
 
     for i in range(len(d['target_os'])):
         task['target_os'] = d['target_os'][i]
         task['compiler'] = d['compiler'][i]
         task['version'] = d['version'][i]
+        if 'command' in d:
+            task['command'] = d['command'][i]
         ret.append(copy.deepcopy(task))
 
     return None, ret
@@ -124,6 +129,9 @@ def parseCompilerFile(filename):
         if key not in d:
             msg = "Missing key %s in configuration file"%key
             return msg, None
+
+    if not d['ip'].starts('http://'):
+        d['ip'] = 'http://' + d['ip']
 
     return None, d
 
