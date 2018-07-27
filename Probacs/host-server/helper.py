@@ -132,6 +132,9 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
             
             p = Process(target = self_test_wrapper,args=(task_name, param['target_os'], param['compiler'], param['version'], filename, outputDir, param['command'], param['flag'],on_complete, self_ip))
             p.start()
+            cur_id = p.pid
+            new_task = CompilationPid(pid = cur_id,taskid=task_name)
+            new_task.save()
             print("async encountered")
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
@@ -146,9 +149,6 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
     return task_num,True
 
 def self_test_wrapper(task_name, target_os, compiler, version, srcPath, outputDir, invoke_format, flag,on_complete, self_ip):
-    cur_id = os.getpid()
-    new_task = CompilationPid(pid = cur_id,taskid=task_name)
-    new_task.save()
     compile(task_name, target_os, compiler, version, srcPath, outputDir, invoke_format, flag,on_complete, self_ip)
     print("finished pid")
 

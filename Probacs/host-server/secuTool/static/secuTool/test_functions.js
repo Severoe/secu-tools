@@ -264,7 +264,7 @@ function submit_search(){
         upload_aft += " "+timeafter
         $('#dat_submit').attr({"value": upload_aft})
     }
-    if(date_before ==="" && date_after==="") return
+    // if(date_before ==="" && date_after==="") return
     $('#search-form').submit()
 }
 function onload_wrapper() {
