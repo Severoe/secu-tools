@@ -126,11 +126,11 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
         #############################
         if enable_test:
             outputDir = taskFolder+"/"+"secu_compile"
-            data = {
-            'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
-            'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag']}
+            # data = {
+            # 'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'filename':filename,
+            # 'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag']}
             
-            p = Process(target = self_test_wrapper,args=(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, param['command'], param['flag'],on_complete, self_ip))
+            p = Process(target = self_test_wrapper,args=(task_name, param['target_os'], param['compiler'], param['version'], filename, outputDir, param['command'], param['flag'],on_complete, self_ip))
             p.start()
             print("async encountered")
         # if not compiling on linux host, send params to another function, interacting with specific platform server

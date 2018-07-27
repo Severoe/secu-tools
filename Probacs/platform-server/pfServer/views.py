@@ -22,6 +22,19 @@ else:
 	delimit = "/"
 
 
+
+##########################################
+########	
+'''
+change directory src.tar is the current name
+need a new name field -> tarball name
+	compilation.py
+	change cwd -> one level -> 
+'''
+				###### 
+##########################################
+
+
 @csrf_exempt
 def execute(request):
 	#create working dir for this compilation task
@@ -31,7 +44,7 @@ def execute(request):
 	os.mkdir(rootDir+delimit+taskFolder)
 	print('order received')
 	#save file in task folder
-	filename = request.FILES['file'].name
+	filename = request.POST['Srcname']
 
 
 	hostserver = request.POST['host_ip']+"/"
