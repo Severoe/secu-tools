@@ -52,7 +52,7 @@ def execute(request):
 	task_dir = rootDir+delimit+taskFolder+delimit
 	# os.mkdir(task_dir+"src")
 
-	with open(task_dir+filename,'wb+') as dest:
+	with open(task_dir+src,'wb+') as dest:
 		for chunk in request.FILES['file'].chunks():
 			dest.write(chunk)
 	if os_name == 'nt':
