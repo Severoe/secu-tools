@@ -61,7 +61,7 @@ def execute(request):
 		tar = "tar"
 	os.system(tar+" xvf "+ task_dir+src+" -C "+task_dir)
 
-	print(request.FILES['file'])
+	# print(request.FILES['file'])
 
 	############################################
 	# compilation work

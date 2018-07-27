@@ -414,18 +414,27 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     log_filename = dest_folder + name + ".log"
     log_file = open(log_filename, "w")
 
+    ## check directory level
+    src_dir = dest_folder+".."+delimit+"src"
+    exe_path_prefix = ".."+delimit
+    for f in os.listdir(src_dir):
+        if os.path.isdir(os.path.join(src_dir, f)):
+            src_dir += delimit+f
+            exe_path_prefix += ".."+delimit
+            break
+
     print("compilation begins...")
 
     cnt = 0
     for flag in flag_list:
         cnt += 1
         time.sleep(2)
-        exename = ".."+delimit+"secu_compile" +delimit+ name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        exename = exe_path_prefix+"secu_compile" +delimit+ name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         logline = "%s\t%s"%(exename, flag)
 
         command = invoke_format.replace("flags", flag).replace("exename", exename).split(" ")
         print(command)
-        compilation = Popen(command, cwd = dest_folder+delimit+".."+delimit+"src",stdout=PIPE, stderr=PIPE)
+        compilation = Popen(command, cwd = src_dir,stdout=PIPE, stderr=PIPE)
 
         # compilation = Popen(command, stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
@@ -467,7 +476,7 @@ def terminate_process(task_id,subtasks, enable_test):
         compiler_info = Compiler_conf.objects.get(target_os=obj.target_os,compiler=obj.compiler,version=obj.version)
         address = compiler_info.ip+":"+compiler_info.port+"/terminate"
         response = requests.post(address, data={"task_id":task_id})
-
+    print("task killed: "+task_id)
 
 ############################################################################
 ##################. other helper function ##################################
