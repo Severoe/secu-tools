@@ -72,11 +72,11 @@ def execute(request):
 		# 	request.POST['flags'],hostserver], shell=True)
 		# print(proc.pid)
 		os.system("python3 make_compilation.py "+taskFolder+" "+
-		 request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
+		 request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+filename+" "+
 		 compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
 	else:
 		os.system(cl+"&& python3 make_compilation.py "+taskFolder+" "+
-		 request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
+		 request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+filename+" "+
 		 compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
 		# proc = Popen([cl,"&&","python","make_compilation.py",taskFolder,request.POST['target_os'],
 		# 	request.POST['compiler'],request.POST['version'],srcpath,compileDir,request.POST['command'],
