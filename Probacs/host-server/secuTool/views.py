@@ -95,7 +95,7 @@ def peek_profile(request):
                 "version": profile[0].version,
                 "name": profile[0].name,
                 "uploader": profile[0].uploader,
-                "upload_time": profile[0].upload_time.strftime("%Y-%m-%d-%H-%M-%S"),
+                "upload_time": profile[0].upload_time,
                 "flag": profile[0].flag}
 
     return HttpResponse(json.dumps(res), content_type="application/json")
@@ -258,7 +258,7 @@ def cmdline_compile(request):
     codeFolder = taskFolder+"/"+"src"
     srcPath = codeFolder+"/"+filename
     # print(params)
-    task_num, isalive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip,host_ip_gateway)
+    task_num, isalive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip, host_ip_gateway)
     
     cur_taskMeta.compilation_num = task_num
     cur_taskMeta.save()
@@ -588,7 +588,7 @@ def addProfile(request):
 
 
     new_profile = Profile_conf(uploader=profile['uploader'],
-                                upload_time=timezone.now(),
+                                upload_time=timezone.localtime(timezone.now()).strftime("%Y-%m-%d %H:%M:%S"),
                                 name=profile['name'],
                                 target_os=profile['target_os'],
                                 compiler=profile['compiler'],
@@ -613,7 +613,7 @@ def manageProfile(request):
                     "version": version,
                     "name": profile["name"],
                     "flag": ", ".join(json.loads(profile['flag'])),
-                    "date": profile['upload_time'].strftime("%Y-%m-%d %H:%M:%S")
+                    "date": profile['upload_time']
                     }
         rows.append(p_dict.copy())
         if target_os not in profile_dict:
@@ -677,7 +677,7 @@ def getProfile(request):
     res = {}
     for key in ["target_os", "compiler", "version", "name", "flag", "uploader"]:
         res[key] = getattr(profile, key)
-    res["upload_time"] = profile.upload_time.strftime("%Y-%m-%d %H:%M:%S")
+    res["upload_time"] = profile.upload_time
     return HttpResponse(json.dumps(res), content_type="application/json")
 
 #TODO: duplicate detection in the case of 'save', should detect if the new model has the same key as one existing compiler
@@ -761,10 +761,8 @@ def updateProfile(request):
         if (profile.count() != 0 and profile[0] != old_profile):
             return render(
                 request, "secuTool/test.html", {
-                    'message':
-                    'A profile with the same OS/compiler/version/name already exists',
-                    'nav2':
-                    'active show'
+                    'message': 'A profile with the same OS/compiler/version/name already exists',
+                    'nav2': 'active show'
                 })
 
         profile = old_profile
@@ -795,7 +793,9 @@ def updateProfile(request):
         d = {}
         for key in ['target_os', 'compiler', 'version', 'name', 'uploader']:
             d[key] = request.POST[key]
-        d['upload_time'] = timezone.now()
+
+        d['upload_time'] = timezone.localtime(timezone.now()).strftime("%Y-%m-%d %H:%M:%S")
+
         new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
         new_flag = list(filter(lambda x: x, new_flag))
         d['flag'] = json.dumps(new_flag)

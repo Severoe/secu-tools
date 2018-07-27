@@ -20,7 +20,7 @@ class Compiler_conf(models.Model):
 
 class Profile_conf(models.Model):
     uploader = models.CharField(max_length=200)
-    upload_time = models.DateTimeField()
+    upload_time = models.TextField(max_length=30)
     name = models.CharField(max_length=200)
     target_os = models.CharField(max_length=60)
     compiler = models.CharField(max_length=60)
