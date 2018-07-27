@@ -32,31 +32,27 @@ def execute(request):
 	print('order received')
 	#save file in task folder
 	filename = request.FILES['file'].name
-	# host_ip = request.META['REMOTE_ADDR']
-	# host_port = request.META['SERVER_PORT']
-	# hostserver = "http://"+host_ip+":"+host_port+"/"
-	# print(host_ip+" "+host_port)
-	hostserver = request.POST['host_ip']+"/"
-	src_dir = 'src'
-	if not os.path.exists(src_dir):
-		os.mkdir(src_dir)
 
-	with open(rootDir+delimit+taskFolder+delimit+filename,'wb+') as dest:
+	hostserver = request.POST['host_ip']+"/"
+	task_dir = rootDir+delimit+taskFolder+delimit
+	os.mkdir(task_dir+"src")
+
+	with open(task_dir+filename,'wb+') as dest:
 		for chunk in request.FILES['file'].chunks():
 			dest.write(chunk)
 	if os_name == 'nt':
 		tar = r'"C:\Program Files (x86)\GnuWin32\bin\tar.exe"'
 	else:
 		tar = "tar"
-	os.system(tar+" "+"xvf "+ rootDir+delimit+taskFolder+delimit+filename)
+	os.system(tar+" xvf "+ task_dir+filename+" "+task_dir+"src")
 
 	print(request.FILES['file'])
 
 	############################################
 	# compilation work
-	srcpath = src_dir+delimit+request.POST['Srcname']
+	# srcpath = src_dir+delimit+request.POST['Srcname']
 	print(srcpath)
-	compileDir = rootDir+delimit+taskFolder+delimit+'secu_compile_platform'
+	compileDir = task_dir+'secu_compile_platform'
 	os.mkdir(compileDir)
 	# compilation start here, store executables and logs
 	# into compileDir
@@ -77,11 +73,11 @@ def execute(request):
 		# print(proc.pid)
 		os.system("python3 make_compilation.py "+taskFolder+" "+
 		 request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
-		 srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
+		 compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
 	else:
 		os.system(cl+"&& python3 make_compilation.py "+taskFolder+" "+
 		 request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
-		 srcpath+ " "+compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
+		 compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
 		# proc = Popen([cl,"&&","python","make_compilation.py",taskFolder,request.POST['target_os'],
 		# 	request.POST['compiler'],request.POST['version'],srcpath,compileDir,request.POST['command'],
 		# 	request.POST['flags'],hostserver], shell=True)
@@ -94,6 +90,7 @@ def execute(request):
 	# 	if poll != None:
 	# 		break
 
+	####################################
 	##### change suffix to enable multi-platform executables
 	suffix = request.POST['target_os'] + "_" + request.POST['compiler'] + "_" + request.POST['version']
 	invalidChars = '\/:*?"<>|'

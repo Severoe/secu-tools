@@ -113,7 +113,7 @@ def preview(request):
     message, res = register_tasks(request)
     if message:
         return render(request, 'secuTool/test.html', {"message":message})
-
+    print(res)
     context = {}
     context['rows'] = res["rows"]
     context['taskid'] = res["taskName"]

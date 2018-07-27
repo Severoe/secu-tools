@@ -118,6 +118,7 @@ def terminate(task_id):
 	'''
 	response = requests.post(host_ip+"/cmdline_terminate", data={"task_id":task_id})
 	res = jsonDec.decode(response.content.decode("utf-8"))
+	print(res)
 	task_id_global=None
 
 
