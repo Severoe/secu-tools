@@ -44,7 +44,7 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     else:
         delimit = "/"
 
-    name, extension = src_path.split(delimit)[-1].split('.')
+    # name, extension = src_path.split(delimit)[-1].split('.')
 
     if dest_folder[-1] == delimit:
         dest_folder = dest_folder[0:-1]

@@ -158,6 +158,7 @@ function compile() {
 			obj['username'] = $(this).closest('tr').find('td.username').text()
 			obj['tags'] = $(this).closest('tr').find('td.tags').text()
 			param.push(obj)
+			
 			cnt++
 		}
 	})

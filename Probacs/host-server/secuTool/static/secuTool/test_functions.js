@@ -247,7 +247,8 @@ function submit_search(){
     var date_after = $('#dateafter').val()
     var timebefore = $('#timebefore').val()
     var timeafter = $('#timeafter').val()
-    if(date_before !== "" || date_before !== null) {
+    // console.log(date_before)
+    if(date_before != null && date_before != "") {
         var upload_dbf = date_before
         if(timebefore === null) {
             timebefore = "23:59"
@@ -255,7 +256,7 @@ function submit_search(){
         upload_dbf += " "+timebefore
         $('#dbf_submit').attr({"value": upload_dbf})
     }
-    if(date_after !== "" || date_after !== null) {
+    if(date_after != null && date_after != "") {
         var upload_aft = date_after
         if(timeafter === null) {
             timeafter = "00:00"
