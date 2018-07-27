@@ -160,7 +160,7 @@ def signal_handler(sig, frame):
 				elif log['status'] == "terminated":
 					terminated += 1
 			print("\nThere are " + str(res['total']) + " jobs in this task, " + str(success) + " success, " + str(fail) + " fail, " + str(terminated) + " terminated")
-	print("Goodbye !")
+	print("Goodbye!")
 	sys.exit(0)
 
 
@@ -196,14 +196,15 @@ if __name__ == '__main__':
 			exit(-1)
 
 		response = handin_task(sys.argv[2], sys.argv[3])
-		ifCompile = input("Ready to compile? (Y/N): ")
-		task_id = ""
-		if ifCompile is 'Y' or ifCompile is 'y':
-			task_id = confirm_compile(response.content)
-			print("The task id is " + task_id)
-		else:
-			exit(-1)
+		while True:
+			ifCompile = input("Ready to compile? (Y/N): ")
+			if ifCompile is 'Y' or ifCompile is 'y':
+				break
+			elif ifCompile is 'N' or ifCompile is 'n':
+				exit(-1)
 
+		task_id = confirm_compile(response.content)
+		print("The task id is " + task_id)
 		ifDownload = input("Do you want to download the executables? (Y/N): ")
 		if ifDownload is 'Y' or ifDownload is 'y':
 			destination = input("Please specify the path (Default './') : ")
