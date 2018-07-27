@@ -59,7 +59,7 @@ def trace_task(task_id):
 					fail += 1
 				elif log['status'] == "terminated":
 					terminated += 1
-			print("There are " + str(res['total']) + " jobs in this task, " + str(success) + " success, " + str(fail) + " fail" + str(terminated) + " terminated")
+			print("There are " + str(res['total']) + " jobs in this task, " + str(success) + " success, " + str(fail) + " fail, " + str(terminated) + " terminated")
 			keep_going = False
 	task_id_global = None
 
@@ -118,6 +118,7 @@ def terminate(task_id):
 	'''
 	response = requests.post(host_ip+"/cmdline_terminate", data={"task_id":task_id})
 	res = jsonDec.decode(response.content.decode("utf-8"))
+	print(res)
 	task_id_global=None
 
 
@@ -206,7 +207,6 @@ if __name__ == '__main__':
 		ifDownload = input("Do you want to download the executables? (Y/N): ")
 		if ifDownload is 'Y' or ifDownload is 'y':
 			destination = input("Please specify the path (Default './') : ")
-			pdb.set_trace()
 			if not destination:
 				destination = os.path.dirname(os.path.abspath(__file__))
 			else:

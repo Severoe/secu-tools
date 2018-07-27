@@ -9,7 +9,7 @@ from pfServer.models import *
 
 hostserver = ""
 
-def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags):
+def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_format, flags):
     """
     task_id: string, task id of this job
     target_os: string, target os for this task
@@ -36,7 +36,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
                 "target_os": target_os,
                 "compiler": compiler,
                 "version": version,
-                "src_path": src_path,
+                # "src_path": src_path,
                 "dest_folder": dest_folder}
 
     if os.name == 'nt':
@@ -67,14 +67,14 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
     for flag in flag_list:
         cnt += 1
         time.sleep(2)
-        exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        exename = ".."+delimit+dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         if os.name == 'nt':
             exename = exename.replace("/","-")
         logline = "%s\t%s"%(exename, flag)
 
-        command = invoke_format.replace("flags", flag).replace("source", src_path).replace("exename", exename).split(" ")
+        command = invoke_format.replace("flags", flag).replace("exename", exename).split(" ")
         print(command)
-        compilation = Popen(command, stdout=PIPE, stderr=PIPE)
+        compilation = Popen(command, cwd = dest_folder+delimit+".."+delimit+"src",stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
         log_file.write("%s, %s, %s\n"%(logline, out, err))
         

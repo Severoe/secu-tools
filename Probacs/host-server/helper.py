@@ -67,22 +67,28 @@ def register_tasks(request):
         # each element in compile_combination is a space-separated flag list
         compile_combination = [" ".join(x) for x in compile_combination]
         profiles = ",".join(param['profile'])
+         ## get additional flags
+        c_tmp = Compiler_conf.objects.get(target_os=param['target_os'],
+                                compiler=param['compiler'],
+                                version=param['version'])
+        flag_list += jsonDec.decode(c_tmp.flag)
 
+        if 'command' in param:
+            command = param['command']
+        else:
+            command = c_tmp.invoke_format.replace("source",src_filename)
         for flag in compile_combination:
+
             rows.append({'target_os':param['target_os'],
                             'compiler':param['compiler']+" "+param['version'],
                             'username':param['username'],
                             'profiles':", ".join(profiles.split(",")),
                             'tag':param['tag'],
                             'flag':", ".join(flag.split(" ")),
-                            'seq':seq})
+                            'seq':seq,
+                            'command':command})
             seq += 1
-
-        c_tmp = Compiler_conf.objects.get(target_os=param['target_os'],
-                                compiler=param['compiler'],
-                                version=param['version'])
-        flag_list += jsonDec.decode(c_tmp.flag)
-
+        
     return None, {"rows":rows,"flag_list":flag_list,"taskName":taskName}
 
 

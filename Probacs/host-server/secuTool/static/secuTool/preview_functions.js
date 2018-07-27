@@ -93,7 +93,8 @@ function add_row() {
 				'<td class="flag new_flag" contenteditable="true">' + $(this).closest('tr').find('td.flag').text() + ", " + flags + '</td>' +
 				'<td class="username">' + $(this).closest('tr').find('td.username').text() + '</td>' +
 				'<td class="tags">' + $(this).closest('tr').find('td.tags').text() + '</td>' +
-				'<td><button class="btn btn-light btn-sm" onclick="delete_row(\'r' + button_id + '\')">delete</button></td>'
+				'<td><button class="btn btn-light btn-sm" onclick="delete_row(\'r' + button_id + '\')">delete</button></td>' +
+				'<td style="display:none" class="command">' + $(this).closest('tr').find('td.command').text() + '</td>' +
 				+ '</tr>'
 			selected++
 			button_id++
@@ -157,6 +158,8 @@ function compile() {
 			obj['flag'] = flag
 			obj['username'] = $(this).closest('tr').find('td.username').text()
 			obj['tags'] = $(this).closest('tr').find('td.tags').text()
+			obj['command'] = $(this).closest('tr').find('td.command').text()
+
 			param.push(obj)
 			cnt++
 		}
