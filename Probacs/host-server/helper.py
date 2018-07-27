@@ -420,11 +420,13 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     for flag in flag_list:
         cnt += 1
         time.sleep(2)
-        exename = ".."+delimit+dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        exename = ".."+delimit+"secu_compile" +delimit+ name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         logline = "%s\t%s"%(exename, flag)
 
         command = invoke_format.replace("flags", flag).replace("exename", exename).split(" ")
+        print(command)
         compilation = Popen(command, cwd = dest_folder+delimit+".."+delimit+"src",stdout=PIPE, stderr=PIPE)
+
         # compilation = Popen(command, stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
         log_file.write("%s, %s, %s\n"%(logline, out, err))
