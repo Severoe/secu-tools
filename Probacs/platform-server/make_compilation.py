@@ -61,20 +61,31 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     log_filename = dest_folder + name + ".log"
     log_file = open(log_filename, "w")
 
+    ## check directory level
+    src_dir = dest_folder+delimit+".."+delimit+"src"
+    exe_path_prefix = ".."+delimit
+    for f in os.listdir(src_dir):
+        if os.path.isdir(os.path.join(src_dir, f)):
+            src_dir += delimit+f
+            exe_path_prefix += ".."+delimit
+            break
+
+    print("code folder: "+src_dir)
     print("compilation begins...")
         
     cnt = 0
     for flag in flag_list:
         cnt += 1
         time.sleep(2)
-        exename = ".."+delimit+"secu_compile_platform" + delimit+name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+
+        exename = exe_path_prefix+"secu_compile_platform" + delimit+name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         if os.name == 'nt':
             exename = exename.replace("/","-")
         logline = "%s\t%s"%(exename, flag)
 
         command = invoke_format.replace("flags", flag).replace("exename", exename).split(" ")
         print(command)
-        compilation = Popen(command, cwd = dest_folder+delimit+".."+delimit+"src",stdout=PIPE, stderr=PIPE)
+        compilation = Popen(command, cwd = src_dir,stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
         log_file.write("%s, %s, %s\n"%(logline, out, err))
         
@@ -122,4 +133,13 @@ if __name__ == "__main__":
 
     # do_compilation(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
 
+
+
+#     python3 make_compilation.py "+taskFolder+" "+
+#          request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+
+#          compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+hostserver)
+
+
+# task_id, target_os, compiler, version, name, dest_folder, invoke_format, flags
+    
 

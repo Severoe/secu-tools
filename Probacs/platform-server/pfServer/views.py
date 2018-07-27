@@ -44,7 +44,8 @@ def execute(request):
 	os.mkdir(rootDir+delimit+taskFolder)
 	print('order received')
 	#save file in task folder
-	filename = request.POST['Srcname']
+	src = request.FILES['file'].name
+	filename = request.POST['Srcname'].split(".")[0]
 
 
 	hostserver = request.POST['host_ip']+"/"
@@ -58,7 +59,7 @@ def execute(request):
 		tar = r'"C:\Program Files (x86)\GnuWin32\bin\tar.exe"'
 	else:
 		tar = "tar"
-	os.system(tar+" xvf "+ task_dir+filename+" -C "+task_dir)
+	os.system(tar+" xvf "+ task_dir+src+" -C "+task_dir)
 
 	print(request.FILES['file'])
 
