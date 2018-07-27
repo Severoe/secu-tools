@@ -45,7 +45,7 @@ def execute(request):
 		tar = r'"C:\Program Files (x86)\GnuWin32\bin\tar.exe"'
 	else:
 		tar = "tar"
-	os.system(tar+" xvf "+ task_dir+filename+" "+task_dir)
+	os.system(tar+" xvf "+ task_dir+filename+" "+task_dir+delimit+".")
 
 	print(request.FILES['file'])
 
