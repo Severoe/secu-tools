@@ -254,7 +254,7 @@ def cmdline_compile(request):
     codeFolder = taskFolder+"/"+"src"
     srcPath = codeFolder+"/"+filename
     # print(params)
-    task_num, isalive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip)
+    task_num, isalive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip, host_ip_gateway)
     
     cur_taskMeta.compilation_num = task_num
     cur_taskMeta.save()
