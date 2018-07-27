@@ -28,14 +28,15 @@ def execute(request):
 	taskFolder = request.POST['taskid']
 	print("id: "+taskFolder)
 	#timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-	os.system("mkdir "+rootDir+delimit+taskFolder)
+	os.mkdir(rootDir+delimit+taskFolder)
 	print('order received')
 	#save file in task folder
 	filename = request.FILES['file'].name
 
+
 	hostserver = request.POST['host_ip']+"/"
 	task_dir = rootDir+delimit+taskFolder+delimit
-	os.mkdir(task_dir+"src")
+	# os.mkdir(task_dir+"src")
 
 	with open(task_dir+filename,'wb+') as dest:
 		for chunk in request.FILES['file'].chunks():
@@ -44,7 +45,7 @@ def execute(request):
 		tar = r'"C:\Program Files (x86)\GnuWin32\bin\tar.exe"'
 	else:
 		tar = "tar"
-	os.system(tar+" xvf "+ task_dir+filename+" "+task_dir+"src")
+	os.system(tar+" xvf "+ task_dir+filename+" "+task_dir)
 
 	print(request.FILES['file'])
 
