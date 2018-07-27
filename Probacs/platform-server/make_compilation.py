@@ -44,7 +44,7 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     else:
         delimit = "/"
 
-    name, extension = src_path.split(delimit)[-1].split('.')
+    # name, extension = src_path.split(delimit)[-1].split('.')
 
     if dest_folder[-1] == delimit:
         dest_folder = dest_folder[0:-1]
@@ -67,7 +67,7 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     for flag in flag_list:
         cnt += 1
         time.sleep(2)
-        exename = ".."+delimit+dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        exename = ".."+delimit+"secu_compile_platform" + delimit+name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         if os.name == 'nt':
             exename = exename.replace("/","-")
         logline = "%s\t%s"%(exename, flag)

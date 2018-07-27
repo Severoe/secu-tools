@@ -161,6 +161,7 @@ function compile() {
 			obj['command'] = $(this).closest('tr').find('td.command').text()
 
 			param.push(obj)
+			
 			cnt++
 		}
 	})

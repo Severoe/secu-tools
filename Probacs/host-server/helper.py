@@ -130,7 +130,7 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
             'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
             'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag']}
             
-            p = Process(target = self_test_wrapper,args=(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, task_compiler.invoke_format, param['flag'],on_complete, self_ip))
+            p = Process(target = self_test_wrapper,args=(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, param['command'], param['flag'],on_complete, self_ip))
             p.start()
             print("async encountered")
         # if not compiling on linux host, send params to another function, interacting with specific platform server
@@ -142,7 +142,7 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
             else:
                 param['host_ip'] = host_ip_gateway
             print(param['host_ip'])
-            upload_to_platform(param,task_http, task_compiler.invoke_format, task_name, taskFolder, codeFolder,filename)
+            upload_to_platform(param,task_http, param['command'], task_name, taskFolder, codeFolder,filename)
     return task_num,True
 
 def self_test_wrapper(task_name, target_os, compiler, version, srcPath, outputDir, invoke_format, flag,on_complete, self_ip):
@@ -364,7 +364,7 @@ def form_search_response(query_dict,flags,compilers,context):
 ##################. helper function for compilation ##################
 ############################################################################
 
-def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke_format, flags, on_complete, self_ip):
+def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_format, flags, on_complete, self_ip):
     """
     task_id: string, task id of this job
     target_os: string, target os for this task
@@ -388,7 +388,6 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
                 "target_os": target_os,
                 "compiler": compiler,
                 "version": version,
-                "src_path": src_path,
                 "dest_folder": dest_folder}
 
     if os.name == 'nt':
@@ -396,7 +395,7 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
     else:
         delimit = "/"
 
-    name, extension = src_path.split(delimit)[-1].split('.')
+    # name, extension = src_path.split(delimit)[-1].split('.')
 
     if dest_folder[-1] == delimit:
         dest_folder = dest_folder[0:-1]
@@ -421,11 +420,14 @@ def compile(task_id, target_os, compiler, version, src_path, dest_folder, invoke
     for flag in flag_list:
         cnt += 1
         time.sleep(2)
-        exename = dest_folder + name + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        exename = ".."+delimit+"secu_compile" +delimit+ name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         logline = "%s\t%s"%(exename, flag)
 
-        command = invoke_format.replace("flags", flag).replace("source", src_path).replace("exename", exename).split(" ")
-        compilation = Popen(command, stdout=PIPE, stderr=PIPE)
+        command = invoke_format.replace("flags", flag).replace("exename", exename).split(" ")
+        print(command)
+        compilation = Popen(command, cwd = dest_folder+delimit+".."+delimit+"src",stdout=PIPE, stderr=PIPE)
+
+        # compilation = Popen(command, stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
         log_file.write("%s, %s, %s\n"%(logline, out, err))
 

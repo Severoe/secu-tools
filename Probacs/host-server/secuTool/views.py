@@ -45,6 +45,8 @@ tempDir = 'temp/'
         - inside platform server terminate_sub function
     3. receiving files from platform server, might overwrite secu_compile folder
         - adding suffix?
+    4. time format for compilers
+    5. commnadline -> retrieve command
 
 '''
 #**************#**************#**************#**************
@@ -157,7 +159,7 @@ def param_upload(request):
     filename = cur_taskMeta.src_filename
     taskFolder = rootDir+task_name
     codeFolder = taskFolder+"/"+"src"
-    srcPath = codeFolder+"/"+filename
+    srcPath = filename
     #####################
     ## parse params from requests
     #####################
@@ -173,6 +175,7 @@ def param_upload(request):
         flag = task_id+'[flag]'
         username = task_id+'[username]'
         tag = task_id+'[tags]'
+        command = task_id+'[command]'
         ref_key = request.POST[os].strip()+"|"+request.POST[compiler].strip()
         # print(ref_key)
         if ref_key in single_vm_ref.keys():
@@ -192,6 +195,7 @@ def param_upload(request):
             obj['flag'] = "_".join([ele.strip() for ele in obj['flag']])
             obj['username'] = request.POST[username]
             obj['tags'] = request.POST[tag]
+            obj['command'] = request.POST[command]
             single_vm_ref[ref_key] = vm_num
             vm_num += 1
             task_params.append(obj)
@@ -789,6 +793,7 @@ def updateProfile(request):
         d = {}
         for key in ['target_os', 'compiler', 'version', 'name', 'uploader']:
             d[key] = request.POST[key]
+
         d['upload_time'] = timezone.localtime(timezone.now()).strftime("%Y-%m-%d %H:%M:%S")
 
         new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
