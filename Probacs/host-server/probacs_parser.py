@@ -130,8 +130,8 @@ def parseCompilerFile(filename):
             msg = "Missing key %s in configuration file"%key
             return msg, None
 
-    if not d['ip'].starts('http://'):
-        d['ip'] = 'http://' + d['ip']
+    # if not d['ip'].starts('http://'):
+    d['ip'] = 'http://' + d['ip']
 
     return None, d
 
