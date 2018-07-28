@@ -121,7 +121,7 @@ def parseCompilerFile(filename):
                 msg = "Illegal key %s at line %d"%(key, line_no)
 
             if key == 'flag':
-                value = map(lambda x: x.strip(), value.split(','))
+                value = list(map(lambda x: x.strip(), value.split(',')))
 
             d[key] = value
 
