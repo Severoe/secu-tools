@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys, time, requests
+import os.path
 
 from subprocess import Popen, PIPE
 import django
@@ -78,7 +79,8 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
         cnt += 1
         time.sleep(2)
 
-        exename = exe_path_prefix+"secu_compile_platform" + delimit+name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        exefname = name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        exename = exe_path_prefix+"secu_compile_platform" + delimit+exefname
         if os.name == 'nt':
             exename = exename.replace("/","-")
         logline = "%s\t%s"%(exename, flag)
@@ -87,13 +89,25 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
         print(command)
         compilation = Popen(command, cwd = src_dir,stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
+        #check file existense
+
+        if os.path.exists(dest_folder+exefname):
+            print(exefname+" exists!")
+            task_info['status'] = "success"
+        else:
+            print(exefname+" not exists!")
+            task_info['status'] = "fail"
+            
+
+
         log_file.write("%s, %s, %s\n"%(logline, out, err))
         
         # execute callback to notice the completion of a single compilation
         task_info['out'] = out
-        task_info['err'] = err
-        task_info['exename'] = exename
+        task_info['err'] = out+"\n"+err
+        task_info['exename'] = exefname
         task_info['flag'] = flag
+
         on_complete(task_info)
 
     log_file.close()
