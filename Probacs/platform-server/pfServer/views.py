@@ -55,11 +55,14 @@ def execute(request):
 	with open(task_dir+src,'wb+') as dest:
 		for chunk in request.FILES['file'].chunks():
 			dest.write(chunk)
+
 	if os_name == 'nt':
 		tar = r'"C:\Program Files (x86)\GnuWin32\bin\tar.exe"'
+		p = Popen([tar, 'xfv', src], cwd = task_dir)
+		print(p.communicate())
 	else:
 		tar = "tar"
-	os.system(tar+" xvf "+ task_dir+src+" -C "+task_dir)
+		os.system(tar+" xvf "+ task_dir+src+" -C "+task_dir)
 
 	# print(request.FILES['file'])
 
