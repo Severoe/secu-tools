@@ -91,9 +91,13 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
         compilation = Popen(command, cwd = src_dir,stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
         print(os.listdir(dest_folder))
-        #check file existense
-        testPath = dest_folder+exefname
-        print(testPath)
+        #check file existense\
+        task_info['status'] = check_existence(dest_folder,exefname)
+
+        for f in os.listdir(dest_folder):
+            if f.startswith(exefname)
+
+
         if os.path.exists(testPath):
             print(exefname+" exists!")
             task_info['status'] = "success"
@@ -116,6 +120,14 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     log_file.close()
     print("compilation done!")
 
+
+def check_existence(dest_folder,exefname):
+    for f in os.listdir(dest_folder):
+        if str(f).startswith(exefname+"."):
+            print(exefname+" exists!")
+            return "success"
+    print(exefname+" not exists!")
+    return "fail"
 
 def on_complete(task_info):
     # send back compilation information back to host server
