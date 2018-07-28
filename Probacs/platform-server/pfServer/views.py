@@ -120,7 +120,7 @@ def execute(request):
 	responseFromHost,tmpzip = sendBackExe(taskFolder, hostserver,suffix) # test purpose, replace hellomake later
 	##clear environment
 	if os_name == 'nt':
-		os.system("del /f "+src_dir +" /Q")
+		# os.system("del /f "+src_dir +" /Q")
 		os.system("del /f *.tgz")
 	else:
 		# os.system("rm -rf "+src_dir)
