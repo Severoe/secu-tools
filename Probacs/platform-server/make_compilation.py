@@ -93,20 +93,6 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
         print(os.listdir(dest_folder))
         #check file existense\
         task_info['status'] = check_existence(dest_folder,exefname)
-
-        for f in os.listdir(dest_folder):
-            if f.startswith(exefname)
-
-
-        if os.path.exists(testPath):
-            print(exefname+" exists!")
-            task_info['status'] = "success"
-        else:
-            print(exefname+" not exists!")
-            task_info['status'] = "fail"
-            
-
-
         log_file.write("%s, %s, %s\n"%(logline, out, err))
         
         # execute callback to notice the completion of a single compilation
