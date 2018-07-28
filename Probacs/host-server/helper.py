@@ -526,14 +526,7 @@ def form_log_report(obj):
             new_log['err'] = "-"
         else:
             finished+=1
-            new_log['err'] = "-" if ele.err == "" else ele.err
-        # if ele.finish_tmstmp == "" or ele.finish_tmstmp == None: #ongoing
-        #     new_log['err'] = "-"
-        #     new_log['status'] = "ongoing"
-        # else:
-        #     finished += 1
-        #     new_log['status'] = "success" if ele.err == "" or ele.err == "-" else "fail"
-        #     new_log['err'] = "-" if ele.err == "" else ele.err
+            new_log['err'] = "-" if ele.err.strip() == "" else ele.err
         log_report.append(new_log)
     return finished, log_report
 
