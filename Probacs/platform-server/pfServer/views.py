@@ -58,8 +58,11 @@ def execute(request):
 
 	if os_name == 'nt':
 		tar = r'"C:\Program Files (x86)\GnuWin32\bin\tar.exe"'
-		p = Popen([tar, 'xfv', src], cwd = task_dir)
-		print(p.communicate())
+		# p = Popen([tar, 'xfv', src], cwd = task_dir)
+		# print(p.communicate())
+		cmd = "cd "+task_dir+" && "+tar+" xvf "+src
+		print(cmd)
+		os.system(cmd)
 	else:
 		tar = "tar"
 		os.system(tar+" xvf "+ task_dir+src+" -C "+task_dir)
