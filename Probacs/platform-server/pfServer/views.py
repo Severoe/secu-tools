@@ -17,9 +17,9 @@ rootDir = 'Compilation_tasks'
 hostserver = "" #ip/port of the host server on virtualbox
 os_name = os.name
 if os_name == 'nt':
-    delimit = "\\"
+	delimit = "\\"
 else:
-    delimit = "/"
+	delimit = "/"
 
 
 
@@ -69,13 +69,13 @@ def execute(request):
 
 	print(request.FILES['file'])
 	####################################
-    ##### change suffix to enable multi-platform executables
-    suffix = request.POST['target_os'] + "_" + request.POST['compiler'] + "_" + request.POST['version']
-    invalidChars = '\/:*?"<>|'
-    for ch in invalidChars:
-        suffix = suffix.replace(ch, '')
+	##### change suffix to enable multi-platform executables
+	suffix = request.POST['target_os'] + "_" + request.POST['compiler'] + "_" + request.POST['version']
+	invalidChars = '\/:*?"<>|'
+	for ch in invalidChars:
+		suffix = suffix.replace(ch, '')
 
-    dest_name = 'secu_compile_platform_' + suffix
+	dest_name = 'secu_compile_platform_' + suffix
 	############################################
 	# compilation work
 	# srcpath = src_dir+delimit+request.POST['Srcname']
@@ -141,42 +141,42 @@ def execute(request):
 
 @csrf_exempt
 def terminate_sub(request):
-    task_id = request.POST['task_id']
-    ongoing_process = CompilationPid.objects.get(taskid=task_id)
-    pid = ongoing_process.pid
-    os.kill(pid, signal.SIGTERM)
-    print(pid)
-    # ongoing_process.delete()
-    return HttpResponse()
+	task_id = request.POST['task_id']
+	ongoing_process = CompilationPid.objects.get(taskid=task_id)
+	pid = ongoing_process.pid
+	os.kill(pid, signal.SIGTERM)
+	print(pid)
+	# ongoing_process.delete()
+	return HttpResponse()
 
 
 # create zip file containing exe and log, then send to host
 # delete zip file after sending to host
 def sendBackExe(folder,hostserver,dest_name):
-    #create a zip file first
-    print("send back exe")
-    timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    new_name = "exe_"+timestr+".tgz"
-    exe_folderPath = rootDir+delimit+folder+delimit+dest_name
-    with tarfile.open(new_name, "w:gz") as tar:
-        tar.add(exe_folderPath, arcname=os.path.basename(exe_folderPath))
-    compressed_dir = open(new_name,'rb')
-    #form http request
-    files = {'file':(new_name,compressed_dir)}
-    print(hostserver)
-    url = hostserver+'saveExe';
-    response = requests.post(url, files = files,data={'taskid': folder})
-    print("response received from host")
-    return response,new_name
+	#create a zip file first
+	print("send back exe")
+	timestr = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+	new_name = "exe_"+timestr+".tgz"
+	exe_folderPath = rootDir+delimit+folder+delimit+dest_name
+	with tarfile.open(new_name, "w:gz") as tar:
+		tar.add(exe_folderPath, arcname=os.path.basename(exe_folderPath))
+	compressed_dir = open(new_name,'rb')
+	#form http request
+	files = {'file':(new_name,compressed_dir)}
+	print(hostserver)
+	url = hostserver+'saveExe';
+	response = requests.post(url, files = files,data={'taskid': folder})
+	print("response received from host")
+	return response,new_name
 
 
 def check_alive(request):
-    return HttpResponse()
+	return HttpResponse()
 
 
 # test only, not fully deployed
 def retJson(request):
-    print('retJson called')
-    response = {}
-    response['message'] = "receive request successfully !"
-    return HttpResponse(json.dumps(response),  content_type="application/json")
+	print('retJson called')
+	response = {}
+	response['message'] = "receive request successfully !"
+	return HttpResponse(json.dumps(response),  content_type="application/json")
