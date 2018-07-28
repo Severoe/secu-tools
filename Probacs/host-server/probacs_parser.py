@@ -31,7 +31,7 @@ def parseTaskFile(filename):
                 msg = "Malformatted line %d: no ':'' found"%line_no
                 return msg, None
             
-            tokens = filter(lambda x: x, line.split(":"))
+            tokens = filter(lambda x: x, line.split(":", 1))
             tokens = map(lambda x: x.strip(), tokens)
             
             tokens = list(tokens)
