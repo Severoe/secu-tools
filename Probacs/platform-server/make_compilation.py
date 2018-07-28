@@ -82,24 +82,17 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
         exefname = name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         exename = exe_path_prefix+"secu_compile_platform" + delimit+exefname
         if os.name == 'nt':
+            exefname = exefname.replace("/","-")
             exename = exename.replace("/","-")
         logline = "%s\t%s"%(exename, flag)
 
         command = invoke_format.replace("flags", flag).replace("exename", exename).split(" ")
-        print(command)
+        # print(command)
         compilation = Popen(command, cwd = src_dir,stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
-        #check file existense
-
-        if os.path.exists(dest_folder+exefname):
-            print(exefname+" exists!")
-            task_info['status'] = "success"
-        else:
-            print(exefname+" not exists!")
-            task_info['status'] = "fail"
-            
-
-
+        # print(os.listdir(dest_folder))
+        #check file existense\
+        task_info['status'] = check_existence(dest_folder,exefname)
         log_file.write("%s, %s, %s\n"%(logline, out, err))
         
         # execute callback to notice the completion of a single compilation
@@ -113,6 +106,14 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     log_file.close()
     print("compilation done!")
 
+
+def check_existence(dest_folder,exefname):
+    for f in os.listdir(dest_folder):
+        if str(f).startswith(exefname+"."):
+            print(exefname+" exists!")
+            return "success"
+    print(exefname+" not exists!")
+    return "fail"
 
 def on_complete(task_info):
     # send back compilation information back to host server
