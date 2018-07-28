@@ -90,6 +90,7 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
         # print(command)
         compilation = Popen(command, cwd = src_dir,stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
+        print(os.listdir(dest_folder))
         #check file existense
         testPath = dest_folder+exefname
         print(testPath)
