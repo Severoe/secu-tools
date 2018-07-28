@@ -110,7 +110,7 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
 def check_existence(dest_folder,exefname):
     print(dest_folder)
     for f in os.listdir(dest_folder):
-        if str(f).startswith(exefname+"."):
+        if str(f).startswith(exefname):
             print(exefname+" exists!")
             return "success"
     print(exefname+" not exists!")
