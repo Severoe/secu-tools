@@ -121,7 +121,7 @@ def parseCompilerFile(filename):
                 msg = "Illegal key %s at line %d"%(key, line_no)
 
             if key == 'flag':
-                value = map(lambda x: x.strip(), value.split(','))
+                value = list(map(lambda x: x.strip(), value.split(',')))
 
             d[key] = value
 
@@ -130,8 +130,8 @@ def parseCompilerFile(filename):
             msg = "Missing key %s in configuration file"%key
             return msg, None
 
-    if not d['ip'].starts('http://'):
-        d['ip'] = 'http://' + d['ip']
+    # if not d['ip'].starts('http://'):
+    d['ip'] = 'http://' + d['ip']
 
     return None, d
 
