@@ -151,10 +151,10 @@ function compile() {
 			obj['compiler'] = $(this).closest('tr').find('td.compiler').text()
 			obj['profile'] = $(this).closest('tr').find('td.profile').text()
 			var flag = $(this).closest('tr').find('td.flag').text()
-			if(set.has(flag)) {
+			if (set.has(obj['os'] + obj['compiler'] + flag)) {
 				return
 			}
-			set.add(flag)
+			set.add(obj['os'] + obj['compiler'] + flag)
 			obj['flag'] = flag
 			obj['username'] = $(this).closest('tr').find('td.username').text()
 			obj['tags'] = $(this).closest('tr').find('td.tags').text()

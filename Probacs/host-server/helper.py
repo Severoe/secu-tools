@@ -101,7 +101,7 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
     for param in task_params:
         task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
         version=param['version'])
-        task_http = task_compiler.ip + ":"+task_compiler.port+task_compiler.http_path
+        task_http = task_compiler.ip + ":"+task_compiler.port
             ## check server accessibility
         if not enable_test:
             try:

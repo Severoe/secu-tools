@@ -9,7 +9,7 @@ from pfServer.models import *
 
 hostserver = ""
 
-def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_format, flags):
+def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_format, flags, dest_name):
     """
     task_id: string, task id of this job
     target_os: string, target os for this task
@@ -62,12 +62,12 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     log_file = open(log_filename, "w")
 
     print("compilation begins...")
-        
+
     cnt = 0
     for flag in flag_list:
         cnt += 1
         time.sleep(2)
-        exename = ".."+delimit+"secu_compile_platform" + delimit+name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        exename = ".."+delimit+dest_name + delimit+name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         if os.name == 'nt':
             exename = exename.replace("/","-")
         logline = "%s\t%s"%(exename, flag)
@@ -77,7 +77,7 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
         compilation = Popen(command, cwd = dest_folder+delimit+".."+delimit+"src",stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
         log_file.write("%s, %s, %s\n"%(logline, out, err))
-        
+
         # execute callback to notice the completion of a single compilation
         task_info['out'] = out
         task_info['err'] = err
@@ -94,21 +94,21 @@ def on_complete(task_info):
     # rcv_compilation
     print("update finished")
     data = task_info
-    response = requests.post(hostserver+"rcv_compilation", data=data) 
+    response = requests.post(hostserver+"rcv_compilation", data=data)
     return
 
 
 
 if __name__ == "__main__":
     print(sys.argv)
-    if len(sys.argv) != 10:
+    if len(sys.argv) != 11:
 
         sys.stderr.write("Usage: python make_compilation <source file> <output dir> <invoke_format> <flags>\n")
 
         sys.stderr.flush()
 
         exit(-1)
-    hostserver = sys.argv[9]
+    hostserver = sys.argv[10]
     print(hostserver)
     cur_id = os.getpid()
     ## register pid with taskid
@@ -116,17 +116,9 @@ if __name__ == "__main__":
     new_task.save()
 
     print(cur_id)
-    compile(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4],sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])
+    compile(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5],
+            sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9])
     finished_task = CompilationPid.objects.get(pid=cur_id)
     # finished_task.delete()
 
     # do_compilation(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-
-
-
-    
-
-
-
-    
-
