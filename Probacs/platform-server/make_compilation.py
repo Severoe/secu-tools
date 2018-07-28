@@ -90,8 +90,9 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
         compilation = Popen(command, cwd = src_dir,stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
         #check file existense
-
-        if os.path.exists(dest_folder+exefname):
+        testPath = dest_folder+exefname
+        print(testPath)
+        if os.path.exists(testPath):
             print(exefname+" exists!")
             task_info['status'] = "success"
         else:
