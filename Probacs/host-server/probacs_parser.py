@@ -31,7 +31,7 @@ def parseTaskFile(filename):
                 msg = "Malformatted line %d: no ':'' found"%line_no
                 return msg, None
             
-            tokens = filter(lambda x: x, line.split(":"))
+            tokens = filter(lambda x: x, line.split(":", 1))
             tokens = map(lambda x: x.strip(), tokens)
             
             tokens = list(tokens)
@@ -121,7 +121,7 @@ def parseCompilerFile(filename):
                 msg = "Illegal key %s at line %d"%(key, line_no)
 
             if key == 'flag':
-                value = map(lambda x: x.strip(), value.split(','))
+                value = list(map(lambda x: x.strip(), value.split(',')))
 
             d[key] = value
 
@@ -130,8 +130,8 @@ def parseCompilerFile(filename):
             msg = "Missing key %s in configuration file"%key
             return msg, None
 
-    if not d['ip'].starts('http://'):
-        d['ip'] = 'http://' + d['ip']
+    # if not d['ip'].starts('http://'):
+    d['ip'] = 'http://' + d['ip']
 
     return None, d
 

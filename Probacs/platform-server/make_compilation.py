@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys, time, requests
+import os.path
 
 from subprocess import Popen, PIPE
 import django
@@ -61,33 +62,58 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     log_filename = dest_folder + name + ".log"
     log_file = open(log_filename, "w")
 
+    ## check directory level
+    src_dir = dest_folder+".."+delimit+"src"
+    exe_path_prefix = ".."+delimit
+    for f in os.listdir(src_dir):
+        if os.path.isdir(os.path.join(src_dir, f)):
+            src_dir += delimit+f
+            exe_path_prefix += ".."+delimit
+            break
+
+    print("code folder: "+src_dir)
     print("compilation begins...")
 
     cnt = 0
     for flag in flag_list:
         cnt += 1
         time.sleep(2)
-        exename = ".."+delimit+dest_name + delimit+name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+
+        exefname = name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        exename = exe_path_prefix + dest_name + delimit+exefname
         if os.name == 'nt':
+            exefname = exefname.replace("/","-")
             exename = exename.replace("/","-")
         logline = "%s\t%s"%(exename, flag)
 
         command = invoke_format.replace("flags", flag).replace("exename", exename).split(" ")
-        print(command)
-        compilation = Popen(command, cwd = dest_folder+delimit+".."+delimit+"src",stdout=PIPE, stderr=PIPE)
+        # print(command)
+        compilation = Popen(command, cwd = src_dir,stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
+        # print(os.listdir(dest_folder))
+        #check file existense\
+        task_info['status'] = check_existence(dest_folder,exefname)
         log_file.write("%s, %s, %s\n"%(logline, out, err))
 
         # execute callback to notice the completion of a single compilation
         task_info['out'] = out
-        task_info['err'] = err
-        task_info['exename'] = exename
+        task_info['err'] = out+b"\n"+err
+        task_info['exename'] = exefname
         task_info['flag'] = flag
+
         on_complete(task_info)
 
     log_file.close()
     print("compilation done!")
 
+
+def check_existence(dest_folder,exefname):
+    for f in os.listdir(dest_folder):
+        if str(f).startswith(exefname+"."):
+            print(exefname+" exists!")
+            return "success"
+    print(exefname+" not exists!")
+    return "fail"
 
 def on_complete(task_info):
     # send back compilation information back to host server

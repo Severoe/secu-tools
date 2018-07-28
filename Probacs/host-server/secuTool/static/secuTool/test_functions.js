@@ -103,7 +103,7 @@ function form_status_report(response){
         var log_row = "<tr>"+
             "<td class='report-row' style='column-width: auto;'>"+log.exename.trim()+"</td>"+
             "<td class='report-row' style='column-width: auto;"+out_theme+"'>"+log.status+"</td>"+
-            "<td class='report-row' style='column-width: auto;"+err_theme+"'>"+log.err+"</td>"+
+            "<td class='report-row' style='column-width: auto;"+err_theme+"'>"+"<div style='max-height:40px; overflow:auto;'>" + log.err+"</div></td>"+
             // "<td>" + d.year + d.month + d.day + d.hours + d.minutes + d.seconds + "</td>"
             "</tr>"
         $("#log-report").append(log_row)
@@ -264,7 +264,7 @@ function submit_search(){
         upload_aft += " "+timeafter
         $('#dat_submit').attr({"value": upload_aft})
     }
-    if(date_before ==="" && date_after==="") return
+    // if(date_before ==="" && date_after==="") return
     $('#search-form').submit()
 }
 function onload_wrapper() {

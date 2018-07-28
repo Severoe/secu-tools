@@ -459,17 +459,11 @@ def rcv_platform_result(request):
         target_os=request.POST['target_os'],compiler=request.POST['compiler'],version=request.POST['version'])
     task.out = request.POST['out']
     task.err = request.POST['err']
+    task.exename = request.POST['exename']
     task.finish_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S")
-    # if task.status == "terminated":
-    if task.err != "" and task.err != "-" and task.err != None:
-        task.status = "fail"
-    else:
-        task.status = "success"
-    print(request.POST['out'], request.POST['err'])
+    task.status = request.POST['status']
     print('update from platform finished')
     task.save()
-    # task = Task.objects.get(task_id=task_info['task_id'],flag=task_info['flag'].replace(" ","_"))
-    # print("exename "+str(task.exename))
     return HttpResponse()
 
 

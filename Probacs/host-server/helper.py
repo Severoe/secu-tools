@@ -126,12 +126,15 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
         #############################
         if enable_test:
             outputDir = taskFolder+"/"+"secu_compile"
-            data = {
-            'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'srcPath':srcPath,
-            'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag']}
+            # data = {
+            # 'task_id':task_name,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'filename':filename,
+            # 'output':outputDir,'format':task_compiler.invoke_format,'flags':param['flag']}
             
-            p = Process(target = self_test_wrapper,args=(task_name, param['target_os'], param['compiler'], param['version'], srcPath, outputDir, param['command'], param['flag'],on_complete, self_ip))
+            p = Process(target = self_test_wrapper,args=(task_name, param['target_os'], param['compiler'], param['version'], filename, outputDir, param['command'], param['flag'],on_complete, self_ip))
             p.start()
+            cur_id = p.pid
+            new_task = CompilationPid(pid = cur_id,taskid=task_name)
+            new_task.save()
             print("async encountered")
         # if not compiling on linux host, send params to another function, interacting with specific platform server
         else:
@@ -146,9 +149,6 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
     return task_num,True
 
 def self_test_wrapper(task_name, target_os, compiler, version, srcPath, outputDir, invoke_format, flag,on_complete, self_ip):
-    cur_id = os.getpid()
-    new_task = CompilationPid(pid = cur_id,taskid=task_name)
-    new_task.save()
     compile(task_name, target_os, compiler, version, srcPath, outputDir, invoke_format, flag,on_complete, self_ip)
     print("finished pid")
 
@@ -414,18 +414,27 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     log_filename = dest_folder + name + ".log"
     log_file = open(log_filename, "w")
 
+    ## check directory level
+    src_dir = dest_folder+".."+delimit+"src"
+    exe_path_prefix = ".."+delimit
+    for f in os.listdir(src_dir):
+        if os.path.isdir(os.path.join(src_dir, f)):
+            src_dir += delimit+f
+            exe_path_prefix += ".."+delimit
+            break
+
     print("compilation begins...")
 
     cnt = 0
     for flag in flag_list:
         cnt += 1
         time.sleep(2)
-        exename = ".."+delimit+"secu_compile" +delimit+ name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        exename = exe_path_prefix+"secu_compile" +delimit+ name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         logline = "%s\t%s"%(exename, flag)
 
         command = invoke_format.replace("flags", flag).replace("exename", exename).split(" ")
         print(command)
-        compilation = Popen(command, cwd = dest_folder+delimit+".."+delimit+"src",stdout=PIPE, stderr=PIPE)
+        compilation = Popen(command, cwd = src_dir,stdout=PIPE, stderr=PIPE)
 
         # compilation = Popen(command, stdout=PIPE, stderr=PIPE)
         out, err = compilation.communicate()
@@ -467,7 +476,7 @@ def terminate_process(task_id,subtasks, enable_test):
         compiler_info = Compiler_conf.objects.get(target_os=obj.target_os,compiler=obj.compiler,version=obj.version)
         address = compiler_info.ip+":"+compiler_info.port+"/terminate"
         response = requests.post(address, data={"task_id":task_id})
-
+    print("task killed: "+task_id)
 
 ############################################################################
 ##################. other helper function ##################################
@@ -517,14 +526,7 @@ def form_log_report(obj):
             new_log['err'] = "-"
         else:
             finished+=1
-            new_log['err'] = "-" if ele.err == "" else ele.err
-        # if ele.finish_tmstmp == "" or ele.finish_tmstmp == None: #ongoing
-        #     new_log['err'] = "-"
-        #     new_log['status'] = "ongoing"
-        # else:
-        #     finished += 1
-        #     new_log['status'] = "success" if ele.err == "" or ele.err == "-" else "fail"
-        #     new_log['err'] = "-" if ele.err == "" else ele.err
+            new_log['err'] = "-" if ele.err.strip() == "" else ele.err
         log_report.append(new_log)
     return finished, log_report
 
