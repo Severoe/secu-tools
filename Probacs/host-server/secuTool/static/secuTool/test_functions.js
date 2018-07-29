@@ -205,7 +205,7 @@ function download_search() {
                 var task_id = $(this).closest('tr').find('td.download_id').text().trim()
                 var exename = $(this).closest('tr').find('td.download_exe').text().trim()
                 var platform_folder = $(this).closest('tr').find('td.platform_folder').text().trim()
-                var rcd = "<input name='exe_pair' value="+task_id+"$%$"+platform_folder+"$%$"exename+">"
+                var rcd = "<input name='exe_pair' value="+task_id+"$%$"+platform_folder+"$%$"+exename+">"
                 $('#search_dld').prepend(rcd)
             }
         }

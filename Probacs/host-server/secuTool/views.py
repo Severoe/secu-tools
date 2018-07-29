@@ -44,7 +44,7 @@ tempDir = 'temp/'
         - inside localtest terminate function
         - inside platform server terminate_sub function
     5. commnadline -> retrieve command
-    6. 
+    6. concurrent search-based download?
 
 '''
 #**************#**************#**************#**************
@@ -334,12 +334,15 @@ def download_search(request):
     ## remains earcgh params when privide dowload
     obj = dict(request.POST)
     print(obj['exe_pair'])
+    # token = datetime.now.strftime()
     new_name = "archive_searchReqest.tgz"
     with tarfile.open(new_name, "w:gz") as tar:
         for ele in obj['exe_pair']:
             taskFolder,platformFolder,exename = ele.split("$%$")
-            exe_path = rootDir+taskFolder+"/secu_compile/"+platformFolder+"/"+exename
-            tar.add(exe_path, arcname=os.path.join(taskFolder,exename))
+            exe_path = rootDir+taskFolder+"/secu_compile/"+platformFolder+"/"
+            for f in os.listdir(exe_path):
+                if str(f).startswith(exename):
+                    tar.add(exe_path+f, arcname=os.path.join(taskFolder,f))
     compressed_dir = open(new_name,'rb')
     response = HttpResponse(compressed_dir,content_type='application/tgz')
     response['Content-Disposition'] = 'attachment; filename='+new_name
@@ -400,14 +403,20 @@ def cmdline_search(request):
 def terminate(request):
     task_id = request.POST['task_id']
     subtasks = Task.objects.filter(task_id=task_id)
-    terminate_process(task_id, subtasks, enable_test)
 
     response = {}
     response['task_id'] =task_id
+    ## rewrite subtask status
+    hasOngoing = False
     for ele in subtasks:
         if ele.status == "ongoing":
             ele.status = "terminated"
+            hasOngoing = True
         ele.save()
+    ## terminate tasks based on platform if has ongoing tasks
+    if hasOngoing:
+        taskMeta = TaskMeta.objects.get(task_id=task_id)
+        terminate_process(task_id, taskMeta, enable_test)
     finished, log_report = form_log_report(subtasks)
     response['total'] = subtasks.count()
     response['finished'] = finished
@@ -420,7 +429,7 @@ def cmdline_terminate(request):
     response = {}
     task_id = request.POST['task_id']
     subtasks = Task.objects.filter(task_id=task_id)
-    terminate_process(task_id, subtasks,enable_test)
+    status = terminate_process(task_id, subtasks,enable_test)
     response['task_id'] = task_id
     for ele in subtasks:
         if ele.status == "ongoing":

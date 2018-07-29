@@ -1,4 +1,5 @@
 import os, tempfile, zipfile,tarfile, time,sys, signal
+import json
 from datetime import datetime
 from wsgiref.util import FileWrapper
 from django.shortcuts import render
@@ -6,6 +7,7 @@ from django.shortcuts import render
 from pfServer.models import *
 from django.core.files import File
 from django.http import HttpResponse
+from django.db import transaction
 from django.views.decorators.csrf import csrf_exempt
 import requests    #need pip install requests
 from subprocess import Popen, PIPE
@@ -77,9 +79,7 @@ def execute(request):
 
 	dest_name = 'secu_compile_platform_' + suffix
 	############################################
-	# compilation work
-	# srcpath = src_dir+delimit+request.POST['Srcname']
-	# print(srcpath)
+	# compilation working directory
 	compileDir = task_dir+dest_name
 	os.mkdir(compileDir)
 	# compilation start here, store executables and logs
@@ -108,24 +108,15 @@ def execute(request):
 		 request.POST['target_os']+" "+request.POST['compiler']+" "+request.POST['version']+" "+filename+" "+
 		 compileDir+" "+request.POST['command']+" "+request.POST['flags']+" "+request.POST['exenames']+" "+
 		 dest_name+" "+hostserver)
-		# proc = Popen([cl,"&&","python","make_compilation.py",taskFolder,request.POST['target_os'],
-		# 	request.POST['compiler'],request.POST['version'],srcpath,compileDir,request.POST['command'],
-		# 	request.POST['flags'],hostserver], shell=True)
-		# print(proc.pid)
-	############################################
-	# send back exe archive to host by http request
-	# while True:
-	# 	time.sleep(1)
-	# 	poll = proc.poll() #none indicating still running
-	# 	if poll != None:
-	# 		break
-
 	####################################
 	##### change suffix to enable multi-platform executables
 	suffix = request.POST['target_os'] + "_" + request.POST['compiler'] + "_" + request.POST['version']
 	invalidChars = '\/:*?"<>|'
 	for ch in invalidChars:
 		suffix = suffix.replace(ch, '')
+
+	############################################
+	# send back exe archive to host by http request
 	responseFromHost,tmpzip = sendBackExe(taskFolder, hostserver,dest_name) # test purpose, replace hellomake later
 	##clear environment
 	if os_name == 'nt':
@@ -140,16 +131,21 @@ def execute(request):
 	return response
 
 
-
+@transaction.atomic
 @csrf_exempt
 def terminate_sub(request):
 	task_id = request.POST['task_id']
 	ongoing_process = CompilationPid.objects.get(taskid=task_id)
-	pid = ongoing_process.pid
-	os.kill(pid, signal.SIGTERM)
-	print(pid)
-	# ongoing_process.delete()
-	return HttpResponse()
+	# response = {}
+	if ongoing_process == None:
+		response = "false"
+	else:
+		pid = ongoing_process.pid
+		os.kill(pid, signal.SIGTERM)
+		print(pid)
+		ongoing_process.delete()
+		response = "true"
+	return HttpResponse(response)
 
 
 # create zip file containing exe and log, then send to host

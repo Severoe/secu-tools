@@ -467,20 +467,32 @@ def on_complete(task_info, self_ip):
 ############################################################################
 ##################. helper function for termination ##################
 ############################################################################
-def terminate_process(task_id,subtasks, enable_test):
+def terminate_process(task_id,taskMetaObj, enable_test):
     if enable_test: 
         ongoing_process = CompilationPid.objects.filter(taskid=task_id)
-        for ele in ongoing_process:
-            pid = ele.pid
-            os.kill(pid, signal.SIGTERM)
-        # ongoing_process.delete()
-
+        if ongoing_process == None:
+            return False
+        else:
+            for ele in ongoing_process:
+                pid = ele.pid
+                os.kill(pid, signal.SIGTERM)
+            ongoing_process.delete()
+            return True
     else:
-        obj = subtasks[0]
-        compiler_info = Compiler_conf.objects.get(target_os=obj.target_os,compiler=obj.compiler,version=obj.version)
-        address = compiler_info.ip+":"+compiler_info.port+"/terminate"
-        response = requests.post(address, data={"task_id":task_id})
-    print("task killed: "+task_id)
+        terminateSuccess = False
+        os_list = str(taskMetaObj.target_os).split(",")
+        compiler_full = str(taskMetaObj.compiler_full).split(",")
+        for os, cpl_full in zip(os_list,compiler_full):
+            compiler,version = cpl_full.split(" ")
+            compiler_info = Compiler_conf.objects.get(target_os=os,compiler=compiler.strip(),version=version.strip())
+            address = compiler_info.ip+":"+compiler_info.port+"/terminate"
+            response = requests.post(address, data={"task_id":task_id},timeout=10)
+            print(response.content)
+            if str(response.content) == "true":
+                terminateSuccess = True
+        print("task killed: "+task_id)
+        return terminateSuccess
+        
 
 ############################################################################
 ##################. other helper function ##################################
