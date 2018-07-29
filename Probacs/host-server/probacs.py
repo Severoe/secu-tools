@@ -1,5 +1,6 @@
 import os, sys, json, time, signal
 import requests
+import urllib, mimetypes,urllib.request
 from configparser import ConfigParser
 
 host_ip = None
@@ -8,12 +9,23 @@ task_id_global = "0"
 jsonDec = json.decoder.JSONDecoder()
 
 
+#################### dev log ####################
+'''
+	1. dwonload directory location incorrect -> for default
+'''
+#################################################
+
 def handin_task(srcfile, taskfile):
 	'''
 	send sourcefile and taskfile to host server, reveice compilation preview info
 	'''
+	print(os.system("pwd"))
 	files =  {'srcFile': open(srcfile, 'rb'), 'taskFile': open(taskfile, 'rb')}
-	response = requests.post(host_ip+"/cmdline_preview", files=files)
+	## get file type
+	url = urllib.request.pathname2url(srcfile)
+	content_type = mimetypes.guess_type(url)[0]
+	headers = {'Content-type': 'multipart/form-data'}
+	response = requests.post(host_ip+"/cmdline_preview", files=files,data={"src_type":content_type})
 	task = jsonDec.decode(response.content.decode("utf-8"))
 	print("The task id is " + task['taskid'] + ".")
 	print("The preview page for the task:")
@@ -29,11 +41,16 @@ def confirm_compile(data):
 	compile by specifying task_id
 	'''
 	response = requests.post(host_ip+"/cmdline_compile", data={"content":data})
-	task_id = jsonDec.decode(response.content.decode("utf-8"))
+	res = jsonDec.decode(response.content.decode("utf-8"))
 	global task_id_global
-	task_id_global = task_id['taskid']
-	trace_task(task_id['taskid'])
-	return task_id['taskid']
+	print(res['message'])
+	if res['status'] == 'false':
+		print("compilation terminating..")
+		exit(-1)
+
+	task_id_global = res['taskid']
+	trace_task(res['taskid'])
+	return res['taskid']
 
 
 def trace_task(task_id):
@@ -118,7 +135,7 @@ def terminate(task_id):
 	'''
 	response = requests.post(host_ip+"/cmdline_terminate", data={"task_id":task_id})
 	res = jsonDec.decode(response.content.decode("utf-8"))
-	print(res)
+	print("\n"+res['message'])
 	task_id_global=None
 
 
@@ -135,7 +152,7 @@ def show_usage():
 	sys.stderr.write('Probacs: Profile Based Auto Compilation System\n')
 	sys.stderr.write('Provided functionalities: compile/search/download/teminate\n')
 	sys.stderr.write("eg: python probacs.py compile sourcefile taskfile\n")
-	sys.stderr.write("eg: python probacs.py search -tid/-u/-t/-c/-f keys\n")
+	sys.stderr.write("eg: python probacs.py search -tid/-u/-t/-c/-f/-all keys\n")
 	sys.stderr.write("eg: python probacs.py download task_id ./dest\n")
 	sys.stderr.write("eg: python probacs.py terminate task_id\n")
 	sys.stderr.flush()
@@ -204,7 +221,6 @@ if __name__ == '__main__':
 				exit(-1)
 
 		task_id = confirm_compile(response.content)
-		print("The task id is " + task_id)
 		ifDownload = input("Do you want to download the executables? (Y/N): ")
 		if ifDownload is 'Y' or ifDownload is 'y':
 			destination = input("Please specify the path (Default './') : ")
@@ -262,9 +278,9 @@ if __name__ == '__main__':
 			sys.stderr.write("eg: python probacs.py terminate task_id\n")
 			sys.stderr.flush()
 			exit(-1)
-		print(sys.argv[2])
+		# print(sys.argv[2])
 		terminate(sys.argv[2])
-		print("The task is terminated.")
+		# print("The task is terminated.")
 
 
 	else:

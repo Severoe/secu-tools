@@ -206,16 +206,22 @@ def process_files(request, taskName, compiler_divided):
             dest.write(chunk)
 
     cmd = None
-    if request.FILES['srcFile'].content_type == 'application/x-tar':
+    if 'src_type' in request.POST:
+        source_type = request.POST['src_type']
+    else:
+        source_type = request.FILES['srcFile'].content_type
+    print("srcfile type: " +str(source_type))
+    if source_type == 'application/x-tar':
         cmd = ['tar', 'xf', srcPath, '-C', srcFolder]
-    elif request.FILES['srcFile'].content_type == 'application/gzip':
+    elif source_type == 'application/gzip':
         cmd = ['tar', 'xzf', srcPath, '-C', srcFolder]
-    elif request.FILES['srcFile'].content_type == 'application/zip':
+    elif source_type == 'application/zip':
         cmd = ['unzip', srcPath, '-d', srcFolder]
 
     if cmd:
         extract = Popen(cmd, stdout=PIPE, stderr=PIPE)
         _, err = extract.communicate()
+        print(_,err)
         if err:
             return 'error occured when extracting file. \n%s'%err, None
 
@@ -483,8 +489,9 @@ def terminate_process(task_id,taskMetaObj, enable_test):
         os_list = str(taskMetaObj.target_os).split(",")
         compiler_full = str(taskMetaObj.compiler_full).split(",")
         for os, cpl_full in zip(os_list,compiler_full):
-            compiler,version = cpl_full.split(" ")
-            compiler_info = Compiler_conf.objects.get(target_os=os,compiler=compiler.strip(),version=version.strip())
+            compiler,version = cpl_full.strip().split(" ")
+            print(os,compiler,version)
+            compiler_info = Compiler_conf.objects.get(target_os=os.strip(),compiler=compiler.strip(),version=version.strip())
             address = compiler_info.ip+":"+compiler_info.port+"/terminate"
             response = requests.post(address, data={"task_id":task_id},timeout=10)
             print(response.content)

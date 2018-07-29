@@ -40,10 +40,7 @@ tempDir = 'temp/'
 '''
     1. command for popen when compiling is not valid
         - wrap try//err ?
-    2. delete process id after terminated or finished?
-        - inside localtest terminate function
-        - inside platform server terminate_sub function
-    5. commnadline -> retrieve command
+    5. requests error checking
     6. concurrent search-based download?
 
 '''
@@ -113,7 +110,7 @@ def preview(request):
     message, res = register_tasks(request)
     if message:
         return render(request, 'secuTool/test.html', {"message":message})
-    print(res)
+    # print(res)
     context = {}
     context['rows'] = res["rows"]
     context['taskid'] = res["taskName"]
@@ -221,11 +218,12 @@ def cmdline_compile(request):
     '''
     jsonDec = json.decoder.JSONDecoder()
     req = jsonDec.decode(request.POST['content'])
+    response = {}
     ## form general parameters
     task_name = req['taskid']
     ##form task_param object
     task_p = req['rows']
-    print(task_p)
+    # print(task_p)
     task_params = []
     compilerDict = {}
     for ele in task_p:
@@ -247,6 +245,7 @@ def cmdline_compile(request):
             obj['profiles'] = ele['profiles']
             flaglist = ele['flag'].split(",")
             obj['flag'] = "_".join([i.strip() for i in flaglist])
+            obj['command'] = ele['command']
             task_params.append(obj)
     print(task_params)
 
@@ -254,13 +253,18 @@ def cmdline_compile(request):
     filename = cur_taskMeta.src_filename
     taskFolder = rootDir+task_name
     codeFolder = taskFolder+"/"+"src"
-    srcPath = codeFolder+"/"+filename
+    srcPath = filename
     # print(params)
     task_num, isalive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip, host_ip_gateway)
     
+    if not isalive:
+        response['status'] = "false"
+        response['message'] = "platform server is not responding !"
+        return HttpResponse(json.dumps(response),content_type="application/json")
     cur_taskMeta.compilation_num = task_num
     cur_taskMeta.save()
-    response = {}
+    response['status'] = "true"
+    response['message'] = "The task id is " +task_name
     response['taskid'] = task_name
     return HttpResponse(json.dumps(response),content_type="application/json")
 
@@ -429,14 +433,26 @@ def cmdline_terminate(request):
     response = {}
     task_id = request.POST['task_id']
     subtasks = Task.objects.filter(task_id=task_id)
-    status = terminate_process(task_id, subtasks,enable_test)
-    response['task_id'] = task_id
+    # response['task_id'] = task_id
+    if subtasks.count() == 0:
+        response['message'] = "task: "+task_id+" does not exist!"
+        return HttpResponse(json.dumps(response),content_type="application/json")
+    hasOngoing = False
     for ele in subtasks:
         if ele.status == "ongoing":
             ele.status = "terminated"
+            hasOngoing = True
         ele.save()
-    finished, log_report = form_log_report(subtasks)
-    response['log_report'] = log_report
+    if hasOngoing:
+        taskMeta = TaskMeta.objects.get(task_id=task_id)
+        status = terminate_process(task_id, taskMeta,enable_test)
+        response['message'] = "task: "+task_id+" has been successfully terminated !" 
+    else:
+        response['message'] = "task: "+task_id+" is already finished" 
+    # finished, log_report = form_log_report(subtasks)
+
+    
+    # response['log_report'] = log_report
     return HttpResponse(json.dumps(response),content_type="application/json")
 
 # @transaction.atomic
@@ -452,7 +468,7 @@ def rcv_platform_result(request):
     task.platform_folder = request.POST['platform_folder']
     task.finish_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S")
     task.status = request.POST['status']
-    print('update from platform finished')
+    print('update from platform '+ str(request.POST['platform_folder']) +'finished')
     task.save()
     return HttpResponse()
 
