@@ -43,9 +43,6 @@ tempDir = 'temp/'
     2. delete process id after terminated or finished?
         - inside localtest terminate function
         - inside platform server terminate_sub function
-    3. receiving files from platform server, might overwrite secu_compile folder
-        - adding suffix?
-    4. time format for compilers
     5. commnadline -> retrieve command
     6. 
 

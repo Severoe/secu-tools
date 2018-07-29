@@ -102,25 +102,30 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
         task_compiler = Compiler_conf.objects.get(target_os=param['target_os'], compiler=param['compiler'],
         version=param['version'])
         task_http = task_compiler.ip + ":"+task_compiler.port
-            ## check server accessibility
+        ## check server accessibility
         if not enable_test:
             try:
                 response = requests.get(task_http+"/heartbeat", timeout=10)
             except:
                 return 0,False
+        ## form exename string
+        exenames = []
         #############################
         # add entries into task database
         for ele in param['flag'].split(","):
             task_num += 1
+            exename = getExename(filename,ele,task_num,param['target_os'])
             new_task = Task(task_id=task_name,username=param['username'],
                 tag=param['tags'],
                 src_file=filename,target_os=param['target_os'],
                 compiler=param['compiler'],version=param['version'],
                 flag=ele,init_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
-                exename=getExename(filename,ele,task_num),
+                exename=exename,
                 status="ongoing")
             new_task.save()
+            exenames.append(exename)
 
+        param['exenames'] = exenames.join(",")
         #############################
         # calling compilation tasks
         #############################
@@ -169,7 +174,7 @@ def upload_to_platform(param,ip, compiler_invoke, taskName, taskFolder, codeFold
     if '&&' in compiler_invoke:
         runEnv = compiler_invoke.split('&&')[0]
         compiler_invoke = compiler_invoke.split('&&')[1]
-    data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': param['flag'],
+    data = { 'Srcname':mainSrcName,'taskid':taskName,'command': compiler_invoke,'flags': param['flag'],'exenames' :param['exenames'],
     'env':runEnv,'target_os':param['target_os'],'compiler':param['compiler'],'version':param['version'],'host_ip':param['host_ip']}
     print(data)
     files={'file':(tarPath, open(tarPath, 'rb'))}    #need file archive path
@@ -482,11 +487,14 @@ def terminate_process(task_id,subtasks, enable_test):
 ##################. other helper function ##################################
 ############################################################################
 
-def getExename(filename,ele,num):
+def getExename(filename,ele,num,target_os):
     '''
 	construct exename based on sourcefile name and flags as well as sequence number
 	'''
-    return ".".join(filename.split(".")[:-1])+"_"+str(num)+"_"+ele
+    if target_os != 'Linux':
+        ele = ele.replace("/","-")
+    exename = ".".join(filename.split(".")[:-1])+"_"+str(num)+"_"+ele
+    return exename
 
 
 def parse_taskMeta(ele, iscur):
@@ -526,7 +534,7 @@ def form_log_report(obj):
             new_log['err'] = "-"
         else:
             finished+=1
-            new_log['err'] = "-" if ele.err.strip() == "" else ele.err
+            new_log['err'] = "-" if ele.err == None or ele.err.strip() == "" else ele.err
         log_report.append(new_log)
     return finished, log_report
 

@@ -22,7 +22,7 @@ db.sqlite3
 *.tgz
 # Secret config parameters
 *.ini
-
+config.ini
 
 
 # compilation files

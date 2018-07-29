@@ -10,7 +10,7 @@ from pfServer.models import *
 
 hostserver = ""
 
-def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_format, flags, dest_name):
+def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_format, flags, exenames, dest_name):
     """
     task_id: string, task id of this job
     target_os: string, target os for this task
@@ -32,6 +32,7 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     #print(tmp.exename)
     invoke_format = invoke_format.replace("_", " ")
     flag_list = flags.replace("_", " ").split(",")
+    exelist = exenames.split(",")
 
     task_info = {"task_id": task_id,
                 "target_os": target_os,
@@ -75,16 +76,16 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     print("compilation begins...")
 
     cnt = 0
-    for flag in flag_list:
+    for flag,exefname in zip(flag_list,exelist):
         cnt += 1
         time.sleep(2)
 
-        exefname = name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
+        # exefname = name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         exename = exe_path_prefix + dest_name + delimit+exefname
-        if os.name == 'nt':
-            exefname = exefname.replace("/","-")
-            exename = exename.replace("/","-")
-        logline = "%s\t%s"%(exename, flag)
+        # if os.name == 'nt':
+        #     exefname = exefname.replace("/","-")
+        #     exename = exename.replace("/","-")
+        logline = "%s\t%s"%(exefname, flag)
 
         command = invoke_format.replace("flags", flag).replace("exename", exename).split(" ")
         # print(command)
@@ -128,14 +129,14 @@ def on_complete(task_info):
 
 if __name__ == "__main__":
     print(sys.argv)
-    if len(sys.argv) != 11:
+    if len(sys.argv) != 12:
 
         sys.stderr.write("Usage: python make_compilation <source file> <output dir> <invoke_format> <flags>\n")
 
         sys.stderr.flush()
 
         exit(-1)
-    hostserver = sys.argv[10]
+    hostserver = sys.argv[11]
     print(hostserver)
     cur_id = os.getpid()
     ## register pid with taskid
@@ -144,7 +145,7 @@ if __name__ == "__main__":
 
     print(cur_id)
     compile(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5],
-            sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9])
+            sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9],sys.argv[10])
     finished_task = CompilationPid.objects.get(pid=cur_id)
     # finished_task.delete()
 
