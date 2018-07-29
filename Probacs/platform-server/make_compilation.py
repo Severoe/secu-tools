@@ -99,7 +99,7 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
         # execute callback to notice the completion of a single compilation
         task_info['out'] = out
         task_info['err'] = out+b"\n"+err
-        task_info['exename'] = exefname
+        task_info['platform_folder'] = dest_name
         task_info['flag'] = flag
 
         on_complete(task_info)

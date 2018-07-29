@@ -125,7 +125,7 @@ def call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPa
             new_task.save()
             exenames.append(exename)
 
-        param['exenames'] = exenames.join(",")
+        param['exenames'] = ",".join(exenames)
         #############################
         # calling compilation tasks
         #############################
@@ -359,7 +359,6 @@ def form_search_response(query_dict,flags,compilers,context):
             ele.exename = ele.exename.split(delimit)[-1]
             if not ele.err:
                 ele.err = '-'
-
     return context, obj
 
 

@@ -337,8 +337,8 @@ def download_search(request):
     new_name = "archive_searchReqest.tgz"
     with tarfile.open(new_name, "w:gz") as tar:
         for ele in obj['exe_pair']:
-            taskFolder,exename = ele.split("$%$")
-            exe_path = rootDir+taskFolder+"/secu_compile/"+exename
+            taskFolder,platformFolder,exename = ele.split("$%$")
+            exe_path = rootDir+taskFolder+"/secu_compile/"+platformFolder+"/"+exename
             tar.add(exe_path, arcname=os.path.join(taskFolder,exename))
     compressed_dir = open(new_name,'rb')
     response = HttpResponse(compressed_dir,content_type='application/tgz')
@@ -396,23 +396,6 @@ def cmdline_search(request):
 ##############################################################################################
 ##################. function for ajax tracking/ update########################################
 ##############################################################################################
-@transaction.atomic
-@csrf_exempt
-def download_search(request):
-    ## remains earcgh params when privide dowload
-    obj = dict(request.POST)
-    print(obj['exe_pair'])
-    new_name = "archive_searchReqest.tgz"
-    with tarfile.open(new_name, "w:gz") as tar:
-        for ele in obj['exe_pair']:
-            taskFolder,exename = ele.split("$%$")
-            exe_path = rootDir+taskFolder+"/secu_compile/"+exename
-            tar.add(exe_path, arcname=os.path.join(taskFolder,exename))
-    compressed_dir = open(new_name,'rb')
-    response = HttpResponse(compressed_dir,content_type='application/tgz')
-    response['Content-Disposition'] = 'attachment; filename='+new_name
-    return response
-
 @csrf_exempt
 def terminate(request):
     task_id = request.POST['task_id']
@@ -457,7 +440,7 @@ def rcv_platform_result(request):
         target_os=request.POST['target_os'],compiler=request.POST['compiler'],version=request.POST['version'])
     task.out = request.POST['out']
     task.err = request.POST['err']
-    task.exename = request.POST['exename']
+    task.platform_folder = request.POST['platform_folder']
     task.finish_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S")
     task.status = request.POST['status']
     print('update from platform finished')
