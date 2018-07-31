@@ -225,7 +225,7 @@ if __name__ == '__main__':
 		if ifDownload is 'Y' or ifDownload is 'y':
 			destination = input("Please specify the path (Default './') : ")
 			if not destination:
-				destination = os.path.dirname(os.path.abspath(__file__))
+				destination = os.getcwd()
 			else:
 				destination = os.path.expanduser(destination)
 			download_tasks(task_id, destination)
