@@ -124,8 +124,8 @@ def execute(request):
 		os.system("del /f *.tgz")
 	else:
 		# os.system("rm -rf "+src_dir)
-		os.system("rm *.obj")
-		os.system("rm *.tgz")
+		os.system("rm -rf *.obj")
+		os.system("rm -rf *.tgz")
 	response = HttpResponse()
 	print("send back request")
 	return response
