@@ -4,5 +4,4 @@ version:test
 ip:127.0.0.1
 port:80
 flag: -test, -haha, -just_a_flag
-http_path:/compile
-invoke_format:gcc_source_exename_flags
+invoke_format:gcc_flags_source_-o_exename
