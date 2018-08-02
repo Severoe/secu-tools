@@ -95,7 +95,7 @@ function form_status_report(response){
             log.err = "-"
         }
         if(log.err !== "-") {
-            out_theme = "text-align:left;"
+            out_theme = "text-align:center;"
         }
         if(log.err !== "-") {
             err_theme = "text-align:left;"
