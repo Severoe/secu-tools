@@ -117,7 +117,7 @@ def parseCompilerFile(filename):
                 msg = "Duplicate key at line %d: %s already speficied"%(line_no, key)
                 return msg, None
 
-            if key not in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format', 'flag']:
+            if key not in ['target_os', 'compiler', 'version', 'ip', 'port', 'invoke_format', 'flag']:
                 msg = "Illegal key %s at line %d"%(key, line_no)
 
             if key == 'flag':
@@ -125,7 +125,7 @@ def parseCompilerFile(filename):
 
             d[key] = value
 
-    for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format', 'flag']:
+    for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'invoke_format', 'flag']:
         if key not in d:
             msg = "Missing key %s in configuration file"%key
             return msg, None
