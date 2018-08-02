@@ -87,19 +87,15 @@
           <h4>Please modify the compiler</h4>
           <br>
           <h6>Target_os:</h6>
-          <select name="target_os" id="target_os" onChange="getCompiler(this.value, '');" required>
-          </select>
-          <div style="display:none" id='os_selected'></div>
+          <textarea rows="1" cols="20" id="target_os" name="target_os" required></textarea>
           <br>
           <br>
           <h6>Compiler:</h6>
-          <select name="compiler" id="compiler" onchange="getVersion(this.value, '');" required>
-          </select>
+          <textarea rows="1" cols="20" id="compiler" name="compiler" required></textarea>
           <br>
           <br>
           <h6>Version:</h6>
-          <select name="version" id="version" required>
-          </select>
+          <textarea rows="1" cols="20" id="version" name="version" required></textarea>
           <br>
           <br>
           <h6>IP:</h6>
