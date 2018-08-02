@@ -81,6 +81,7 @@ def register_tasks(request):
             command = param['command']
         else:
             command = c_tmp.invoke_format.replace("source",src_filename)
+
         for flag in compile_combination:
 
             rows.append({'target_os':param['target_os'],
@@ -241,6 +242,9 @@ def process_files(request, taskName, compiler_divided):
                 dest.write(key + ":" + ",".join(dict(request.POST)[key]) + "\n")
             if 'tag' in request.POST:
                 dest.write('tag:' + request.POST['tag'] + "\n")
+
+            if 'command' in request.POST and request.POST['command'].strip() != "":
+                dest.write('command:'+request.POST['command'] + "\n")
     else:
         with open(taskFolder + '/task.txt', 'wb+') as dest:
             for chunk in request.FILES['taskFile'].chunks():
