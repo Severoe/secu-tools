@@ -31,3 +31,5 @@ db.sqlite3
 /host-server/Compilation_tasks/*
 /platform-server/Compilation_tasks/*
 /host-server/secuTool/migrations/*
+
+/experiment-data/*.tgz

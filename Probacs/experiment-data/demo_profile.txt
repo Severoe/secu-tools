@@ -1,0 +1,9 @@
+target_os:Linux
+name:test_profile
+compiler:gcc
+version:8.0
+uploader:probacs team
+flag:
+-Werror -O2
+-O1
+-O2

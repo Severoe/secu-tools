@@ -33,6 +33,10 @@ def register_tasks(request):
     message, params = process_files(request, taskName, compiler_divided)
     if message:
         return message, None
+
+    if request.FILES['srcFile'].content_type in ['application/x-tar', 'application/gzip', 'application/zip'] and \
+            'command' not in params[0]:
+        return "Please specify command for compressed code files", None
     #######################################
     ## register task metadata table
     #######################################

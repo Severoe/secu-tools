@@ -23,7 +23,6 @@ compiler_data = [
         'version': '4.0',
         'ip': 'http://localhost',
         'port': '7000',
-        'http_path': '',
         'invoke_format': 'gcc_flags_source_-o_exename',
         'flag': ['-O0', '-O1', '-O2', '-O3', '-Wall']
     },
@@ -33,7 +32,6 @@ compiler_data = [
         'version': '4.8',
         'ip': 'http://192.168.56.101',
         'port': '7000',
-        'http_path': '',
         'invoke_format': 'gcc_flags_source_-o_exename',
         'flag': ['-O0', '-O1', '-O2', '-O3', '-Wall']
     },
@@ -43,7 +41,6 @@ compiler_data = [
         'version': '6.7',
         'ip': 'http://192.168.56.101',
         'port': '8000',
-        'http_path': '',
         'invoke_format': 'gcc_flags_source_-o_exename',
         'flag': ['-O0', '-O1', '-O2', '-O3', '-Wall']
     },
@@ -58,8 +55,6 @@ compiler_data = [
         'http://192.168.56.102',
         'port':
         '8000',
-        'http_path':
-        '',
         'invoke_format':
         r'"C:\Program_Files_(x86)\Microsoft_Visual_Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"&&cl_flags_source_/Feexename',
         'flag': ['/O1', '/O2', '/O3', '/Od', '/WX', '/Wall']
@@ -149,7 +144,6 @@ for cdata in compiler_data:
         version=cdata['version'],
         ip=cdata['ip'],
         port=cdata['port'],
-        http_path=cdata['http_path'],
         invoke_format=cdata['invoke_format'],
         flag=flags)
     compiler_.save()
