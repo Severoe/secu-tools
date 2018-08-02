@@ -191,6 +191,7 @@ function display_flags() {
 	var json_flags = $('#json_flags').text()
 	if (json_flags === "" || json_flags === null) return
 	var plist = JSON.parse(json_flags)
+    plist = Array.from(new Set(plist))
 	var message = ''
 	for (p in plist) {
 		message += '<div class="js-debug">'

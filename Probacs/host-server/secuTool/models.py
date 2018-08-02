@@ -14,7 +14,6 @@ class Compiler_conf(models.Model):
 	version = models.CharField(max_length=60)
 	ip = models.CharField(max_length=60)
 	port = models.CharField(max_length=20)
-	http_path = models.CharField(max_length=60)
 	invoke_format = models.TextField()
 	flag = models.TextField()
 

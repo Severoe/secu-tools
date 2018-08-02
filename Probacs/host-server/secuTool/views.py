@@ -554,7 +554,6 @@ def addCompiler(request):
                                     version=compiler['version'],
                                     ip=compiler['ip'],
                                     port=compiler['port'],
-                                    http_path=compiler['http_path'],
                                     invoke_format=compiler['invoke_format'],
                                     flag=json.dumps(compiler['flag']))
     new_compiler.save()
@@ -662,7 +661,7 @@ def getCompiler(request):
                                         version=request.POST['version'])
 
     res = {}
-    for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'flag', 'http_path', 'invoke_format']:
+    for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'flag', 'invoke_format']:
         res[key] = getattr(compiler, key)
 
     return HttpResponse(json.dumps(res), content_type="application/json ")
@@ -704,7 +703,7 @@ def updateCompiler(request):
                 })
 
         compiler = old_compiler
-        for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
+        for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'invoke_format']:
             setattr(compiler, key, request.POST[key])
 
         new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
@@ -730,7 +729,7 @@ def updateCompiler(request):
                 })
 
         d = {}
-        for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'http_path', 'invoke_format']:
+        for key in ['target_os', 'compiler', 'version', 'ip', 'port', 'invoke_format']:
             d[key] = request.POST[key]
 
         new_flag = map(lambda x: x.strip(), request.POST['flag'].splitlines())
