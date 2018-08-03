@@ -11,7 +11,6 @@
     crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
     crossorigin="anonymous"></script>
-  <!-- <script src="{% static 'secuTool/trace_job.js'%}"></script> -->
   <script src="{% static 'secuTool/test_functions.js'%}"></script>
   <link rel="stylesheet" href="{% static 'secuTool/calendar/jquery-ui.min.css'%}">
   <script src="{% static 'secuTool/calendar/jquery.js'%}"></script>
@@ -291,10 +290,8 @@
               </table>
               <br>
               <input type="hidden" name='if_all' id='if_all' value="">
-              <!-- fix this part before submit -->
               <input type="hidden" name="date_before" id="dbf_submit" value="">
               <input type="hidden" name="date_after" id="dat_submit" value="">
-
               {% csrf_token %}
               <br>
               <br>
