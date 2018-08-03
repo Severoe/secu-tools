@@ -425,9 +425,7 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
 
     if not os.path.exists(dest_folder):
         os.mkdir(dest_folder)
-    ##
-    ## what if gcc with diff version ? -> overwritten log file
-    ##
+    
     dest_folder += delimit
     log_filename = dest_folder + name + ".log"
     log_file = open(log_filename, "w")

@@ -1,6 +1,0 @@
-target_os:Linux,Linux
-compiler:gcc,gcc
-version:4.0,4.8
-profile:max_speed,max_optimization
-username: jeff 
-tag:test ajax on linux
