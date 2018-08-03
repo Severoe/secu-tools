@@ -103,8 +103,3 @@ for pdata in profile_data:
         version=pdata['version'],
         flag=flags)
     profile_.save()
-
-
-#check database
-# jeff = Compiler_conf.objects.get(target_os='Linux',compiler='gcc')
-# print(jeff.ip)
