@@ -11,10 +11,7 @@ from django.db import transaction
 from django.views.decorators.csrf import csrf_exempt
 import requests    #need pip install requests
 from subprocess import Popen, PIPE
-# from multiprocessing import Process
 
-# hostserver = "http://192.168.27.131:8000/" #ip/port of the host server
-# hostserver = "http://172.16.165.125:8000/" #ip/port of the host server
 rootDir = 'Compilation_tasks'
 hostserver = "" #ip/port of the host server on virtualbox
 os_name = os.name
@@ -26,14 +23,10 @@ else:
 
 
 ##########################################
-########	
+########	dev log.   ##################
 '''
-change directory src.tar is the current name
-need a new name field -> tarball name
-	compilation.py
-	change cwd -> one level -> 
-'''
-				###### 
+
+''' 
 ##########################################
 
 
