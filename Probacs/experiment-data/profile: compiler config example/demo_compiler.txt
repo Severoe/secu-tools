@@ -1,7 +1,7 @@
-target_os:Linux
-compiler:gcc
-version:test
-ip:127.0.0.1
-port:80
-flag: -test, -haha, -just_a_flag
-invoke_format:gcc_flags_source_-o_exename
+target_os: Linux
+compiler: gcc
+version: 6.7
+ip: 127.0.0.1
+port: 80
+flag: -O1, -O2, -O3
+invoke_format: gcc_flags_source_-o_exename

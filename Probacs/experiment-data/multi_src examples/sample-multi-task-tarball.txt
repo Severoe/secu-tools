@@ -1,10 +1,10 @@
-target_os:Linux,Windows
-compiler:gcc,MSVC++
-version:6.7,14.11
+target_os: Linux, Windows
+compiler: gcc, MSVC++
+version: 6.7, 14.11
 username: admin       
-tag:test tarball compilation on multi-OS
-profile:max_speed,max_optimization
-command:gcc_flags_main.c_hello.c_-o_exename,"C:\Program_Files_(x86)\Microsoft_Visual_Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"&&cl_flags_main.c_hello.c_/Feexename
+tag: test tarball compilation on multi-OS
+profile: warnings, max_optimization
+command: gcc_flags_main.c_hello.c_-o_exename,"C:\Program_Files_(x86)\Microsoft_Visual_Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"&&cl_flags_main.c_hello.c_/Feexename
 
 
 
