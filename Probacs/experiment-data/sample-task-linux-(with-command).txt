@@ -1,7 +1,7 @@
-target_os:Linux
-compiler:gcc
-version:6.7
-profile:max_speed,max_optimization
+target_os: Linux
+compiler: gcc
+version: 6.7
+profile: warnings, max_optimization
 username: jeff 
-tag:test ajax on linux
-command:gcc_flags_hello.c_-o_exename
+tag: test
+command: gcc_flags_hello.c_-o_exename

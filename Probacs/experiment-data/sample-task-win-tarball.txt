@@ -1,7 +1,7 @@
-target_os:Windows
-compiler:MSVC++
-version:14.11
-profile:max_speed,max_optimization
+target_os: Windows
+compiler: MSVC++
+version: 14.11
+profile: warnings, max_optimization
 username: cory 
-tag:twin test
+tag: twin test
 command:"C:\Program_Files_(x86)\Microsoft_Visual_Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"&&cl_flags_main.c_hello.c_/Feexename

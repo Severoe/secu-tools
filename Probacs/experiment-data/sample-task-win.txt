@@ -1,6 +1,6 @@
-target_os:Windows
-compiler:MSVC++
-version:14.11
-profile:max_speed,max_optimization
+target_os: Windows
+compiler: MSVC++
+version: 14.11
+profile: warnings, max_optimization
 username: cory 
-tag:twin test
+tag: test
