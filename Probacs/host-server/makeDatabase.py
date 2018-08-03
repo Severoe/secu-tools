@@ -18,22 +18,13 @@ profile_all.delete()
 
 compiler_data = [
     {
-        'target_os': 'Linux',
-        'compiler': 'gcc',
-        'version': '4.0',
-        'ip': 'http://localhost',
-        'port': '7000',
-        'invoke_format': 'gcc_flags_source_-o_exename',
-        'flag': ['-O0', '-O1', '-O2', '-O3', '-Wall']
-    },
-    {
-        'target_os': 'Linux',
-        'compiler': 'gcc',
-        'version': '4.8',
-        'ip': 'http://192.168.56.101',
-        'port': '7000',
-        'invoke_format': 'gcc_flags_source_-o_exename',
-        'flag': ['-O0', '-O1', '-O2', '-O3', '-Wall']
+        'target_os': 'Windows',
+        'compiler': 'MSVC++',
+        'version': '14.11',
+        'ip': 'http://192.168.56.102',
+        'port': '8000',
+        'invoke_format': r'"C:\Program_Files_(x86)\Microsoft_Visual_Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"&&cl_flags_source_/Feexename',
+        'flag': ['/O1', '/O2', '/Ob1', '/Oi', '/Os', '/Ot', '/Ox', '/Oy', '/W1', '/W2', '/W3', '/W4', '/Wall', '/WX']
     },
     {
         'target_os': 'Linux',
@@ -42,51 +33,22 @@ compiler_data = [
         'ip': 'http://192.168.56.101',
         'port': '8000',
         'invoke_format': 'gcc_flags_source_-o_exename',
-        'flag': ['-O0', '-O1', '-O2', '-O3', '-Wall']
-    },
-    {
-        'target_os':
-        'Windows',
-        'compiler':
-        'MSVC++',
-        'version':
-        '14.11',
-        'ip':
-        'http://192.168.56.102',
-        'port':
-        '8000',
-        'invoke_format':
-        r'"C:\Program_Files_(x86)\Microsoft_Visual_Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"&&cl_flags_source_/Feexename',
-        'flag': ['/O1', '/O2', '/O3', '/Od', '/WX', '/Wall']
+        'flag': ['-O1', '-O2', '-O3', '-O0', '-Os', '-Ofast', '-Og', '-fgcse-las',
+        '-fdelete-null-pointer-checks', '-fgcse-sm', '-fgcse-lm', '-finline-small-functions',
+        '-fno-inline', '-fsyntax-only', '-w', '-Werror', '-Wpedantic', '-Wall', '-Wextra',
+        '-Wno-coverage-mismatch', '-Wno-cpp', '-Wformat', '-Wfatal-errors', '-Wmain', '-Wunused',
+        '-Wno-pedantic-ms-format', '-Wuninitialized', '-Wsystem-headers', '-Wunknown-pragmas']
     },
 ]
 profile_data = [
     {
         'uploader': 'jeffery',
         'upload_time': '2006-10-25 14:30:59',
-        'name': 'max_speed',
-        'target_os': 'Linux',
-        'compiler': 'gcc',
-        'version': '4.8',
-        'flag': ['-O1 -O0', '-O0 -O2']
-    },
-    {
-        'uploader': 'jeffery',
-        'upload_time': '2006-10-25 14:30:59',
-        'name': 'max_optimization',
-        'target_os': 'Linux',
-        'compiler': 'gcc',
-        'version': '4.8',
-        'flag': ['-Wall', '-O3']
-    },
-    {
-        'uploader': 'jeffery',
-        'upload_time': '2006-10-25 14:30:59',
-        'name': 'max_speed',
+        'name': 'warnings',
         'target_os': 'Linux',
         'compiler': 'gcc',
         'version': '6.7',
-        'flag': ['-O1 -O0', '-O0 -O2']
+        'flag': ['-fsyntax-only', '-w', '-Werror', '-Wpedantic', '-Wall', '-Wextra', '-Wno-coverage-mismatch', '-Wno-cpp', '-Wformat', '-Wfatal-errors', '-Wmain', '-Wunused', '-Wmain -Wfatal-errors', '-Wno-pedantic-ms-format -Wformat -Wpedantic', '-Wextra -Wunused', '-Wuninitialized -Wunused', '-Wformat -Wpedantic', '-Wsystem-headers -Wunknown-pragmas']
     },
     {
         'uploader': 'jeffery',
@@ -95,34 +57,16 @@ profile_data = [
         'target_os': 'Linux',
         'compiler': 'gcc',
         'version': '6.7',
-        'flag': ['-Wall', '-O3']
-    },
-    {
-        'uploader': 'jeffery',
-        'upload_time': '2006-10-25 14:30:59',
-        'name': 'max_speed',
-        'target_os': 'Linux',
-        'compiler': 'gcc',
-        'version': '4.0',
-        'flag': ['-O1 -O0', '-O0 -O2']
-    },
-    {
-        'uploader': 'jeffery',
-        'upload_time': '2006-10-25 14:30:59',
-        'name': 'max_optimization',
-        'target_os': 'Linux',
-        'compiler': 'gcc',
-        'version': '4.0',
-        'flag': ['-Wall', '-O3']
+        'flag': ['-O1', '-O2', '-O3', '-O0', '-Os', '-Ofast', '-Og', '-fgcse-las -O1', '-fgcse-las -Ofast', '-fgcse-las -Og', '-fdelete-null-pointer-checks -O3', '-fgcse-sm -Og', '-fgcse-sm -fgcse-lm', '-fgcse-lm -Og', '-finline-small-functions -Ofast', '-fno-inline -O2']
     },
     {
         'uploader': 'Dave',
         'upload_time': '2006-10-25 14:30:59',
-        'name': 'max_speed',
+        'name': 'warnings',
         'target_os': 'Windows',
         'compiler': 'MSVC++',
         'version': '14.11',
-        'flag': ['/Wall', '/O3']
+        'flag': [ '/W1', '/W2', '/W3', '/W4', '/Wall', '/WX', '/W1 /WX', '/W2 /WX', '/W3 /WX', '/W4 /WX']
     },
     {
         'uploader': 'Dave',
@@ -131,7 +75,7 @@ profile_data = [
         'target_os': 'Windows',
         'compiler': 'MSVC++',
         'version': '14.11',
-        'flag': ['/WX /O1', '/WX /Od', '/O1 /O2']
+        'flag': ['/O1', '/O2', '/Ob1', '/Oi', '/Os', '/Ot', '/Ox', '/Oy', '/Oi /O1', '/Oi /O2', '/Oi /Ob1', '/Ox /Oy', '/Oi /Ox /Oy']
     },
 ]
 
@@ -159,8 +103,3 @@ for pdata in profile_data:
         version=pdata['version'],
         flag=flags)
     profile_.save()
-
-
-#check database
-# jeff = Compiler_conf.objects.get(target_os='Linux',compiler='gcc')
-# print(jeff.ip)
