@@ -57,9 +57,9 @@
     }
 
     .peek {
-      margin-top: -400px;
+      margin-top: -600px;
       margin-bottom: 100px;
-      margin-left: 350px;
+      margin-left: 400px;
     }
 
     .row-button {
@@ -143,6 +143,7 @@
             <div class="row">
               <div class="col-sm-8">
                 <h3>Submit a job.</h3>
+                <p>* Required fields.</p>
                 <br>
                 <form action="/preview" method="post" enctype="multipart/form-data">
                   <h5> Please upload your source code*. </h5>
@@ -179,11 +180,13 @@
                     <br/>
                   </div>
                   <br>
-                  <h5> Please enter the command for your job. </h5>
+                  <h5> Please enter the command if applicable. </h5>
                   <div class="text">
-                    <input size="50" type="text" name="command" />
+                    <input size="40" type="text" name="command" />
                     <br/>
-                    <p> * Please specify the command if you upload <b><i>compressed</i></b> files.</p>
+                    <p>* Please specify the command if you upload <br>
+                      <b><i>compressed</i></b> files. <br>
+                    * Please replace any space with underscores.</p>
                   </div>
                   <br>
                   <br>

@@ -29,6 +29,13 @@
       border: 1px solid black;
       text-align: center;
     }
+
+    .scroll {
+      border: 2px solid #ccc;
+      width: 300px;
+      height: 100px;
+      overflow-y: scroll;
+    }
   </style>
 </head>
 
@@ -63,7 +70,9 @@
               <td class="version">{{ele.version}}</td>
               <td class='ip'>{{ele.ip}}</td>
               <td class="port">{{ele.port}}</td>
-              <td class="flag">{{ele.flag}}</td>
+              <td class="flag">
+                <div class="scroll">{{ele.flag}}</div>
+              </td>
               <td>
                 <button class="btn btn-light btn-sm" onclick="editCompiler('{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}')">edit</button>
                 <form action="/deleteCompiler" method="post" enctype="multipart/form-data">
@@ -106,7 +115,7 @@
           <br>
           <br>
           <h6>Flags:</h6>
-          <textarea rows="5" id="flag" name="flag" required></textarea>
+          <textarea rows="5" cols="30" id="flag" name="flag" required></textarea>
           <br>
           <br>
           <h6>Invoke format:</h6>

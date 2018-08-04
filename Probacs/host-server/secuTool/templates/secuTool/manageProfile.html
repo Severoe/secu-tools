@@ -26,9 +26,15 @@
     }
 
     table, th, td {
-      column-width: 180px;
       border: 1px solid black;
       text-align: center;
+    }
+
+    .scroll {
+      border: 2px solid #ccc;
+      width: 300px;
+      height: 100px;
+      overflow-y: scroll;
     }
   </style>
 </head>
@@ -63,7 +69,9 @@
               <td class="compiler">{{ele.compiler}}</td>
               <td class="version">{{ele.version}}</td>
               <td class="name">{{ele.name}}</td>
-              <td class="flag">{{ele.flag}}</td>
+              <td class="flag">
+                <div class="scroll">{{ele.flag}}</div>
+              </td>
               <td class="date">{{ele.date}}</td>
               <td>
                 <button class="btn btn-light btn-sm" onclick="editProfile('{{ele.target_os}}', '{{ele.compiler}}', '{{ele.version}}', '{{ele.name}}')">edit</button>
@@ -108,7 +116,7 @@
           <br>
           <br>
           <h6>Flags:</h6>
-          <textarea id="flag" name="flag" required></textarea>
+          <textarea rows="5" cols="30" id="flag" name="flag" required></textarea>
           <br>
           <br>
           <h6>Uploader:<span style="color:red">(Cannot be modified unless save as new)</span></h6>
