@@ -40,6 +40,13 @@
         text-align: center;
       }
 
+      .scroll_flags {
+        border: 2px solid #ccc;
+        width: 150px;
+        height: 60px;
+        overflow-y: scroll;
+      }
+
       .js-demo {
         margin-top: 0px;
         margin-left: 0px;
@@ -111,10 +118,9 @@
                 <td class="os">{{ele.target_os}}</td>
                 <td class="compiler">{{ele.compiler}}</td>
                 <td class="profile">{{ele.profiles}}</td>
-                <td class='flag' contenteditable='true'>{{ele.flag}}</td>
+                <td class='flag' contenteditable='true'><div class="scroll_flags">{{ele.flag}}</div></td>
                 <td class="username">{{ele.username}}</td>
                 <td class="tags">{{ele.tag}}</td>
-                
                 <td>
                   <button class="btn btn-light btn-sm" onclick="delete_row('r{{ele.seq}}')">delete</button>
                 </td>
