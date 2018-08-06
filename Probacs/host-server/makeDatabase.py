@@ -35,7 +35,7 @@ compiler_data = [
         'invoke_format': 'gcc_flags_source_-o_exename',
         'flag': ['-O1', '-O2', '-O3', '-O0', '-Os', '-Ofast', '-Og', '-fgcse-las',
         '-fdelete-null-pointer-checks', '-fgcse-sm', '-fgcse-lm', '-finline-small-functions',
-        '-fno-inline', '-fsyntax-only', '-w', '-Werror', '-Wpedantic', '-Wall', '-Wextra',
+        '-fno-inline', '-w', '-Werror', '-Wpedantic', '-Wall', '-Wextra',
         '-Wno-coverage-mismatch', '-Wno-cpp', '-Wformat', '-Wfatal-errors', '-Wmain', '-Wunused',
         '-Wno-pedantic-ms-format', '-Wuninitialized', '-Wsystem-headers', '-Wunknown-pragmas']
     },
@@ -48,7 +48,7 @@ profile_data = [
         'target_os': 'Linux',
         'compiler': 'gcc',
         'version': '6.7',
-        'flag': ['-fsyntax-only', '-w', '-Werror', '-Wpedantic', '-Wall', '-Wextra', '-Wno-coverage-mismatch', '-Wno-cpp', '-Wformat', '-Wfatal-errors', '-Wmain', '-Wunused', '-Wmain -Wfatal-errors', '-Wno-pedantic-ms-format -Wformat -Wpedantic', '-Wextra -Wunused', '-Wuninitialized -Wunused', '-Wformat -Wpedantic', '-Wsystem-headers -Wunknown-pragmas']
+        'flag': ['-w', '-Werror', '-Wpedantic', '-Wall', '-Wextra', '-Wno-coverage-mismatch', '-Wno-cpp', '-Wformat', '-Wfatal-errors', '-Wmain', '-Wunused', '-Wmain -Wfatal-errors', '-Wno-pedantic-ms-format -Wformat -Wpedantic', '-Wextra -Wunused', '-Wuninitialized -Wunused', '-Wformat -Wpedantic', '-Wsystem-headers -Wunknown-pragmas']
     },
     {
         'uploader': 'jeffery',
