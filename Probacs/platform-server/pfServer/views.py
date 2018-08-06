@@ -115,7 +115,7 @@ def execute(request):
 	if os_name == 'nt':
 		# os.system("del /f "+src_dir +" /Q")
 		os.system("del /f *.tgz")
-		os.system("del /f "+task_dir)
+		os.system("rmdir "+task_dir)
 	else:
 		# os.system("rm -rf "+src_dir)
 		os.system("rm -rf *.obj")
