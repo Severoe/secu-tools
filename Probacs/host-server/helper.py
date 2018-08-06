@@ -444,7 +444,7 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     cnt = 0
     for flag in flag_list:
         cnt += 1
-        time.sleep(2)
+        # time.sleep(2)
         exename = exe_path_prefix+"secu_compile" +delimit+ name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         logline = "%s\t%s"%(exename, flag)
 
