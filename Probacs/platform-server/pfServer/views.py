@@ -136,9 +136,13 @@ def terminate_sub(request):
 		response = "false"
 	else:
 		pid = ongoing_process.pid
-		os.kill(pid, signal.SIGTERM)
-		print(pid)
-		ongoing_process.delete()
+		try:
+			os.kill(pid, signal.SIGTERM)
+			print(pid)
+			ongoing_process.delete()
+		except Exception as e: 
+			print(e)
+		
 		response = "true"
 	return HttpResponse(response)
 
