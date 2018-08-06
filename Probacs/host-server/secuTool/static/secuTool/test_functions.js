@@ -54,7 +54,6 @@ function setCurrentJob(job_id){
 function trace_job() {
 	var job_id = $('#ongoing-task').text().trim()
     var finished,total;
-	console.log("job: "+job_id)
 	if(job_id === "" || job_id === 'None' || finished_status) {
 		return
 	}
@@ -65,7 +64,6 @@ function trace_job() {
         	task_id: job_id,
         },
         success:  function(response) {
-        	console.log(response)
             form_status_report(response)        	
         }
     });
@@ -90,7 +88,6 @@ function form_status_report(response){
         var log = response.log_report[i]
         var out_theme = ""
         var err_theme = ""
-        console.log(log)
         if(log.err === null) {
             log.err = "-"
         }
@@ -231,7 +228,6 @@ function terminate(){
             task_id: job_id,
         },
         success: function (response) {
-            console.log(response)
             form_status_report(response)  
         }
     });
@@ -248,7 +244,6 @@ function submit_search(){
     var date_after = $('#dateafter').val()
     var timebefore = $('#timebefore').val()
     var timeafter = $('#timeafter').val()
-    // console.log(date_before)
     if(date_before != null && date_before != "") {
         var upload_dbf = date_before
         if(timebefore === null) {
@@ -284,9 +279,7 @@ function download_tar(){
     var finished = $('#task_finished').text().trim()
     var total = $('#task_total').text().trim()
     if(finished !== total) return;
-    console.log("eligible for download")
     $('input[name="downloadtaskid"]').val(id)
-    console.log($('input[name="downloadtaskid"]').val())
     $('#download_full').submit()
 }
 
