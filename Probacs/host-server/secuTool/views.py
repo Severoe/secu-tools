@@ -24,9 +24,9 @@ from helper import *
 # winurl = 'http://172.16.165.132:8000'
 host_ip_gateway = settings.GATEWAY
 enable_test = settings.ENABLE_LOCALTEST
-print(enable_test)
+print("test enabled: "+str(enable_test))
 self_ip = settings.LOCAL_IP
-print(self_ip)
+print("server ip: "+self_ip)
 # winurl = 'http://192.168.56.102:8000' #winurl for virtualbox
 testurl = 'http://httpbin.org/post'  #test request headers
 rootDir = 'Compilation_tasks/'
@@ -200,7 +200,7 @@ def param_upload(request):
     # print(task_params)
     response = {}
     task_num, server_alive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name,self_ip,host_ip_gateway)
-    print(server_alive)
+    print("server alive: "+str(server_alive))
     if not server_alive:
         response['message'] = "platform server is not responding !"
         return HttpResponse(json.dumps(response),content_type="application/json")
@@ -247,7 +247,7 @@ def cmdline_compile(request):
             obj['flag'] = "_".join([i.strip() for i in flaglist])
             obj['command'] = ele['command']
             task_params.append(obj)
-    print(task_params)
+    # print(task_params)
 
     cur_taskMeta = TaskMeta.objects.get(task_id=task_name)
     filename = cur_taskMeta.src_filename
@@ -468,7 +468,7 @@ def rcv_platform_result(request):
     task.platform_folder = request.POST['platform_folder']
     task.finish_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S")
     task.status = request.POST['status']
-    print('update from platform '+ str(request.POST['platform_folder']) +'finished')
+    # print('update from platform '+ str(request.POST['platform_folder']) +'finished')
     task.save()
     return HttpResponse()
 
@@ -491,7 +491,7 @@ def redirect_trace(request):
     tasks_report = []
     if current_id == None: #simply retrieve 5
         obj = TaskMeta.objects.all().order_by('-id')[:task_number]
-        print(obj.count())
+        # print(obj.count())
         for ele in obj:
             tasks_report.append(parse_taskMeta(ele, False))
     else:
@@ -506,7 +506,7 @@ def redirect_trace(request):
                 tasks_report.append(parse_taskMeta(ele,False))
                 if task_number == 0:
                     break
-    print(tasks_report)
+    # print(tasks_report)
     context['nav4'] = "active show"
     context['tracing_tasks'] = tasks_report
     context['ongoing_tasks'] = current_id

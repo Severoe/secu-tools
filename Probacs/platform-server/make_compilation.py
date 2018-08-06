@@ -112,15 +112,15 @@ def check_existence(dest_folder,exefname):
     print(dest_folder)
     for f in os.listdir(dest_folder):
         if str(f).startswith(exefname):
-            print(exefname+" exists!")
+            # print(exefname+" exists!")
             return "success"
-    print(exefname+" not exists!")
+    # print(exefname+" not exists!")
     return "fail"
 
 def on_complete(task_info):
     # send back compilation information back to host server
     # rcv_compilation
-    print("update finished")
+    # print("update finished")
     data = task_info
     response = requests.post(hostserver+"rcv_compilation", data=data)
     return

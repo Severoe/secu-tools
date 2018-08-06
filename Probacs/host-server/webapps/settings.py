@@ -132,3 +132,6 @@ LOCAL_IP = config.get("Localtest", "Local_ip")
 GATEWAY = config.get("Localtest","Gateway")
 
 
+## change upload maximum data size (when confirming info from preview page)
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
+
