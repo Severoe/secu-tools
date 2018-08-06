@@ -78,7 +78,7 @@ def compile(task_id, target_os, compiler, version, name, dest_folder, invoke_for
     cnt = 0
     for flag,exefname in zip(flag_list,exelist):
         cnt += 1
-        time.sleep(2)
+        # time.sleep(2)
 
         # exefname = name.split(".")[0] + "_%d_%s"%(cnt, flag.replace(" ", "_"))
         exename = exe_path_prefix + dest_name + delimit+exefname
