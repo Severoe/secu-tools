@@ -9,12 +9,6 @@ task_id_global = "0"
 jsonDec = json.decoder.JSONDecoder()
 
 
-#################### dev log ####################
-'''
-	1. dwonload directory location incorrect -> for default
-'''
-#################################################
-
 def handin_task(srcfile, taskfile):
 	'''
 	send sourcefile and taskfile to host server, reveice compilation preview info
@@ -104,9 +98,6 @@ def search(cmd_arg):
 			elif cmd_arg[i] == '-t':
 				query_set['tag'] = cmd_arg[i + 1]
 			elif cmd_arg[i] == '-da':
-				#####################################
-				#expect dateformat to be yyyy-m-d-h-m
-				#backend
 				query_set['date_after'] = cmd_arg[i + 1]
 			elif cmd_arg[i] == '-db':
 				query_set['date_before'] = cmd_arg[i + 1]

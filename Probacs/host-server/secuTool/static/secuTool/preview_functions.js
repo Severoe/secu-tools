@@ -166,7 +166,6 @@ function compile() {
 		}
 	})
 	if (cnt === 0) return
-	console.log(param)
 	$.ajax({
 		type: 'POST',
 		url: "/paramUpload",
@@ -180,7 +179,6 @@ function compile() {
 			if("message" in response) {
 				alert(response.message);
 			}else{
-				console.log(response.taskid)
 				$('#redirect').click()
 			}
 		}
