@@ -13,18 +13,9 @@ local_settings.py
 # Django's SQL Lite Database File
 db.sqlite3
 
-# Image files (so we don't put into the repo demo files uploaded when this app was run)
-*.jpg
-*.gif
-*.jpeg
-*.png
-*.exe
-
+# Secret config parameters
 *.ini
 *.tgz
-# Secret config parameters
-# *.ini
-
 
 
 # compilation files
