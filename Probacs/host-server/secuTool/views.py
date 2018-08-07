@@ -18,7 +18,7 @@ from io import BytesIO
 import zipfile,io,base64
 from django.db.models import Q
 from helper import *
-# Create your views here.
+
 ################################
 # global variables
 # winurl = 'http://172.16.165.132:8000'
@@ -31,20 +31,8 @@ print("server ip: "+self_ip)
 testurl = 'http://httpbin.org/post'  #test request headers
 rootDir = 'Compilation_tasks/'
 tempDir = 'temp/'
-# the datastructure  is stored in settings
 ################################
 
-
-#**************#**************#**************#**************
-#**************    develop log#**************#**************
-'''
-    1. command for popen when compiling is not valid
-        - wrap try//err ?
-    5. requests error checking
-    6. concurrent search-based download?
-
-'''
-#**************#**************#**************#**************
 
 ##############################################################################################
 ##############################################################################################
@@ -65,7 +53,6 @@ def home(request):
         profile_dict[target_os][compiler].append(name)
 
     context['json_profiles'] = json.dumps(profile_dict)
-    # context['status'] = statuses
     return render(request, 'secuTool/test.html',context)
 
 @csrf_exempt
@@ -110,7 +97,6 @@ def preview(request):
     message, res = register_tasks(request)
     if message:
         return render(request, 'secuTool/test.html', {"message":message})
-    # print(res)
     context = {}
     context['rows'] = res["rows"]
     context['taskid'] = res["taskName"]
@@ -172,7 +158,6 @@ def param_upload(request):
         tag = task_id+'[tags]'
         command = task_id+'[command]'
         ref_key = request.POST[os].strip()+"|"+request.POST[compiler].strip()
-        # print(ref_key)
         if ref_key in single_vm_ref.keys():
             ## task already exists, pack extra flags
             obj = task_params[single_vm_ref[ref_key]]
@@ -197,7 +182,6 @@ def param_upload(request):
     #####################
     #form request format from obj for each task
     #####################
-    # print(task_params)
     response = {}
     task_num, server_alive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name,self_ip,host_ip_gateway)
     print("server alive: "+str(server_alive))
@@ -223,7 +207,6 @@ def cmdline_compile(request):
     task_name = req['taskid']
     ##form task_param object
     task_p = req['rows']
-    # print(task_p)
     task_params = []
     compilerDict = {}
     for ele in task_p:
@@ -247,14 +230,12 @@ def cmdline_compile(request):
             obj['flag'] = "_".join([i.strip() for i in flaglist])
             obj['command'] = ele['command']
             task_params.append(obj)
-    # print(task_params)
 
     cur_taskMeta = TaskMeta.objects.get(task_id=task_name)
     filename = cur_taskMeta.src_filename
     taskFolder = rootDir+task_name
     codeFolder = taskFolder+"/"+"src"
     srcPath = filename
-    # print(params)
     task_num, isalive = call_compile(task_params,enable_test,filename, taskFolder, codeFolder, srcPath, task_name, self_ip, host_ip_gateway)
     
     if not isalive:
@@ -282,7 +263,6 @@ def saveExe(request):
     #create 'secu_compile' folder to be default folder containing all the tasks
     if not os.path.exists(basedir+'secu_compile'):
         os.system('mkdir '+basedir+'secu_compile')
-    # print(filename)
     basedir += 'secu_compile/'
     with open(basedir+filename,'wb+') as dest:
         for chunk in request.FILES['file'].chunks():
@@ -468,7 +448,6 @@ def rcv_platform_result(request):
     task.platform_folder = request.POST['platform_folder']
     task.finish_tmstmp=datetime.now().strftime("%Y-%m-%d %H-%M-%S")
     task.status = request.POST['status']
-    # print('update from platform '+ str(request.POST['platform_folder']) +'finished')
     task.save()
     return HttpResponse()
 
@@ -491,7 +470,6 @@ def redirect_trace(request):
     tasks_report = []
     if current_id == None: #simply retrieve 5
         obj = TaskMeta.objects.all().order_by('-id')[:task_number]
-        # print(obj.count())
         for ele in obj:
             tasks_report.append(parse_taskMeta(ele, False))
     else:
@@ -506,7 +484,6 @@ def redirect_trace(request):
                 tasks_report.append(parse_taskMeta(ele,False))
                 if task_number == 0:
                     break
-    # print(tasks_report)
     context['nav4'] = "active show"
     context['tracing_tasks'] = tasks_report
     context['ongoing_tasks'] = current_id
@@ -679,9 +656,7 @@ def getProfile(request):
     res["upload_time"] = profile.upload_time
     return HttpResponse(json.dumps(res), content_type="application/json")
 
-#TODO: duplicate detection in the case of 'save', should detect if the new model has the same key as one existing compiler
-# better done though database key settings (construct unique compound key on the database, catch error, rather than doing the
-# logic inside code)
+
 @csrf_exempt
 def updateCompiler(request):
     if request.POST['submit'] == 'save':    #update existing one
